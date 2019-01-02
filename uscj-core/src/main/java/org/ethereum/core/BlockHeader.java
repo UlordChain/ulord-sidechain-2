@@ -22,6 +22,9 @@ import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
+import co.usc.ulordj.core.Address;
+import co.usc.ulordj.core.NetworkParameters;
+import co.usc.ulordj.params.RegTestParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -48,8 +51,6 @@ public class BlockHeader {
 
     /* The SHA3 256-bit hash of the parent block, in its entirety */
     private byte[] parentHash;
-    /* The SHA3 256-bit hash of the uncles list portion of this block */
-    private byte[] unclesHash;
     /* The 160-bit address to which all fees collected from the
      * successful mining of this block be transferred; formally */
     private UscAddress coinbase;
@@ -68,12 +69,6 @@ public class BlockHeader {
     private byte[] receiptTrieRoot;
     /* The bloom filter for the logs of the block */
     private byte[] logsBloom;
-    /**
-     * A scalar value corresponding to the difficulty level of this block.
-     * This can be calculated from the previous block’s difficulty level
-     * and the timestamp.
-     */
-    private BlockDifficulty difficulty;
     /* A scalar value equalBytes to the reasonable output of Unix's time()
      * at this block's inception */
     private long timestamp;
@@ -91,26 +86,22 @@ public class BlockHeader {
      * With the exception of the genesis block, this must be 32 bytes or fewer */
     private byte[] extraData;
 
-    /* The 81-byte ulord block header for merged mining */
-    private byte[] ulordMergedMiningHeader;
-    /* The ulord merkle proof of coinbase tx for merged mining */
-    private byte[] ulordMergedMiningMerkleProof;
-    /* The ulord protobuf serialized coinbase tx for merged mining */
-    private byte[] ulordMergedMiningCoinbaseTransaction;
+    /* The address of the current Block Producer (BP) */
+    private Address bpAddress;
+
     /**
      * The mgp for a tx to be included in the block.
      */
     private Coin minimumGasPrice;
-    private int uncleCount;
 
     /* Indicates if this block header cannot be changed */
     private volatile boolean sealed;
 
-    public BlockHeader(byte[] encoded, boolean sealed) {
-        this(RLP.decodeList(encoded), sealed);
+    public BlockHeader(NetworkParameters params, byte[] encoded, boolean sealed) {
+        this(params, RLP.decodeList(encoded), sealed);
     }
 
-    public BlockHeader(RLPList rlpHeader, boolean sealed) {
+    public BlockHeader(NetworkParameters params, RLPList rlpHeader, boolean sealed) {
         // TODO fix old tests that have other sizes
         if (rlpHeader.size() != 19 && rlpHeader.size() != 16) {
             throw new IllegalArgumentException(String.format(
@@ -120,30 +111,28 @@ public class BlockHeader {
         }
 
         this.parentHash = rlpHeader.get(0).getRLPData();
-        this.unclesHash = rlpHeader.get(1).getRLPData();
-        this.coinbase = RLP.parseUscAddress(rlpHeader.get(2).getRLPData());
-        this.stateRoot = rlpHeader.get(3).getRLPData();
+        this.coinbase = RLP.parseUscAddress(rlpHeader.get(1).getRLPData());
+        this.stateRoot = rlpHeader.get(2).getRLPData();
         if (this.stateRoot == null) {
             this.stateRoot = EMPTY_TRIE_HASH;
         }
 
-        this.txTrieRoot = rlpHeader.get(4).getRLPData();
+        this.txTrieRoot = rlpHeader.get(3).getRLPData();
         if (this.txTrieRoot == null) {
             this.txTrieRoot = EMPTY_TRIE_HASH;
         }
 
-        this.receiptTrieRoot = rlpHeader.get(5).getRLPData();
+        this.receiptTrieRoot = rlpHeader.get(4).getRLPData();
         if (this.receiptTrieRoot == null) {
             this.receiptTrieRoot = EMPTY_TRIE_HASH;
         }
 
-        this.logsBloom = rlpHeader.get(6).getRLPData();
-        this.difficulty = RLP.parseBlockDifficulty(rlpHeader.get(7).getRLPData());
+        this.logsBloom = rlpHeader.get(5).getRLPData();
 
-        byte[] nrBytes = rlpHeader.get(8).getRLPData();
-        byte[] glBytes = rlpHeader.get(9).getRLPData();
-        byte[] guBytes = rlpHeader.get(10).getRLPData();
-        byte[] tsBytes = rlpHeader.get(11).getRLPData();
+        byte[] nrBytes = rlpHeader.get(6).getRLPData();
+        byte[] glBytes = rlpHeader.get(7).getRLPData();
+        byte[] guBytes = rlpHeader.get(8).getRLPData();
+        byte[] tsBytes = rlpHeader.get(9).getRLPData();
 
         this.number = parseBigInteger(nrBytes).longValueExact();
 
@@ -151,51 +140,23 @@ public class BlockHeader {
         this.gasUsed = parseBigInteger(guBytes).longValueExact();
         this.timestamp = parseBigInteger(tsBytes).longValueExact();
 
-        this.extraData = rlpHeader.get(12).getRLPData();
+        this.extraData = rlpHeader.get(10).getRLPData();
 
-        this.paidFees = RLP.parseCoin(rlpHeader.get(13).getRLPData());
-        this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(14).getRLPData());
+        this.paidFees = RLP.parseCoin(rlpHeader.get(11).getRLPData());
+        this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(12).getRLPData());
 
-        int r = 15;
-
-        if ((rlpHeader.size() == 19) || (rlpHeader.size() == 16)) {
-            byte[] ucBytes = rlpHeader.get(r++).getRLPData();
-            this.uncleCount = parseBigInteger(ucBytes).intValueExact();
-        }
-
-        if (rlpHeader.size() > r) {
-            this.ulordMergedMiningHeader = rlpHeader.get(r++).getRLPData();
-            this.ulordMergedMiningMerkleProof = rlpHeader.get(r++).getRLPRawData();
-            this.ulordMergedMiningCoinbaseTransaction = rlpHeader.get(r++).getRLPData();
-
-        }
-
+        this.bpAddress = RLP.parseAddress(params,rlpHeader.get(13).getRLPData());
         this.sealed = sealed;
     }
 
-    public BlockHeader(byte[] parentHash, byte[] unclesHash, byte[] coinbase,
-                       byte[] logsBloom, byte[] difficulty, long number,
+    public BlockHeader(byte[] parentHash, byte[] coinbase,
+                       byte[] logsBloom, long number,
                        byte[] gasLimit, long gasUsed, long timestamp,
                        byte[] extraData,
-                       byte[] minimumGasPrice,
-                       int uncleCount) {
-        this(parentHash, unclesHash, coinbase, logsBloom, difficulty, number, gasLimit, gasUsed, timestamp, extraData,
-                null, null, null, minimumGasPrice, uncleCount);
-    }
-
-    public BlockHeader(byte[] parentHash, byte[] unclesHash, byte[] coinbase,
-                       byte[] logsBloom, byte[] difficulty, long number,
-                       byte[] gasLimit, long gasUsed, long timestamp,
-                       byte[] extraData,
-                       byte[] ulordMergedMiningHeader, byte[] ulordMergedMiningMerkleProof,
-                       byte[] ulordMergedMiningCoinbaseTransaction,
-                       byte[] minimumGasPrice,
-                       int uncleCount) {
+                       byte[] minimumGasPrice, Address bpAddress) {
         this.parentHash = parentHash;
-        this.unclesHash = unclesHash;
         this.coinbase = new UscAddress(coinbase);
         this.logsBloom = logsBloom;
-        this.difficulty = RLP.parseBlockDifficulty(difficulty);
         this.number = number;
         this.gasLimit = gasLimit;
         this.gasUsed = gasUsed;
@@ -204,11 +165,8 @@ public class BlockHeader {
         this.stateRoot = ByteUtils.clone(EMPTY_TRIE_HASH);
         this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(minimumGasPrice);
         this.receiptTrieRoot = ByteUtils.clone(EMPTY_TRIE_HASH);
-        this.uncleCount = uncleCount;
         this.paidFees = Coin.ZERO;
-        this.ulordMergedMiningHeader = ulordMergedMiningHeader;
-        this.ulordMergedMiningMerkleProof = ulordMergedMiningMerkleProof;
-        this.ulordMergedMiningCoinbaseTransaction = ulordMergedMiningCoinbaseTransaction;
+        this.bpAddress = bpAddress;
     }
 
     @VisibleForTesting
@@ -220,8 +178,8 @@ public class BlockHeader {
         this.sealed = true;
     }
 
-    public BlockHeader cloneHeader() {
-        return new BlockHeader((RLPList) RLP.decode2(this.getEncoded()).get(0), false);
+    public BlockHeader cloneHeader(NetworkParameters params) {
+        return new BlockHeader(params, (RLPList) RLP.decode2(this.getEncoded()).get(0), false);
     }
 
     public boolean isGenesis() {
@@ -230,23 +188,6 @@ public class BlockHeader {
 
     public Keccak256 getParentHash() {
         return new Keccak256(parentHash);
-    }
-
-    public int getUncleCount() {
-        return uncleCount;
-    }
-
-    public byte[] getUnclesHash() {
-        return unclesHash;
-    }
-
-    public void setUnclesHash(byte[] unclesHash) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter uncles hash");
-        }
-
-        this.unclesHash = unclesHash;
     }
 
     public UscAddress getCoinbase() {
@@ -295,25 +236,6 @@ public class BlockHeader {
 
     public byte[] getLogsBloom() {
         return logsBloom;
-    }
-
-    public BlockDifficulty getDifficulty() {
-        // some blocks have zero encoded as null, but if we altered the internal field then re-encoding the value would
-        // give a different value than the original.
-        if (difficulty == null) {
-            return BlockDifficulty.ZERO;
-        }
-
-        return difficulty;
-    }
-
-    public void setDifficulty(BlockDifficulty difficulty) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter difficulty");
-        }
-
-        this.difficulty = difficulty;
     }
 
     public long getTimestamp() {
@@ -404,20 +326,7 @@ public class BlockHeader {
     }
 
     public Keccak256 getHash() {
-        return new Keccak256(HashUtil.keccak256(getEncoded(
-                true,
-                !SystemProperties.DONOTUSE_blockchainConfig.getConfigForBlock(getNumber()).isUscIP92()
-        )));
-    }
-
-    public byte[] getEncoded() {
-        // the encoded block header must include all fields, even the Ulord PMT and coinbase which are not used for
-        // calculating USCIP92 block hashes
-        return this.getEncoded(true, true);
-    }
-
-    public byte[] getEncodedWithoutNonceMergedMiningFields() {
-        return this.getEncoded(false,false);
+        return new Keccak256(HashUtil.keccak256(getEncoded()));
     }
 
     @Nullable
@@ -425,10 +334,9 @@ public class BlockHeader {
         return this.minimumGasPrice;
     }
 
-    public byte[] getEncoded(boolean withMergedMiningFields, boolean withMerkleProofAndCoinbase) {
+    public byte[] getEncoded() {
         byte[] parentHash = RLP.encodeElement(this.parentHash);
 
-        byte[] unclesHash = RLP.encodeElement(this.unclesHash);
         byte[] coinbase = RLP.encodeUscAddress(this.coinbase);
 
         byte[] stateRoot = RLP.encodeElement(this.stateRoot);
@@ -446,7 +354,6 @@ public class BlockHeader {
         byte[] receiptTrieRoot = RLP.encodeElement(this.receiptTrieRoot);
 
         byte[] logsBloom = RLP.encodeElement(this.logsBloom);
-        byte[] difficulty = encodeBlockDifficulty(this.difficulty);
         byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.number));
         byte[] gasLimit = RLP.encodeElement(this.gasLimit);
         byte[] gasUsed = RLP.encodeBigInteger(BigInteger.valueOf(this.gasUsed));
@@ -454,75 +361,13 @@ public class BlockHeader {
         byte[] extraData = RLP.encodeElement(this.extraData);
         byte[] paidFees = RLP.encodeCoin(this.paidFees);
         byte[] mgp = RLP.encodeSignedCoinNonNullZero(this.minimumGasPrice);
-        List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, unclesHash, coinbase,
-                stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, difficulty, number,
-                gasLimit, gasUsed, timestamp, extraData, paidFees, mgp);
-
-        byte[] uncleCount = RLP.encodeBigInteger(BigInteger.valueOf(this.uncleCount));
-        fieldToEncodeList.add(uncleCount);
-
-        if (withMergedMiningFields && hasMiningFields()) {
-            byte[] ulordMergedMiningHeader = RLP.encodeElement(this.ulordMergedMiningHeader);
-            fieldToEncodeList.add(ulordMergedMiningHeader);
-            if (withMerkleProofAndCoinbase) {
-                byte[] ulordMergedMiningMerkleProof = RLP.encodeElement(this.ulordMergedMiningMerkleProof);
-                fieldToEncodeList.add(ulordMergedMiningMerkleProof);
-                byte[] ulordMergedMiningCoinbaseTransaction = RLP.encodeElement(this.ulordMergedMiningCoinbaseTransaction);
-                fieldToEncodeList.add(ulordMergedMiningCoinbaseTransaction);
-            }
-        }
+        byte[] bpAddr = RLP.encodeElement(this.bpAddress.getHash160());
+        List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, coinbase,
+                stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, number,
+                gasLimit, gasUsed, timestamp, extraData, paidFees, mgp, bpAddr);
 
 
         return RLP.encodeList(fieldToEncodeList.toArray(new byte[][]{}));
-    }
-
-    /**
-     * This is here to override specific non-minimal instances such as the mainnet Genesis
-     */
-    protected byte[] encodeBlockDifficulty(BlockDifficulty difficulty) {
-        return RLP.encodeBlockDifficulty(difficulty);
-    }
-
-    // Warning: This method does not use the object's attributes
-    public static byte[] getUnclesEncodedEx(List<BlockHeader> uncleList) {
-        byte[][] unclesEncoded = new byte[uncleList.size()][];
-        int i = 0;
-        for (BlockHeader uncle : uncleList) {
-            unclesEncoded[i] = uncle.getEncoded();
-            ++i;
-        }
-        return RLP.encodeList(unclesEncoded);
-    }
-
-    public boolean hasMiningFields() {
-        if (this.ulordMergedMiningCoinbaseTransaction != null && this.ulordMergedMiningCoinbaseTransaction.length > 0) {
-            return true;
-        }
-
-        if (this.ulordMergedMiningHeader != null && this.ulordMergedMiningHeader.length > 0) {
-            return true;
-        }
-
-        if (this.ulordMergedMiningMerkleProof != null && this.ulordMergedMiningMerkleProof.length > 0) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static byte[] getUnclesEncoded(List<BlockHeader> uncleList) {
-
-        byte[][] unclesEncoded = new byte[uncleList.size()][];
-        int i = 0;
-        for (BlockHeader uncle : uncleList) {
-            unclesEncoded[i] = uncle.getEncoded();
-            ++i;
-        }
-        return RLP.encodeList(unclesEncoded);
-    }
-
-    public byte[] getPowBoundary() {
-        return BigIntegers.asUnsignedByteArray(32, BigInteger.ONE.shiftLeft(256).divide(getDifficulty().asBigInteger()));
     }
 
     public String toString() {
@@ -532,18 +377,17 @@ public class BlockHeader {
     private String toStringWithSuffix(final String suffix) {
         StringBuilder toStringBuff = new StringBuilder();
         toStringBuff.append("  parentHash=").append(toHexString(parentHash)).append(suffix);
-        toStringBuff.append("  unclesHash=").append(toHexString(unclesHash)).append(suffix);
         toStringBuff.append("  coinbase=").append(coinbase).append(suffix);
         toStringBuff.append("  stateRoot=").append(toHexString(stateRoot)).append(suffix);
         toStringBuff.append("  txTrieHash=").append(toHexString(txTrieRoot)).append(suffix);
         toStringBuff.append("  receiptsTrieHash=").append(toHexString(receiptTrieRoot)).append(suffix);
-        toStringBuff.append("  difficulty=").append(difficulty).append(suffix);
         toStringBuff.append("  number=").append(number).append(suffix);
         toStringBuff.append("  gasLimit=").append(toHexString(gasLimit)).append(suffix);
         toStringBuff.append("  gasUsed=").append(gasUsed).append(suffix);
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
         toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
+        toStringBuff.append("  blockProducerAddress=").append(bpAddress).append(suffix);
 
         return toStringBuff.toString();
     }
@@ -562,56 +406,6 @@ public class BlockHeader {
     public byte[] getEncodedRaw() {
         return getEncoded();
     }
-    public byte[] getUlordMergedMiningHeader() {
-        return ulordMergedMiningHeader;
-    }
-
-    public void setUlordMergedMiningHeader(byte[] ulordMergedMiningHeader) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter ulord merged mining header");
-        }
-
-        this.ulordMergedMiningHeader = ulordMergedMiningHeader;
-    }
-
-    public byte[] getUlordMergedMiningMerkleProof() {
-        return ulordMergedMiningMerkleProof;
-    }
-
-    public void setUlordMergedMiningMerkleProof(byte[] ulordMergedMiningMerkleProof) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter ulord merged mining merkle proof");
-        }
-
-        this.ulordMergedMiningMerkleProof = ulordMergedMiningMerkleProof;
-    }
-
-    public byte[] getUlordMergedMiningCoinbaseTransaction() {
-        return ulordMergedMiningCoinbaseTransaction;
-    }
-
-    public void setUlordMergedMiningCoinbaseTransaction(byte[] ulordMergedMiningCoinbaseTransaction) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter ulord merged mining coinbase transaction");
-        }
-
-        this.ulordMergedMiningCoinbaseTransaction = ulordMergedMiningCoinbaseTransaction;
-    }
-
-    public String getShortHashForMergedMining() {
-        return HashUtil.shortHash(getHashForMergedMining());
-    }
-
-    public byte[] getHashForMergedMining() {
-        return HashUtil.keccak256(getEncoded(false,false));
-    }
-
-    public String getShortHash() {
-        return HashUtil.shortHash(getHash().getBytes());
-    }
 
     public String getParentShortHash() {
         return HashUtil.shortHash(getParentHash().getBytes());
@@ -619,5 +413,13 @@ public class BlockHeader {
 
     private static BigInteger parseBigInteger(byte[] bytes) {
         return bytes == null ? BigInteger.ZERO : BigIntegers.fromUnsignedByteArray(bytes);
+    }
+
+    public Address getBpAddress() {
+        return this.bpAddress;
+    }
+
+    public void setBpAddress(Address bpAddress) {
+        this.bpAddress = bpAddress;
     }
 }

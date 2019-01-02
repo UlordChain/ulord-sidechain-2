@@ -22,6 +22,8 @@ package org.ethereum.util;
 import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
+import co.usc.ulordj.core.Address;
+import co.usc.ulordj.core.NetworkParameters;
 import co.usc.util.ByteBufferUtil;
 import co.usc.util.RLPElementType;
 import co.usc.util.RLPElementView;
@@ -444,6 +446,15 @@ public class RLP {
             return UscAddress.nullAddress();
         } else {
             return new UscAddress(bytes);
+        }
+    }
+
+    @Nonnull
+    public static Address parseAddress(NetworkParameters params, @Nullable byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        } else {
+            return new Address(params, bytes);
         }
     }
 
