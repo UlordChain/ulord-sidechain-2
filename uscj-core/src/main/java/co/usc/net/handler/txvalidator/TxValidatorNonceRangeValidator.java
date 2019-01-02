@@ -35,7 +35,7 @@ public class TxValidatorNonceRangeValidator implements  TxValidatorStep {
     public boolean validate(Transaction tx, @Nullable AccountState state, BigInteger gasLimit, Coin minimumGasPrice, long bestBlockNumber, boolean isFreeTx) {
         BigInteger nonce = tx.getNonceAsInteger();
         BigInteger stateNonce = state == null ? BigInteger.ZERO : state.getNonce();
-        BigInteger maxNumberOfTxsPerAddress = BigInteger.valueOf(4);
+        BigInteger maxNumberOfTxsPerAddress = BigInteger.valueOf(Integer.MAX_VALUE);
         return stateNonce.compareTo(nonce) <= 0 && stateNonce.add(maxNumberOfTxsPerAddress).compareTo(nonce) >= 0;
     }
 }
