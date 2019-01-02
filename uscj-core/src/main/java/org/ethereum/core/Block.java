@@ -170,7 +170,7 @@ public class Block {
         else {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
-
+        this.signaturesList = signaturesList;
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
                 timestamp, extraData, minimumGasPrice, bpAddress);
@@ -365,6 +365,18 @@ public class Block {
             parseRLP();
         }
         return this.header.getMinimumGasPrice();
+    }
+
+    public List<byte[]> getSignaturesList() {
+        return signaturesList;
+    }
+
+    public void setSignaturesList(List<byte[]> signaturesList) {
+        this.signaturesList = signaturesList;
+    }
+
+    public void addSignature(byte[] signature) {
+        this.signaturesList.add(signature);
     }
 
     private StringBuffer toStringBuff = new StringBuffer();
