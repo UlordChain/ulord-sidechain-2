@@ -376,6 +376,9 @@ public class Block {
     }
 
     public void addSignature(byte[] signature) {
+        // Check if signature already exists
+        if(this.signaturesList.contains(signature))
+            return;
         this.signaturesList.add(signature);
     }
 
@@ -396,6 +399,16 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
+        if(!signaturesList.isEmpty()) {
+            toStringBuff.append("BpSignatures [\n");
+            for(byte[] b : signaturesList) {
+                toStringBuff.append(Hex.toHexString(b));
+                toStringBuff.append("\n");
+            }
+            toStringBuff.append("]\n");
+        } else {
+            toStringBuff.append("BpSignatures []\n");
+        }
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("Txs [\n");
             for (Transaction tx : getTransactionsList()) {
