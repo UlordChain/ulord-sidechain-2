@@ -335,11 +335,7 @@ public class UscSystemProperties extends SystemProperties {
         return getBoolean("forcegaslimit", true);
     }
 
-    public int getAverageFallbackMiningTime() {
-        return getInt("fallbackMining.blockTime", 0);
-    }
-
-    // Sync config properties
+     // Sync config properties
     public int getExpectedPeers() {
         return configFromFiles.getInt("sync.expectedPeers");
     }

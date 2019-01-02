@@ -161,37 +161,6 @@ public class MinerClientImpl implements MinerClient {
         return foundNonce;
     }
 
-    @Override
-    public boolean fallbackMineBlock() {
-        // This is not used now. In the future this method could allow
-        // a HSM to provide the signature for an USC block here.
-
-        if (this.usc != null) {
-            if (this.usc.hasBetterBlockToSync()) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ex) {
-                    logger.error("Interrupted mining sleep", ex);
-                }
-                return false;
-            }
-
-            if (this.usc.isPlayingBlocks()) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ex) {
-                    logger.error("Interrupted mining sleep", ex);
-                }
-                return false;
-            }
-        }
-        if (stop) {
-            logger.info("Interrupted mining because MinerClient was stopped");
-        }
-
-        return minerServer.generateFallbackBlock();
-
-    }
     /**
      * findNonce will try to find a valid nonce for ulordMergedMiningBlock, that satisfies the given target difficulty.
      *
