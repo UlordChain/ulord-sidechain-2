@@ -24,6 +24,7 @@ import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import co.usc.ulordj.core.Address;
 import co.usc.ulordj.core.NetworkParameters;
+import co.usc.ulordj.core.Sha256Hash;
 import co.usc.ulordj.params.RegTestParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import org.ethereum.util.Utils;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
+import java.security.Signature;
 import java.util.List;
 
 import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
@@ -88,6 +90,10 @@ public class BlockHeader {
 
     /* The address of the current Block Producer (BP) */
     private Address bpAddress;
+
+    // TODO: Add RLP.
+    /* The SHA3 256-bit hash of signatures of all the BPs */
+    private byte[] signatureRoot;
 
     /**
      * The mgp for a tx to be included in the block.
@@ -407,6 +413,10 @@ public class BlockHeader {
         return getEncoded();
     }
 
+    public String getShortHash() {
+        return HashUtil.shortHash(getHash().getBytes());
+    }
+
     public String getParentShortHash() {
         return HashUtil.shortHash(getParentHash().getBytes());
     }
@@ -421,5 +431,9 @@ public class BlockHeader {
 
     public void setBpAddress(Address bpAddress) {
         this.bpAddress = bpAddress;
+    }
+
+    public void setSignatureRoot(byte[] signatureRoot) {
+        this.signatureRoot = signatureRoot;
     }
 }
