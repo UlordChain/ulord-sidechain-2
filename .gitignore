@@ -1,0 +1,99 @@
+# .conf files
+federation.conf
+ulord-testnet.conf
+usc-testnet.conf
+usc-regtest.conf
+
+# resources
+build-info.properties
+
+# local credentials
+credentials.properties
+
+# Vim
+*.sw[op]
+
+# Gradle
+.gradle
+build
+
+# IDEA
+out
+.idea
+!.idea/codeStyleSettings.xml
+.idea/workspace.xml
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin
+
+# Maven
+*.log
+log/
+target/
+
+# Output
+database-test
+logs
+test_db*
+
+# Mac
+.DS_Store
+
+
+# Local configuration
+**/user.conf
+**/out.log
+
+# Nodes
+node1
+node2
+node3
+devnet-federator
+testnet1
+usc-database
+blocksminer
+database
+
+# Jacoco Reports
+jacocoHtml/
+
+# CheckStyle Reports
+config/checkstyle/reports/
+
+# PMD
+config/pmd/reports/
+blocksminer1.txt
+
+# Test File
+fileMonitor.txt
+uscj-core/java
+
+rpc-tests/node_modules/
+samples/tokenapp/node_modules/
+uscdump.json
+
+uscj-core/keyfiletest.txt
+
+#GradleJARS
+uscj-core/libs
+uscj-core/ulordj-thin
+
+#Classes
+classes/
+
+#Infer
+infer-out/
+
+#database
+database
+
+#tools
+uscj-core/src/main/java/tools
+
+#personals
+_*

@@ -1,0 +1,3 @@
+rootProject.name = "Ulord-Sidechain"
+include "uscj-core"
+
