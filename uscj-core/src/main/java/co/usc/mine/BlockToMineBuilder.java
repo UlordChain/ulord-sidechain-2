@@ -126,6 +126,8 @@ public class BlockToMineBuilder {
      * @param extraData      extra data to pass to the block being built
      */
     public Block build(Block newBlockParent, byte[] extraData) {
+        /*
+        //Removing uncles list, DPOS has no concept of Uncle blocks
         List<BlockHeader> uncles = FamilyUtils.getUnclesHeaders(
                 blockStore,
                 newBlockParent.getNumber() + 1,
@@ -138,6 +140,7 @@ public class BlockToMineBuilder {
             uncles = uncles.subList(0, miningConfig.getUncleListLimit());
         }
 
+        */
         Coin minimumGasPrice = minimumGasPriceCalculator.calculate(
                 newBlockParent.getMinimumGasPrice(),
                 minerMinGasPriceTarget
@@ -147,7 +150,7 @@ public class BlockToMineBuilder {
         final List<Transaction> txs = getTransactions(txsToRemove, newBlockParent, minimumGasPrice);
         minimumAcceptableTime = newBlockParent.getTimestamp() + 1;
 
-        final Block newBlock = createBlock(newBlockParent, uncles, txs, minimumGasPrice);
+        final Block newBlock = createBlock(newBlockParent, /*uncles,*/ txs, minimumGasPrice);
 
         newBlock.setExtraData(extraData);
         removePendingTransactions(txsToRemove);
@@ -176,20 +179,20 @@ public class BlockToMineBuilder {
 
     private Block createBlock(
             Block newBlockParent,
-            List<BlockHeader> uncles,
+            //List<BlockHeader> uncles,
             List<Transaction> txs,
             Coin minimumGasPrice) {
-        final BlockHeader newHeader = createHeader(newBlockParent, uncles, txs, minimumGasPrice);
-        final Block newBlock = new Block(newHeader, txs, uncles);
+        final BlockHeader newHeader = createHeader(newBlockParent, /*uncles,*/ txs, minimumGasPrice);
+        final Block newBlock = new Block(newHeader, txs/*, uncles*/);
         return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs, null);
     }
 
     private BlockHeader createHeader(
             Block newBlockParent,
-            List<BlockHeader> uncles,
+            //List<BlockHeader> uncles,
             List<Transaction> txs,
             Coin minimumGasPrice) {
-        final byte[] unclesListHash = HashUtil.keccak256(BlockHeader.getUnclesEncodedEx(uncles));
+        //final byte[] unclesListHash = HashUtil.keccak256(BlockHeader.getUnclesEncodedEx(uncles));
 
         final long timestampSeconds = this.getCurrentTimeInSeconds();
 

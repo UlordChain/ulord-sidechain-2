@@ -613,6 +613,7 @@ public class MinerServerImpl implements MinerServer {
             currentWork = updateGetWork(newBlock, notify);
             Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
 
+            //TODO DPOS: Possible broadcast area for block.
             blocksWaitingforPoW.put(latestBlockHashWaitingForPoW, latestBlock);
             logger.debug("blocksWaitingForPoW size {}", blocksWaitingforPoW.size());
         }
