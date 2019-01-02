@@ -178,9 +178,10 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, List<byte[]> signaturesList) {
         Block block = new Block(header);
         block.transactionsList = transactionsList;
+        block.signaturesList = signaturesList;
         block.seal();
         return block;
     }
@@ -217,6 +218,11 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
+        // Parse Signatures
+        RLPList signatures = (RLPList) block.get(2);
+        for (RLPElement rawSignature: signatures) {
+            this.signaturesList.add(rawSignature.getRLPData());
+        }
         this.parsed = true;
     }
 
@@ -527,6 +533,15 @@ public class Block {
         return RLP.encodeList(transactionsEncoded);
     }
 
+    private byte[] getSignaturesEncoded() {
+        byte[][] signaturesEncoded = new byte[signaturesList.size()][];
+        int i = 0;
+        for (byte[] s : signaturesList) {
+            signaturesEncoded[i] = s;
+        }
+        return RLP.encodeList(signaturesEncoded);
+    }
+
     public byte[] getEncoded() {
         if (rlpEncoded == null) {
             byte[] header = this.header.getEncoded();
@@ -552,9 +567,11 @@ public class Block {
         }
 
         byte[] transactions = getTransactionsEncoded();
+        byte[] signatures = getSignaturesEncoded();
 
         List<byte[]> body = new ArrayList<>();
         body.add(transactions);
+        body.add(signatures);
 
         return body;
     }
