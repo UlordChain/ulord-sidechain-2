@@ -232,8 +232,7 @@ public class CallTransaction {
     public enum FunctionType {
         constructor,
         function,
-        event,
-        fallback
+        event
     }
 
     public static class Function {

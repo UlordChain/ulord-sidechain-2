@@ -59,7 +59,6 @@ public class ProofOfWorkRule implements BlockHeaderValidationRule, BlockValidati
     private final BlockchainNetConfig blockchainConfig;
     private final BridgeConstants bridgeConstants;
     private final Constants constants;
-    private boolean fallbackMiningEnabled = true;
 
     @Autowired
     public ProofOfWorkRule(UscSystemProperties config) {
@@ -69,80 +68,29 @@ public class ProofOfWorkRule implements BlockHeaderValidationRule, BlockValidati
         this.constants = blockchainConfig.getCommonConstants();
     }
 
-    public ProofOfWorkRule setFallbackMiningEnabled(boolean e) {
-        fallbackMiningEnabled = e;
-        return this;
-    }
 
     @Override
     public boolean isValid(Block block) {
         return isValid(block.getHeader());
     }
 
-    public static boolean isFallbackMiningPossible(UscSystemProperties config, BlockHeader header) {
-        if (config.getBlockchainConfig().getConfigForBlock(header.getNumber()).isUscIP98()) {
-            return false;
-        }
-
-        Constants constants = config.getBlockchainConfig().getCommonConstants();
-        if (header.getNumber() >= constants.getEndOfFallbackMiningBlockNumber()) {
-            return false;
-        }
-
-        if (header.getDifficulty().compareTo(constants.getFallbackMiningDifficulty()) > 0) {
-            return false;
-        }
-
-        // If more than 10 minutes have elapsed, and difficulty is lower than 4 peta/s (config)
-        // then private mining is still possible, but only after 10 minutes of inactivity or
-        // previous block was privately mined.
-        // This difficulty reset will be computed in DifficultyRule
-        return true;
-    }
-
-    public boolean isFallbackMiningPossibleAndBlockSigned(BlockHeader header) {
-
-        if (header.getUlordMergedMiningCoinbaseTransaction() != null) {
-            return false;
-        }
-
-        byte[] merkleProof = header.getUlordMergedMiningMerkleProof();
-        if (merkleProof != null && merkleProof.length > 0) {
-            return false;
-        }
-
-        if (!fallbackMiningEnabled) {
-            return false;
-        }
-
-        return isFallbackMiningPossible(config, header);
-
-    }
-
     @Override
     public boolean isValid(BlockHeader header) {
         // TODO: refactor this an move it to another class. Change the Global ProofOfWorkRule to AuthenticationRule.
         // TODO: Make ProofOfWorkRule one of the classes that inherits from AuthenticationRule.
-        if (isFallbackMiningPossibleAndBlockSigned(header)) {
-            boolean isValidFallbackSignature = validFallbackBlockSignature(constants, header, header.getUlordMergedMiningHeader());
-            if (!isValidFallbackSignature) {
-                logger.warn("Fallback signature failed. Header {}", header.getShortHash());
-            }
-            return isValidFallbackSignature;
-        }
-
+        /*
         co.usc.ulordj.core.NetworkParameters ulordNetworkParameters = bridgeConstants.getUldParams();
         MerkleProofValidator mpValidator;
         try {
             if (blockchainConfig.getConfigForBlock(header.getNumber()).isUscIP92()) {
-                mpValidator = new UscIP92MerkleProofValidator(header.getUlordMergedMiningMerkleProof());
+                //mpValidator = new UscIP92MerkleProofValidator(header.getUlordMergedMiningMerkleProof());
             } else {
-                mpValidator = new GenesisMerkleProofValidator(ulordNetworkParameters, header.getUlordMergedMiningMerkleProof());
+                //mpValidator = new GenesisMerkleProofValidator(ulordNetworkParameters, header.getUlordMergedMiningMerkleProof());
             }
         } catch (RuntimeException ex) {
             logger.warn("Merkle proof can't be validated. Header {}", header.getShortHash(), ex);
             return false;
-	}
+	    }
 
         byte[] ulordMergedMiningCoinbaseTransactionCompressed = header.getUlordMergedMiningCoinbaseTransaction();
 
@@ -155,10 +103,6 @@ public class ProofOfWorkRule implements BlockHeaderValidationRule, BlockValidati
             logger.warn("Ulord merged mining header does not exist. Header {}", header.getShortHash());
             return false;
         }
-
-        UldBlock ulordMergedMiningBlock = ulordNetworkParameters.getDefaultSerializer().makeBlock(header.getUlordMergedMiningHeader());
-
-        BigInteger target = DifficultyUtils.difficultyToTarget(header.getDifficulty());
 
         BigInteger ulordMergedMiningBlockHashBI = ulordMergedMiningBlock.getHash().toBigInteger();
 
@@ -185,12 +129,15 @@ public class ProofOfWorkRule implements BlockHeaderValidationRule, BlockValidati
             logger.warn("ulord coinbase transaction tail message does not contain expected USCBLOCK:UscBlockHeaderHash. Expected: {} . Actual: {} .", Arrays.toString(expectedCoinbaseMessageBytes), Arrays.toString(ulordMergedMiningCoinbaseTransactionTail));
             return false;
         }
+        */
 
         /*
         * We check that the there is no other block before the usc tag, to avoid a possible malleability attack:
         * If we have a mid state with 10 blocks, and the usc tag, we can also have
         * another mid state with 9 blocks, 64bytes + the usc tag, giving us two blocks with different hashes but the same spv proof.
         * */
+
+        /*
         if (uscTagPosition >= 64) {
             logger.warn("ulord coinbase transaction tag position is bigger than expected 64. Actual: {}.", Integer.toString(uscTagPosition));
             return false;
@@ -232,57 +179,7 @@ public class ProofOfWorkRule implements BlockHeaderValidationRule, BlockValidati
             return false;
         }
 
+        */
         return true;
-    }
-
-    private static boolean validFallbackBlockSignature(Constants constants, BlockHeader header, byte[] signatureBytesRLP) {
-
-        byte[] fallbackMiningPubKeyBytes;
-        boolean isEvenBlockNumber = header.getNumber() % 2 == 0;
-        if (isEvenBlockNumber) {
-            fallbackMiningPubKeyBytes = constants.getFallbackMiningPubKey0();
-        } else {
-            fallbackMiningPubKeyBytes = constants.getFallbackMiningPubKey1();
-        }
-
-        ECKey fallbackMiningPubKey = ECKey.fromPublicOnly(fallbackMiningPubKeyBytes);
-        List<RLPElement> signatureRlpElements = RLP.decode2(signatureBytesRLP);
-        if (signatureRlpElements.size() != 1) {
-            return false;
-        }
-        List<RLPElement> signatureRLP = (RLPList) signatureRlpElements.get(0);
-        if (signatureRLP.size() != 3) {
-            return false;
-        }
-
-        byte[] v = signatureRLP.get(0).getRLPData();
-        byte[] r = signatureRLP.get(1).getRLPData();
-        byte[] s = signatureRLP.get(2).getRLPData();
-
-        if (v == null || v.length != 1) {
-            return false;
-        }
-
-        ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v[0]);
-
-        if (!Arrays.equals(r, signature.r.toByteArray())) {
-            return false;
-        }
-
-        if (!Arrays.equals(s, signature.s.toByteArray())) {
-            return false;
-        }
-
-        if (signature.v > 31 || signature.v < 27) {
-            return false;
-        }
-
-        if (signature.s.compareTo(SECP256K1N_HALF) >= 0) {
-            return false;
-        }
-
-        ECKey pub = ECKey.recoverFromSignature(signature.v - 27, signature, header.getHashForMergedMining(), false);
-
-        return pub.getPubKeyPoint().equals(fallbackMiningPubKey.getPubKeyPoint());
     }
 }

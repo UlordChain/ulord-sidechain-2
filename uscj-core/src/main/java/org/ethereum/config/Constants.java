@@ -43,12 +43,7 @@ public class Constants {
     private int minGasLimit = 3000000;
     private int gasLimitBoundDivisor = 1024;
 
-    // Private mining is allowed if difficulty is lower or equal than this value
-    private final BlockDifficulty fallbackMiningDifficulty = new BlockDifficulty(BigInteger.valueOf((long) 14E15)); // 14 peta evert 14 secs = 1 peta/s.
-
-    private static long blockPerDay = 24*3600 / 14;
-
-    private long endOfFallbackMiningBlockNumber = blockPerDay*30*6; // Approximately 6 months of private mining fallback, then you're free my child. Fly, fly away.
+        private static long blockPerDay = 24*3600 / 14;
 
     // 0.5 peta/s. This means that on reset difficulty will allow private mining.
     private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf((long) 14E15 / 2 )); // 0.5 peta/s.
@@ -76,10 +71,6 @@ public class Constants {
 
     private static final byte CHAIN_ID = 50;
 
-    public byte[] fallbackMiningPubKey0 = Hex.decode("048571af74dbb0260f2c643c4793b7daf2b61cabbeb4fd6c3c78c271418ceaa5f51767718768f0eac49f66e06395a2c64dcdd9a0b13fbb10aec971cf4caf2e3fc3");
-
-    public byte[] fallbackMiningPubKey1 = Hex.decode("042878745b7986de1dc54348c7332624e14f720947f0db659265c7fd7e36adc2f0978bc31963821ef78cd7c8e986a257c37ac8cb763449e769b25c4361dcb64413");
-
     public static BigInteger getTransactionGasCap() {
         return TRANSACTION_GAS_CAP;
     }
@@ -101,14 +92,6 @@ public class Constants {
         return BigInteger.ZERO;
     }
 
-    public byte[] getFallbackMiningPubKey0() {
-            return fallbackMiningPubKey0;
-    }
-
-    public byte[] getFallbackMiningPubKey1() {
-        return fallbackMiningPubKey1;
-    }
-
     public int getMaximumExtraDataSize() {
         return maximumExtraDataSize;
     }
@@ -124,10 +107,6 @@ public class Constants {
     public BlockDifficulty getMinimumDifficulty() {
         return minimumDifficulty;
     }
-
-    public BlockDifficulty getFallbackMiningDifficulty() { return fallbackMiningDifficulty; }
-
-    public long getEndOfFallbackMiningBlockNumber() { return endOfFallbackMiningBlockNumber; }
 
     public BigInteger getDifficultyBoundDivisor() {
         return difficultyBoundDivisor;

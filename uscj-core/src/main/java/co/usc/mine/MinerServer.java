@@ -53,14 +53,6 @@ public interface MinerServer {
 
     SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock);
 
-    boolean generateFallbackBlock();
-
-    void setFallbackMining(boolean p);
-
-    void setAutoSwitchBetweenNormalAndFallbackMining(boolean p);
-
-    boolean isFallbackMining();
-
     UscAddress getCoinbaseAddress();
 
     MinerWork getWork();

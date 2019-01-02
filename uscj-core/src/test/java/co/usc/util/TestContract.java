@@ -164,26 +164,6 @@ public class TestContract {
     }
 
     public static TestContract bankTest() {
-        /*
-        contract Bank {
-            function () payable { }
-        }
-
-        contract BankTest {
-            Bank bank;
-
-            function BankTest() {
-                bank = new Bank();
-            }
-
-            function test() payable {
-                // send will fail as it reach the fallback function with 0 gas
-                // instead of 2300
-                require(bank.send(msg.value));
-            }
-        }
-        */
-
         String bytecode = "6060604052341561000f57600080fd5b610017610071565b604051809103906000f080151561002d57600080fd5b6000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610080565b604051604d806101a683390190565b6101178061008f6000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063f8a8fd6d146044575b600080fd5b604a6084565b60405180826fffffffffffffffffffffffffffffffff166fffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166108fc60019081150290604051600060405180830381858888f19350505050151560e457fe5b602b9050905600a165627a7a723058202afd2e2ba780ca7060c0a7dfd1dc667ca3a8144fc6aed9b3042949c93dae154b002960606040523415600e57600080fd5b603280601b6000396000f30060606040520000a165627a7a7230582095941e5786a3f040b17c314064c89d9b0b91d2571795bd7d7ba6628428ec47790029";
         String runtimeBytecode = "606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063f8a8fd6d146044575b600080fd5b604a6084565b60405180826fffffffffffffffffffffffffffffffff166fffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166108fc60019081150290604051600060405180830381858888f19350505050151560e457fe5b602b9050905600a165627a7a723058202afd2e2ba780ca7060c0a7dfd1dc667ca3a8144fc6aed9b3042949c93dae154b0029";
         String abi = "[{\"constant\":false,\"inputs\":[],\"name\":\"test\",\"outputs\":[{\"name\":\"\",\"type\":\"uint128\"}],\"payable\":true,\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"type\":\"constructor\"}]";

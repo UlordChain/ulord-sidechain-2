@@ -69,7 +69,6 @@ import java.util.function.Function;
 
 @Component("MinerServer")
 public class MinerServerImpl implements MinerServer {
-    private static final long DELAY_BETWEEN_BUILD_BLOCKS_MS = TimeUnit.MINUTES.toMillis(1);
 
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
@@ -82,11 +81,8 @@ public class MinerServerImpl implements MinerServer {
     private final BlockToMineBuilder builder;
     private final BlockchainNetConfig blockchainConfig;
 
-    private boolean isFallbackMining;
-    private int fallbackBlocksGenerated;
-    private Timer fallbackMiningTimer;
     private Timer refreshWorkTimer;
-    private int secsBetweenFallbackMinedBlocks;
+
     private NewBlockListener blockListener;
 
     private boolean started;
@@ -110,10 +106,7 @@ public class MinerServerImpl implements MinerServer {
     private final BigDecimal gasUnitInDollars;
 
     private final BlockProcessor nodeBlockProcessor;
-    private final DifficultyCalculator difficultyCalculator;
 
-    private boolean autoSwitchBetweenNormalAndFallbackMining;
-    private boolean fallbackMiningScheduled;
     private final UscSystemProperties config;
 
     @Autowired
@@ -122,7 +115,6 @@ public class MinerServerImpl implements MinerServer {
             Ethereum ethereum,
             Blockchain blockchain,
             BlockProcessor nodeBlockProcessor,
-            DifficultyCalculator difficultyCalculator,
             ProofOfWorkRule powRule,
             BlockToMineBuilder builder,
             MiningConfig miningConfig) {
@@ -130,7 +122,6 @@ public class MinerServerImpl implements MinerServer {
         this.ethereum = ethereum;
         this.blockchain = blockchain;
         this.nodeBlockProcessor = nodeBlockProcessor;
-        this.difficultyCalculator = difficultyCalculator;
         this.powRule = powRule;
         this.builder = builder;
         this.blockchainConfig = config.getBlockchainConfig();
@@ -143,22 +134,6 @@ public class MinerServerImpl implements MinerServer {
         minFeesNotifyInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
         gasUnitInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
 
-        // One more second to force continuous reduction in difficulty
-        // TODO(mc) move to MiningConstants
-
-        // It's not so important to add one because the timer has an average delay of 1 second.
-        secsBetweenFallbackMinedBlocks =
-                config.getAverageFallbackMiningTime();
-        // default
-        if (secsBetweenFallbackMinedBlocks == 0) {
-            secsBetweenFallbackMinedBlocks = (blockchainConfig.getCommonConstants().getDurationLimit());
-        }
-        autoSwitchBetweenNormalAndFallbackMining = !blockchainConfig.getCommonConstants().getFallbackMiningDifficulty().equals(BlockDifficulty.ZERO);
-    }
-
-    // This method is used for tests
-    public void setSecsBetweenFallbackMinedBlocks(int m) {
-        secsBetweenFallbackMinedBlocks = m;
     }
 
     private LinkedHashMap<Keccak256, Block> createNewBlocksWaitingList() {
@@ -168,62 +143,6 @@ public class MinerServerImpl implements MinerServer {
                 return size() > CACHE_SIZE;
             }
         };
-
-    }
-
-    public int getFallbackBlocksGenerated() {
-        return fallbackBlocksGenerated;
-    }
-
-    public boolean isFallbackMining() {
-        return isFallbackMining;
-    }
-
-    public void setFallbackMiningState() {
-        if (isFallbackMining) {
-            // setFallbackMining() can be called before start
-            if (started) {
-                if (fallbackMiningTimer == null) {
-                    fallbackMiningTimer = new Timer("Private mining timer");
-                }
-                if (!fallbackMiningScheduled) {
-                    fallbackMiningTimer.schedule(new FallbackMiningTask(), 1000, 1000);
-                    fallbackMiningScheduled = true;
-                }
-                // Because the Refresh occurs only once every minute,
-                // we need to create at least one first block to mine
-                Block bestBlock = blockchain.getBestBlock();
-                buildBlockToMine(bestBlock, false);
-            } else {
-                if (fallbackMiningTimer != null) {
-                    fallbackMiningTimer.cancel();
-                    fallbackMiningTimer = null;
-                }
-            }
-        } else {
-            fallbackMiningScheduled = false;
-            if (fallbackMiningTimer != null) {
-                fallbackMiningTimer.cancel();
-                fallbackMiningTimer = null;
-            }
-        }
-    }
-
-    @Override
-    public void setAutoSwitchBetweenNormalAndFallbackMining(boolean p) {
-        autoSwitchBetweenNormalAndFallbackMining = p;
-    }
-
-    public void setFallbackMining(boolean p) {
-        synchronized (lock) {
-            if (isFallbackMining == p) {
-                return;
-            }
-
-            isFallbackMining = p;
-            setFallbackMiningState();
-
-        }
 
     }
 
@@ -248,7 +167,6 @@ public class MinerServerImpl implements MinerServer {
             ethereum.removeListener(blockListener);
             refreshWorkTimer.cancel();
             refreshWorkTimer = null;
-            setFallbackMiningState();
         }
     }
 
@@ -264,13 +182,6 @@ public class MinerServerImpl implements MinerServer {
             ethereum.addListener(blockListener);
             buildBlockToMine(blockchain.getBestBlock(), false);
 
-            if (refreshWorkTimer != null) {
-                refreshWorkTimer.cancel();
-            }
-
-            refreshWorkTimer = new Timer("Refresh work for mining");
-            refreshWorkTimer.schedule(new RefreshBlock(), DELAY_BETWEEN_BUILD_BLOCKS_MS, DELAY_BETWEEN_BUILD_BLOCKS_MS);
-            setFallbackMiningState();
         }
     }
 
@@ -287,97 +198,6 @@ public class MinerServerImpl implements MinerServer {
         } catch (IOException e) {
             return null;
         }
-    }
-
-    static byte[] privKey0;
-    static byte[] privKey1;
-
-    @Override
-    public boolean generateFallbackBlock() {
-        Block newBlock;
-        synchronized (lock) {
-            if (latestBlock == null) {
-                return false;
-            }
-
-            // Iterate and find a block that can be privately mined.
-            Block workingBlock = latestBlock;
-            newBlock = workingBlock.cloneBlock();
-        }
-
-        boolean isEvenBlockNumber = (newBlock.getNumber() % 2) == 0;
-
-
-        String path = config.fallbackMiningKeysDir();
-
-        if (privKey0 == null) {
-            privKey0 = readFromFile(new File(path, "privkey0.bin"));
-        }
-
-        if (privKey1 == null) {
-            privKey1 = readFromFile(new File(path, "privkey1.bin"));
-        }
-
-        if (!isEvenBlockNumber && privKey1 == null) {
-            return false;
-        }
-
-        if (isEvenBlockNumber && privKey0 == null) {
-            return false;
-        }
-
-        ECKey privateKey;
-
-        if (isEvenBlockNumber) {
-            privateKey = ECKey.fromPrivate(privKey0);
-        } else {
-            privateKey = ECKey.fromPrivate(privKey1);
-        }
-
-        //
-        // Set the timestamp now to control mining interval better
-        //
-        BlockHeader newHeader = newBlock.getHeader();
-
-        newHeader.setTimestamp(this.getCurrentTimeInSeconds());
-        Block parentBlock = blockchain.getBlockByHash(newHeader.getParentHash().getBytes());
-        newHeader.setDifficulty(
-                difficultyCalculator.calcDifficulty(newHeader, parentBlock.getHeader()));
-
-        // fallback mining marker
-        newBlock.setExtraData(new byte[]{42});
-        byte[] signature = fallbackSign(newBlock.getHashForMergedMining(), privateKey);
-
-        newBlock.setUlordMergedMiningHeader(signature);
-
-        newBlock.seal();
-
-        if (!isValid(newBlock)) {
-            String message = "Invalid fallback block supplied by miner: " + newBlock.getShortHash() + " " + newBlock.getShortHashForMergedMining() + " at height " + newBlock.getNumber();
-            logger.error(message);
-            return false;
-        } else {
-            latestBlock = null; // never reuse if block is valid
-            ImportResult importResult = ethereum.addNewMinedBlock(newBlock);
-            fallbackBlocksGenerated++;
-            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());
-            return importResult.isSuccessful();
-        }
-
-    }
-
-    private byte[] fallbackSign(byte[] hash, ECKey privKey) {
-        ECKey.ECDSASignature signature = privKey.sign(hash);
-
-        byte vdata = signature.v;
-        byte[] rdata = signature.r.toByteArray();
-        byte[] sdata = signature.s.toByteArray();
-
-        byte[] vencoded = RLP.encodeByte(vdata);
-        byte[] rencoded = RLP.encodeElement(rdata);
-        byte[] sencoded = RLP.encodeElement(sdata);
-
-        return RLP.encodeList(vencoded, rencoded, sencoded);
     }
 
     @Override
@@ -459,20 +279,20 @@ public class MinerServerImpl implements MinerServer {
 
         logger.info("Received block {} {}", newBlock.getNumber(), newBlock.getHash());
 
-        newBlock.setUlordMergedMiningHeader(blockWithHeaderOnly.cloneAsHeader().ulordSerialize());
-        newBlock.setUlordMergedMiningCoinbaseTransaction(compressCoinbase(coinbase.ulordSerialize(), lastTag));
-        newBlock.setUlordMergedMiningMerkleProof(MinerUtils.buildMerkleProof(blockchainConfig, proofBuilderFunction, newBlock.getNumber()));
         newBlock.seal();
 
         if (!isValid(newBlock)) {
-            String message = "Invalid block supplied by miner: " + newBlock.getShortHash() + " " + newBlock.getShortHashForMergedMining() + " at height " + newBlock.getNumber();
+
+            String message = "Invalid block supplied by miner: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
             logger.error(message);
 
             return new SubmitBlockResult("ERROR", message);
+
         } else {
             ImportResult importResult = ethereum.addNewMinedBlock(newBlock);
 
-            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());
+            /*
+            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());*/
             SubmittedBlockInfo blockInfo = new SubmittedBlockInfo(importResult, newBlock.getHash().getBytes(), newBlock.getNumber());
 
             return new SubmitBlockResult("OK", "OK", blockInfo);
@@ -561,18 +381,6 @@ public class MinerServerImpl implements MinerServer {
         this.currentWork = work;
     }
 
-    public MinerWork updateGetWork(@Nonnull final Block block, @Nonnull final boolean notify) {
-        Keccak256 blockMergedMiningHash = new Keccak256(block.getHashForMergedMining());
-
-        BigInteger targetBI = DifficultyUtils.difficultyToTarget(block.getDifficulty());
-        byte[] targetUnknownLengthArray = targetBI.toByteArray();
-        byte[] targetArray = new byte[32];
-        System.arraycopy(targetUnknownLengthArray, 0, targetArray, 32 - targetUnknownLengthArray.length, targetUnknownLengthArray.length);
-
-        logger.debug("Sending work for merged mining. Hash: {}", block.getShortHashForMergedMining());
-        return new MinerWork(blockMergedMiningHash.toJsonString(), TypeConverter.toJsonHex(targetArray), String.valueOf(block.getFeesPaidToMiner()), notify, block.getParentHashJsonString());
-    }
-
     public void setExtraData(byte[] extraData) {
         this.extraData = extraData;
     }
@@ -595,56 +403,20 @@ public class MinerServerImpl implements MinerServer {
 
         final Block newBlock = builder.build(newBlockParent, extraData);
 
-        if (autoSwitchBetweenNormalAndFallbackMining) {
-            setFallbackMining(ProofOfWorkRule.isFallbackMiningPossible(config, newBlock.getHeader()));
-        }
-
         synchronized (lock) {
             Keccak256 parentHash = newBlockParent.getHash();
-            boolean notify = this.getNotify(newBlock, parentHash);
-
-            if (notify) {
-                latestPaidFeesWithNotify = newBlock.getFeesPaidToMiner();
-            }
 
             latestParentHash = parentHash;
             latestBlock = newBlock;
 
-            currentWork = updateGetWork(newBlock, notify);
-            Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
+            //Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
 
             //TODO DPOS: Possible broadcast area for block.
-            blocksWaitingforPoW.put(latestBlockHashWaitingForPoW, latestBlock);
+            //blocksWaitingforPoW.put(latestBlockHashWaitingForPoW, latestBlock);
             logger.debug("blocksWaitingForPoW size {}", blocksWaitingforPoW.size());
         }
 
-        logger.debug("Built block {}. Parent {}", newBlock.getShortHashForMergedMining(), newBlockParent.getShortHashForMergedMining());
-        for (BlockHeader uncleHeader : newBlock.getUncleList()) {
-            logger.debug("With uncle {}", uncleHeader.getShortHashForMergedMining());
-        }
-    }
-
-    /**
-     * getNotifies determines whether miners should be notified or not. (Used for mining pools).
-     *
-     * @param block      the block to mine.
-     * @param parentHash block's parent hash.
-     * @return true if miners should be notified about this new block to mine.
-     */
-    @GuardedBy("lock")
-    private boolean getNotify(Block block, Keccak256 parentHash) {
-        if (!parentHash.equals(latestParentHash)) {
-            return true;
-        }
-
-        // note: integer divisions might truncate values
-        BigInteger percentage = BigInteger.valueOf(100L + UscMiningConstants.NOTIFY_FEES_PERCENTAGE_INCREASE);
-        Coin minFeesNotify = latestPaidFeesWithNotify.multiply(percentage).divide(BigInteger.valueOf(100L));
-        Coin feesPaidToMiner = block.getFeesPaidToMiner();
-        BigDecimal feesPaidToMinerInDollars = new BigDecimal(feesPaidToMiner.asBigInteger()).multiply(gasUnitInDollars);
-        return feesPaidToMiner.compareTo(minFeesNotify) > 0
-                && feesPaidToMinerInDollars.compareTo(minFeesNotifyInDollars) >= 0;
-
+        //logger.debug("Built block {}. Parent {}", newBlock.getShortHashForMergedMining(), newBlockParent.getShortHashForMergedMining());
     }
 
     @Override
@@ -686,10 +458,10 @@ public class MinerServerImpl implements MinerServer {
             String bestBlockHash = bestBlock.getHashJsonString();
 
             if (!work.getParentBlockHash().equals(bestBlockHash)) {
-                logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
+                //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
                 buildBlockToMine(bestBlock, false);
             } else {
-                logger.debug("New block arrived but there is no need to build a new block to mine: {}", block.getShortHashForMergedMining());
+                //logger.debug("New block arrived but there is no need to build a new block to mine: {}", block.getShortHashForMergedMining());
             }
 
             logger.trace("End onBlock");
@@ -697,40 +469,6 @@ public class MinerServerImpl implements MinerServer {
 
         private boolean isSyncing() {
             return nodeBlockProcessor.hasBetterBlockToSync();
-        }
-    }
-
-    private class FallbackMiningTask extends TimerTask {
-        @Override
-        public void run() {
-            try {
-                Block bestBlock = blockchain.getBestBlock();
-                long curtimestampSeconds = getCurrentTimeInSeconds();
-
-
-                if (curtimestampSeconds > bestBlock.getTimestamp() + secsBetweenFallbackMinedBlocks) {
-                    generateFallbackBlock();
-                }
-            } catch (Throwable th) {
-                logger.error("Unexpected error: {}", th);
-                panicProcessor.panic("mserror", th.getMessage());
-            }
-        }
-    }
-
-    /**
-     * RefreshBlocks rebuilds the block to mine.
-     */
-    private class RefreshBlock extends TimerTask {
-        @Override
-        public void run() {
-            Block bestBlock = blockchain.getBestBlock();
-            try {
-                buildBlockToMine(bestBlock, false);
-            } catch (Throwable th) {
-                logger.error("Unexpected error: {}", th);
-                panicProcessor.panic("mserror", th.getMessage());
-            }
         }
     }
 }
