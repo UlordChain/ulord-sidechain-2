@@ -23,6 +23,7 @@ import co.usc.config.UscSystemProperties;
 import co.usc.core.BlockDifficulty;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
+import co.usc.ulordj.core.Address;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.core.genesis.InitialAddressState;
 import org.ethereum.util.ByteUtil;
@@ -57,23 +58,13 @@ public class Genesis extends Block {
     private static final byte[] ZERO_HASH_2048 = new byte[256];
     protected static final long NUMBER = 0;
 
-    public Genesis(byte[] parentHash, byte[] unclesHash, byte[] coinbase, byte[] logsBloom,
-                   byte[] difficulty, long number, long gasLimit,
+    public Genesis(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
+                   long number, long gasLimit,
                    long gasUsed, long timestamp,
-                   byte[] extraData, byte[] mixHash, byte[] nonce,
-                   byte[] ulordMergedMiningHeader, byte[] ulordMergedMiningMerkleProof,
-                   byte[] ulordMergedMiningCoinbaseTransaction, byte[] minimumGasPrice){
-        super(
-                new BlockHeader(parentHash, unclesHash, coinbase, logsBloom, difficulty,
-                        number, ByteUtil.longToBytesNoLeadZeroes(gasLimit), gasUsed, timestamp, extraData,
-                        ulordMergedMiningHeader, ulordMergedMiningMerkleProof,
-                        ulordMergedMiningCoinbaseTransaction, minimumGasPrice, 0) {
-
-                    @Override
-                    protected byte[] encodeBlockDifficulty(BlockDifficulty ignored) {
-                        return RLP.encodeElement(difficulty);
-                    }
-                });
+                   byte[] extraData, byte[] minimumGasPrice, Address bpAddress){
+        super(new BlockHeader(parentHash, coinbase, logsBloom, number,
+                        ByteUtil.longToBytesNoLeadZeroes(gasLimit), gasUsed, timestamp, extraData,
+                        minimumGasPrice, bpAddress));
 
         setTransactionsList(Collections.emptyList());
     }

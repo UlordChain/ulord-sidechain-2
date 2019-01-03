@@ -19,6 +19,7 @@
 
 package org.ethereum.core;
 
+import co.usc.config.BridgeRegTestConstants;
 import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -210,7 +211,7 @@ public class Block {
         RLPList header = (RLPList) block.get(0);
 
         // TODO: Find a way to pass current network parameters
-        this.header = new BlockHeader(new RegTestParams(), header, this.sealed);
+        this.header = new BlockHeader(BridgeRegTestConstants.getInstance(), header, this.sealed);
 
         // Parse Transactions
         RLPList txTransactions = (RLPList) block.get(1);
@@ -348,11 +349,11 @@ public class Block {
         return this.header.getExtraData();
     }
 
-  public void setExtraData(byte[] data) {
-      /* A sealed block is immutable, cannot be changed */
-      if (this.sealed) {
-          throw new SealedBlockException("trying to alter extra data");
-      }
+    public void setExtraData(byte[] data) {
+        /* A sealed block is immutable, cannot be changed */
+        if (this.sealed) {
+            throw new SealedBlockException("trying to alter extra data");
+        }
 
         this.header.setExtraData(data);
         rlpEncoded = null;
