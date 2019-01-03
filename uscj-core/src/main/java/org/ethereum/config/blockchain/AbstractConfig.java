@@ -19,11 +19,9 @@
 
 package org.ethereum.config.blockchain;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.BlockchainConfig;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.config.Constants;
-import org.ethereum.config.blockchain.testnet.TestNetAfterBridgeSyncConfig;
 import org.ethereum.core.BlockHeader;
 import java.math.BigInteger;
 
@@ -60,101 +58,6 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
     public Constants getCommonConstants() {
         return getConstants();
     }
-
-
-    @Override
-    public BlockDifficulty calcDifficulty(BlockHeader curBlockHeader, BlockHeader parent) {
-        BlockDifficulty pd = parent.getDifficulty();
-        int uncleCount = curBlockHeader.getUncleCount();
-        long curBlockTS = curBlockHeader.getTimestamp();
-        long parentBlockTS =parent.getTimestamp();
-
-        return calcDifficultyFortConstants(getConstants(),curBlockTS, parentBlockTS,pd,uncleCount);
-    }
-
-    public BlockDifficulty getBlockDifficulty(Constants constants, BlockHeader curBlockHeader, BlockHeader parent) {
-        BlockDifficulty pd = parent.getDifficulty();
-        int uncleCount = curBlockHeader.getUncleCount();
-        long curBlockTS = curBlockHeader.getTimestamp();
-        long parentBlockTS = parent.getTimestamp();
-
-        return calcDifficultyFortConstants(constants, curBlockTS, parentBlockTS, pd, uncleCount);
-    }
-
-    public static BlockDifficulty calcDifficultyFortConstants(Constants constants,
-                                                         long curBlockTS,
-                                                         long parentBlockTS,
-                                                         BlockDifficulty pd ,
-                                                         int uncleCount) {
-        int duration =constants.getDurationLimit();
-
-        // Created Fork to reduce difficulty variation to 2% for testnet
-        // Friday, August 17, 2018 10:00:00 AM GMT+08:00
-        BigInteger difDivisor;
-        if(constants instanceof TestNetAfterBridgeSyncConfig.TestNetConstants) {
-            if(curBlockTS < 1534471200L)
-                difDivisor = constants.getDifficultyBoundDivisor();
-            else
-                difDivisor = BigInteger.valueOf(50);
-        } else {
-            difDivisor = constants.getDifficultyBoundDivisor();
-        }
-
-        BlockDifficulty minDif = constants.getMinimumDifficulty();
-        return calcDifficultyWithTimeStamps(constants, curBlockTS, parentBlockTS,pd,uncleCount,duration,difDivisor,minDif );
-    }
-
-    public static BlockDifficulty calcDifficultyWithTimeStamps(Constants constants, long curBlockTS, long parentBlockTS,
-                                                               BlockDifficulty pd, int uncleCount, int duration,
-                                                               BigInteger difDivisor,
-                                                               BlockDifficulty minDif ) {
-
-        long delta = curBlockTS-parentBlockTS;
-        if (delta<0) {
-            return pd;
-        }
-
-        int calcDur;
-
-        // Created Fork to reduce time 25% as Bitcoin and Ulord time difference is 25%
-        // Monday, August 20, 2018 11:00:00 AM GMT+08:00
-        if(constants instanceof TestNetAfterBridgeSyncConfig.TestNetConstants) {
-            if(curBlockTS > 1534734000L) {
-                calcDur = (int)((1 + uncleCount * 0.175) * duration);
-            } else {
-                calcDur = (1 + uncleCount) * duration;
-            }
-        } else {
-            calcDur = (int)((1 + uncleCount * 0.175) * duration);
-        }
-
-        int sign;
-        if (calcDur>delta) {
-            sign =1;
-        }else if (calcDur<delta) { 
-            sign =-1;
-        }else{// (calcDur == delta), and then (sign==0) 
-            return pd;
-        }
-
-        BigInteger pdValue = pd.asBigInteger();
-        BigInteger quotient = pdValue.divide(difDivisor);
-
-        BigInteger fromParent;
-        if (sign==1) {
-            fromParent =pdValue.add(quotient);
-        } else {
-            fromParent =pdValue.subtract(quotient);
-        }
-
-        // If parent difficulty is zero (maybe a genesis block), then the first child difficulty MUST
-        // be greater or equal getMinimumDifficulty(). That's why the max() is applied in both the add and the sub
-        // cases.
-        // Note that we have to apply max() first in case fromParent ended up being negative.
-        return new BlockDifficulty(max(minDif.asBigInteger(), fromParent));
-    }
-
-    protected abstract BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent);
 
     @Override
     public boolean areBridgeTxsFree() {

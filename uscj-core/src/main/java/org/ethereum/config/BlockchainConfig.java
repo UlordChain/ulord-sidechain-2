@@ -19,7 +19,6 @@
 
 package org.ethereum.config;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.core.BlockHeader;
 
 /**
@@ -33,11 +32,6 @@ public interface BlockchainConfig {
      * Get blockchain constants
      */
     Constants getConstants();
-
-    /**
-     * Calculates the difficulty for the block depending on the parent
-     */
-    BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent);
 
     boolean areBridgeTxsFree();
 

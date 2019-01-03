@@ -18,8 +18,6 @@
 
 package co.usc.net;
 
-import co.usc.core.BlockDifficulty;
-
 import javax.annotation.Nullable;
 
 /**
@@ -29,17 +27,15 @@ public class Status {
     private final long bestBlockNumber;
     private final byte[] bestBlockHash;
     private final byte[] bestBlockParentHash;
-    private final BlockDifficulty totalDifficulty;
 
     public Status(long bestBlockNumber, byte[] bestBlockHash) {
-        this(bestBlockNumber, bestBlockHash, null, null);
+        this(bestBlockNumber, bestBlockHash, null);
     }
 
-    public Status(long bestBlockNumber, byte[] bestBlockHash, byte[] bestBlockParentHash, BlockDifficulty totalDifficulty) {
+    public Status(long bestBlockNumber, byte[] bestBlockHash, byte[] bestBlockParentHash) {
         this.bestBlockNumber = bestBlockNumber;
         this.bestBlockHash = bestBlockHash;
         this.bestBlockParentHash = bestBlockParentHash;
-        this.totalDifficulty = totalDifficulty;
     }
 
     public long getBestBlockNumber() {
@@ -53,6 +49,4 @@ public class Status {
     @Nullable
     public byte[] getBestBlockParentHash() { return this.bestBlockParentHash; }
 
-    @Nullable
-    public BlockDifficulty getTotalDifficulty() { return this.totalDifficulty; }
 }

@@ -19,7 +19,6 @@
 
 package org.ethereum.config.blockchain;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.Constants;
 import org.ethereum.core.BlockHeader;
 
@@ -35,7 +34,7 @@ public class GenesisConfig extends AbstractConfig {
         public int getDurationLimit() {
             return 13;
         }
-    };
+    }
 
     // IMPORTANT NOTICE
     // This class contains two methods "NEW_*" containing the latest hard-forks in Ethereum
@@ -47,22 +46,6 @@ public class GenesisConfig extends AbstractConfig {
 
     public GenesisConfig(Constants constants) {
         super(constants);
-    }
-
-    @Override
-    protected BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
-        return BigInteger.valueOf(curBlock.getTimestamp() >= parent.getTimestamp() +
-                getConstants().getDurationLimit() ? -1 : 1);
-    }
-
-    @Override
-    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        // If more than 10 minutes, reset to minimum difficulty to allow private mining
-        if (curBlock.getTimestamp() >= parent.getTimestamp() + 600) {
-            return getConstants().getMinimumDifficulty();
-        }
-
-        return super.calcDifficulty(curBlock, parent);
     }
 
 }
