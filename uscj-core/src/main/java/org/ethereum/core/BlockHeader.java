@@ -18,6 +18,9 @@
  */
 package org.ethereum.core;
 
+import co.usc.config.BridgeConstants;
+import co.usc.config.BridgeRegTestConstants;
+import co.usc.config.BridgeTestNetConstants;
 import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -25,7 +28,9 @@ import co.usc.crypto.Keccak256;
 import co.usc.ulordj.core.Address;
 import co.usc.ulordj.core.NetworkParameters;
 import co.usc.ulordj.core.Sha256Hash;
+import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.RegTestParams;
+import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -103,11 +108,11 @@ public class BlockHeader {
     /* Indicates if this block header cannot be changed */
     private volatile boolean sealed;
 
-    public BlockHeader(NetworkParameters params, byte[] encoded, boolean sealed) {
-        this(params, RLP.decodeList(encoded), sealed);
+    public BlockHeader(BridgeConstants constants, byte[] encoded, boolean sealed) {
+        this(constants, RLP.decodeList(encoded), sealed);
     }
 
-    public BlockHeader(NetworkParameters params, RLPList rlpHeader, boolean sealed) {
+    public BlockHeader(BridgeConstants constants, RLPList rlpHeader, boolean sealed) {
         // TODO fix old tests that have other sizes
         if (rlpHeader.size() != 19 && rlpHeader.size() != 16) {
             throw new IllegalArgumentException(String.format(
@@ -151,6 +156,14 @@ public class BlockHeader {
         this.paidFees = RLP.parseCoin(rlpHeader.get(11).getRLPData());
         this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(12).getRLPData());
 
+        NetworkParameters params;
+        if(constants instanceof BridgeTestNetConstants)
+            params = TestNet3Params.get();
+        else if(constants instanceof BridgeRegTestConstants)
+            params = RegTestParams.get();
+        else
+            params = MainNetParams.get();
+
         this.bpAddress = RLP.parseAddress(params,rlpHeader.get(13).getRLPData());
         this.sealed = sealed;
     }
@@ -184,8 +197,8 @@ public class BlockHeader {
         this.sealed = true;
     }
 
-    public BlockHeader cloneHeader(NetworkParameters params) {
-        return new BlockHeader(params, (RLPList) RLP.decode2(this.getEncoded()).get(0), false);
+    public BlockHeader cloneHeader(BridgeConstants constants) {
+        return new BlockHeader(constants, (RLPList) RLP.decode2(this.getEncoded()).get(0), false);
     }
 
     public boolean isGenesis() {
