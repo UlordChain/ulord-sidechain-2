@@ -22,7 +22,6 @@ package org.ethereum.config;
 import co.usc.config.ConfigLoader;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.*;
-import org.ethereum.config.blockchain.FallbackMainNetConfig;
 import org.ethereum.config.blockchain.HardForkActivationConfig;
 import org.ethereum.config.net.MainNetConfig;
 import org.ethereum.config.net.TestNetConfig;
@@ -204,9 +203,6 @@ public abstract class SystemProperties {
             switch(netName) {
                 case "main":
                     blockchainConfig = new MainNetConfig();
-                    break;
-                case "fallbackmain":
-                    blockchainConfig = new FallbackMainNetConfig();
                     break;
                 case "testnet":
                     blockchainConfig = new TestNetConfig();

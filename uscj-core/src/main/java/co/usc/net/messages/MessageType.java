@@ -18,7 +18,6 @@
 
 package co.usc.net.messages;
 
-import co.usc.core.BlockDifficulty;
 import co.usc.net.Status;
 import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.*;
@@ -51,9 +50,8 @@ public enum MessageType {
 
             byte[] parentHash = list.get(2).getRLPData();
             byte[] rlpTotalDifficulty = list.get(3).getRLPData();
-            BlockDifficulty totalDifficulty = rlpTotalDifficulty == null ? BlockDifficulty.ZERO : RLP.parseBlockDifficulty(rlpTotalDifficulty);
 
-            return new StatusMessage(new Status(number, hash, parentHash, totalDifficulty));
+            return new StatusMessage(new Status(number, hash, parentHash));
         }
     },
     BLOCK_MESSAGE(2) {
@@ -205,7 +203,6 @@ public enum MessageType {
             byte[] rlpId = list.get(0).getRLPData();
             long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
             RLPList rlpTransactions = (RLPList)RLP.decode2(message.get(0).getRLPData()).get(0);
-            RLPList rlpUncles = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
 
             List<Transaction> transactions = new ArrayList<>();
             for (int k = 0; k < rlpTransactions.size(); k++) {
@@ -219,11 +216,7 @@ public enum MessageType {
                 transactions.add(tx);
             }
 
-            List<BlockHeader> uncles = rlpUncles.stream()
-                    .map(el -> new BlockHeader(el.getRLPData(), true))
-                    .collect(Collectors.toList());
-
-            return new BodyResponseMessage(id, transactions, uncles);
+            return new BodyResponseMessage(id, transactions);
         }
     },
     SKELETON_REQUEST_MESSAGE(16) {

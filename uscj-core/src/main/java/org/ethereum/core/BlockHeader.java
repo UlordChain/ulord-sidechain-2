@@ -21,7 +21,6 @@ package org.ethereum.core;
 import co.usc.config.BridgeConstants;
 import co.usc.config.BridgeRegTestConstants;
 import co.usc.config.BridgeTestNetConstants;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
