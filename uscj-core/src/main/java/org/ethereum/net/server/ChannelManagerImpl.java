@@ -338,4 +338,12 @@ public class ChannelManagerImpl implements ChannelManager {
         }
     }
 
+    @Override
+    public Set<NodeID> broadcastBlockForSigning(@Nonnull final Block block){
+        final Set<NodeID> nodesIdsBroadcastedTo = new HashSet<>();
+
+        //TODO implement this function to broadcast block to other BP's for signing
+
+        return nodesIdsBroadcastedTo;
+    }
 }
