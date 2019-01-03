@@ -20,7 +20,6 @@
 package org.ethereum.core;
 
 import co.usc.blocks.BlockRecorder;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.bc.BlockChainStatus;
 import org.ethereum.db.BlockInformation;
 import org.ethereum.db.BlockStore;

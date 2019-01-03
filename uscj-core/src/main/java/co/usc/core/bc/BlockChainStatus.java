@@ -18,7 +18,6 @@
 
 package co.usc.core.bc;
 
-import co.usc.core.BlockDifficulty;
 import co.usc.net.Status;
 import org.ethereum.core.Block;
 

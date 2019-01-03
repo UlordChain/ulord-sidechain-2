@@ -115,6 +115,13 @@ public class MnrModuleImpl implements MnrModule, Runnable {
         return parseResultAndReturn(new SubmitBlockResult("OK", "OK"));
     }
 
+    @Override
+    public SubmittedBlockInfo addSignature(byte[] signature) {
+        //TODO: verify and add signature to the block.
+        //Once enough signatures are received hash the block, add it to the blockchain and broadcast it to other peers.
+        return null;
+    }
+
     private UldBlock getUldBlock(String blockHeaderHex, NetworkParameters params) {
         byte[] ulordBlockByteArray = Hex.decode(blockHeaderHex);
         return params.getDefaultSerializer().makeBlock(ulordBlockByteArray);
@@ -172,7 +179,7 @@ public class MnrModuleImpl implements MnrModule, Runnable {
                 String merkleHashesHex = dataObjects[3];
                 String blockTxnCountHex = dataObjects[4];
 
-                logger.debug("submitUlordBlockPartialMerkle(): {}, {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, merkleHashesHex, blockTxnCountHex);
+                logger.debug("submitSignature(): {}, {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, merkleHashesHex, blockTxnCountHex);
 
                 NetworkParameters params = RegTestParams.get();
                 new Context(params);
@@ -186,7 +193,7 @@ public class MnrModuleImpl implements MnrModule, Runnable {
 
                 int txnCount = Integer.parseInt(blockTxnCountHex, 16);
 
-                SubmitBlockResult result = minerServer.submitUlordBlockPartialMerkle(blockHashForMergedMining, ulordBlockWithHeaderOnly, coinbase, merkleHashes, txnCount);
+                SubmitBlockResult result = minerServer.submitSignature(blockHashForMergedMining);
 
                 logger.debug("result" + result.getMessage() + " " + result.getStatus() + " " + result.getBlockInfo().getBlockIncludedHeight());
             } catch (Exception e) {

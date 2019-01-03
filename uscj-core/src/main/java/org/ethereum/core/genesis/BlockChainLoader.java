@@ -20,7 +20,6 @@
 package org.ethereum.core.genesis;
 
 import co.usc.config.UscSystemProperties;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockChainImpl;
 import co.usc.core.bc.BlockExecutor;

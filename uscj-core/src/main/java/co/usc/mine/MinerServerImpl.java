@@ -25,12 +25,10 @@ import co.usc.config.UscMiningConstants;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
-import co.usc.core.DifficultyCalculator;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
-import co.usc.util.DifficultyUtils;
 import co.usc.validators.ProofOfWorkRule;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.ArrayUtils;
@@ -38,11 +36,9 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.util.Arrays;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.core.*;
-import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.rpc.TypeConverter;
-import org.ethereum.util.RLP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +51,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -90,7 +84,7 @@ public class MinerServerImpl implements MinerServer {
     private byte[] extraData;
 
     @GuardedBy("lock")
-    private LinkedHashMap<Keccak256, Block> blocksWaitingforPoW;
+    private LinkedHashMap<Keccak256, Block> blocksWaitingforSignatures;
     @GuardedBy("lock")
     private Keccak256 latestParentHash;
     @GuardedBy("lock")
@@ -126,7 +120,7 @@ public class MinerServerImpl implements MinerServer {
         this.builder = builder;
         this.blockchainConfig = config.getBlockchainConfig();
 
-        blocksWaitingforPoW = createNewBlocksWaitingList();
+        blocksWaitingforSignatures = createNewBlocksWaitingList();
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
@@ -147,8 +141,8 @@ public class MinerServerImpl implements MinerServer {
     }
 
     @VisibleForTesting
-    public Map<Keccak256, Block> getBlocksWaitingforPoW() {
-        return blocksWaitingforPoW;
+    public Map<Keccak256, Block> getBlocksWaitingforSignatures() {
+        return blocksWaitingforSignatures;
     }
 
     @Override
@@ -201,16 +195,11 @@ public class MinerServerImpl implements MinerServer {
     }
 
     @Override
-    public SubmitBlockResult submitUlordBlockPartialMerkle(
-            String blockHashForMergedMining,
-            UldBlock blockWithHeaderOnly,
-            UldTransaction coinbase,
-            List<String> merkleHashes,
-            int blockTxnCount) {
-        logger.debug("Received merkle solution with hash {} for merged mining", blockHashForMergedMining);
+    public SubmitBlockResult submitSignature(byte[] signature) {
+        logger.debug("Received merkle solution with hash {} for merged mining", signature);
 
         return processSolution(
-                blockHashForMergedMining,
+                signature,
                 blockWithHeaderOnly,
                 coinbase,
                 (pb) -> pb.buildFromMerkleHashes(blockWithHeaderOnly, merkleHashes, blockTxnCount),
@@ -262,7 +251,7 @@ public class MinerServerImpl implements MinerServer {
         Keccak256 key = new Keccak256(TypeConverter.removeZeroX(blockHashForMergedMining));
 
         synchronized (lock) {
-            Block workingBlock = blocksWaitingforPoW.get(key);
+            Block workingBlock = blocksWaitingforSignatures.get(key);
 
             if (workingBlock == null) {
                 String message = "Cannot publish block, could not find hash " + blockHashForMergedMining + " in the cache";
@@ -274,7 +263,7 @@ public class MinerServerImpl implements MinerServer {
             // clone the block
             newBlock = workingBlock.cloneBlock();
 
-            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforPoW.size());
+            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
         }
 
         logger.info("Received block {} {}", newBlock.getNumber(), newBlock.getHash());
@@ -412,8 +401,8 @@ public class MinerServerImpl implements MinerServer {
             //Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
 
             //TODO DPOS: Possible broadcast area for block.
-            //blocksWaitingforPoW.put(latestBlockHashWaitingForPoW, latestBlock);
-            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforPoW.size());
+            //blocksWaitingforSignatures.put(latestBlockHashWaitingForPoW, latestBlock);
+            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
         }
 
         //logger.debug("Built block {}. Parent {}", newBlock.getShortHashForMergedMining(), newBlockParent.getShortHashForMergedMining());

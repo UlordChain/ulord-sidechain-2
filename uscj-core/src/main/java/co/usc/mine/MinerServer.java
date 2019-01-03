@@ -36,12 +36,8 @@ public interface MinerServer {
 
     boolean isRunning();
 
-    SubmitBlockResult submitUlordBlockPartialMerkle(
-            String blockHashForMergedMining,
-            UldBlock blockWithOnlyHeader,
-            UldTransaction coinbase,
-            List<String> merkleHashes,
-            int blockTxnCount
+    SubmitBlockResult submitSignature(
+            byte[] signature
     );
 
     SubmitBlockResult submitUlordBlockTransactions(

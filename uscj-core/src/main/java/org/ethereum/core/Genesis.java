@@ -20,7 +20,6 @@
 package org.ethereum.core;
 
 import co.usc.config.UscSystemProperties;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import co.usc.ulordj.core.Address;

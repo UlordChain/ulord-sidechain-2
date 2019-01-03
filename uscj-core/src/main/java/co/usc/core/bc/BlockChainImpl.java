@@ -19,7 +19,6 @@
 package co.usc.core.bc;
 
 import co.usc.blocks.BlockRecorder;
-import co.usc.core.BlockDifficulty;
 import co.usc.net.Metrics;
 import co.usc.panic.PanicProcessor;
 import co.usc.trie.Trie;

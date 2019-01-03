@@ -41,4 +41,6 @@ public interface MnrModule {
             String merkleHashesHex,
             String blockTxnCountHex
     );
+
+    SubmittedBlockInfo addSignature(byte[] signature);
 }
