@@ -338,4 +338,37 @@ public class ChannelManagerImpl implements ChannelManager {
         }
     }
 
+    @Override
+    public Set<NodeID> broadcastBlockForSigning(@Nonnull final Block block){
+
+        Metrics.broadcastBlock(block);
+
+        final Set<NodeID> nodesIdsBroadcastedTo = new HashSet<>();
+        final BlockIdentifier bi = new BlockIdentifier(block.getHash().getBytes(), block.getNumber());
+        final EthMessage newBlock = new UscMessage(new BlockMessage(block));
+        final EthMessage newBlockHashes = new UscMessage(new NewBlockHashesMessage(Arrays.asList(bi)));
+        synchronized (activePeersLock){
+            // Get a randomized list with all the peers that don't have the block yet.
+            activePeers.values().forEach(c -> logger.trace("USC activePeers: {}", c));
+            //TODO peers should be known BP's for signing
+            List<Channel> peers = new ArrayList<>(activePeers.values());
+            Collections.shuffle(peers);
+
+            int sqrt = (int) Math.floor(Math.sqrt(peers.size()));
+
+            for (int i = 0; i < sqrt; i++) {
+                Channel peer = peers.get(i);
+                nodesIdsBroadcastedTo.add(peer.getNodeId());
+                logger.trace("USC propagate: {}", peer);
+                peer.sendMessage(newBlock);
+            }
+            for (int i = sqrt; i < peers.size(); i++) {
+                Channel peer = peers.get(i);
+                logger.trace("USC announce: {}", peer);
+                peer.sendMessage(newBlockHashes);
+            }
+        }
+
+        return nodesIdsBroadcastedTo;
+    }
 }
