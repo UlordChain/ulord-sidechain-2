@@ -21,7 +21,6 @@ package org.ethereum.config;
 
 import co.usc.cli.CliArgs;
 import co.usc.config.*;
-import co.usc.core.DifficultyCalculator;
 import co.usc.core.NetworkStateExporter;
 import co.usc.crypto.Keccak256;
 import co.usc.metrics.BlockHeaderElement;

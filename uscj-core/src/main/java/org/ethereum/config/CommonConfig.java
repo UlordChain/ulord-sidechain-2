@@ -20,7 +20,6 @@
 package org.ethereum.config;
 
 import co.usc.config.UscSystemProperties;
-import co.usc.core.DifficultyCalculator;
 import co.usc.db.RepositoryImpl;
 import co.usc.trie.TrieStoreImpl;
 import org.ethereum.core.Repository;
@@ -41,7 +40,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.ethereum.datasource.DataSourcePool.levelDbByName;
 
 @Configuration
 @ComponentScan(

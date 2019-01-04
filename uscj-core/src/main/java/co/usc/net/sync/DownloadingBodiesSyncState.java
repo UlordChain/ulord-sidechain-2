@@ -6,7 +6,6 @@ import co.usc.net.messages.BodyResponseMessage;
 import co.usc.scoring.EventType;
 import co.usc.validators.BlockCompositeRule;
 import co.usc.validators.BlockRootValidationRule;
-import co.usc.validators.BlockUnclesHashValidationRule;
 import com.google.common.annotations.VisibleForTesting;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;

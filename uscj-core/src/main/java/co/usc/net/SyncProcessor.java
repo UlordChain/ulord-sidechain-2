@@ -1,7 +1,5 @@
 package co.usc.net;
 
-import co.usc.core.DifficultyCalculator;
-import co.usc.core.bc.BlockChainStatus;
 import co.usc.net.messages.*;
 import co.usc.net.sync.*;
 import co.usc.scoring.EventType;

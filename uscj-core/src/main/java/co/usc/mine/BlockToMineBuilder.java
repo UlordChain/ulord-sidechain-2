@@ -20,24 +20,11 @@ package co.usc.mine;
 
 import co.usc.config.*;
 import co.usc.core.Coin;
-import co.usc.core.DifficultyCalculator;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockExecutor;
-import co.usc.core.bc.FamilyUtils;
 import co.usc.remasc.RemascTransaction;
-import co.usc.ulordj.core.Address;
-import co.usc.ulordj.core.NetworkParameters;
-import co.usc.ulordj.core.UldECKey;
-import co.usc.ulordj.params.MainNetParams;
-import co.usc.ulordj.params.RegTestParams;
-import co.usc.ulordj.params.TestNet3Params;
-import co.usc.ulordj.params.UnitTestParams;
 import co.usc.validators.BlockValidationRule;
-import org.apache.commons.collections4.CollectionUtils;
-import org.ethereum.config.SystemProperties;
-import org.ethereum.config.net.DevNetConfig;
 import org.ethereum.core.*;
-import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
 import org.ethereum.vm.PrecompiledContracts;
@@ -65,7 +52,6 @@ public class BlockToMineBuilder {
     private final Repository repository;
     private final BlockStore blockStore;
     private final TransactionPool transactionPool;
-    private final DifficultyCalculator difficultyCalculator;
     private final GasLimitCalculator gasLimitCalculator;
     private final BlockValidationRule validationRules;
 
@@ -87,7 +73,6 @@ public class BlockToMineBuilder {
             Repository repository,
             BlockStore blockStore,
             TransactionPool transactionPool,
-            DifficultyCalculator difficultyCalculator,
             GasLimitCalculator gasLimitCalculator,
             @Qualifier("minerServerBlockValidation") BlockValidationRule validationRules,
             UscSystemProperties config,
@@ -96,7 +81,6 @@ public class BlockToMineBuilder {
         this.repository = Objects.requireNonNull(repository);
         this.blockStore = Objects.requireNonNull(blockStore);
         this.transactionPool = Objects.requireNonNull(transactionPool);
-        this.difficultyCalculator = Objects.requireNonNull(difficultyCalculator);
         this.gasLimitCalculator = Objects.requireNonNull(gasLimitCalculator);
         this.validationRules = Objects.requireNonNull(validationRules);
 
