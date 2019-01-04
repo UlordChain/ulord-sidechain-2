@@ -207,22 +207,22 @@ public class MinerServerImpl implements MinerServer {
         return new SubmitBlockResult("OK", "OK");
     }
 
-    @Override
-    public SubmitBlockResult submitUlordBlockTransactions(
-            String blockHashForMergedMining,
-            UldBlock blockWithHeaderOnly,
-            UldTransaction coinbase,
-            List<String> txHashes) {
-        logger.debug("Received tx solution with hash {} for merged mining", blockHashForMergedMining);
-
-        return processSolution(
-                blockHashForMergedMining,
-                blockWithHeaderOnly,
-                coinbase,
-                (pb) -> pb.buildFromTxHashes(blockWithHeaderOnly, txHashes),
-                true
-        );
-    }
+//    @Override
+//    public SubmitBlockResult submitUlordBlockTransactions(
+//            String blockHashForMergedMining,
+//            UldBlock blockWithHeaderOnly,
+//            UldTransaction coinbase,
+//            List<String> txHashes) {
+//        logger.debug("Received tx solution with hash {} for merged mining", blockHashForMergedMining);
+//
+//        return processSolution(
+//                blockHashForMergedMining,
+//                blockWithHeaderOnly,
+//                coinbase,
+//                (pb) -> pb.buildFromTxHashes(blockWithHeaderOnly, txHashes),
+//                true
+//        );
+//    }
 
     @Override
     public SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock) {

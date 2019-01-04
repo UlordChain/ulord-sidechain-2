@@ -84,9 +84,9 @@ public interface Web3EthModule {
 
     String eth_getBlockTransactionCountByNumber(String bnOrId)throws Exception;
 
-    String eth_getUncleCountByBlockHash(String blockHash)throws Exception;
+//    String eth_getUncleCountByBlockHash(String blockHash)throws Exception;
 
-    String eth_getUncleCountByBlockNumber(String bnOrId)throws Exception;
+//    String eth_getUncleCountByBlockNumber(String bnOrId)throws Exception;
 
     String eth_getCode(String addr, String bnOrId)throws Exception;
 
@@ -104,9 +104,9 @@ public interface Web3EthModule {
 
     TransactionReceiptDTO eth_getTransactionReceipt(String transactionHash) throws Exception;
 
-    Web3.BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception;
+//    Web3.BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception;
 
-    Web3.BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception;
+//    Web3.BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception;
 
     String[] eth_getCompilers();
 

@@ -38,12 +38,12 @@ public interface MinerServer {
 
     SubmitBlockResult submitSignature(String signature);
 
-    SubmitBlockResult submitUlordBlockTransactions(
-            String blockHashForMergedMining,
-            UldBlock blockWithOnlyHeader,
-            UldTransaction coinbase,
-            List<String> txHashes
-    );
+//    SubmitBlockResult submitUlordBlockTransactions(
+//            String blockHashForMergedMining,
+//            UldBlock blockWithOnlyHeader,
+//            UldTransaction coinbase,
+//            List<String> txHashes
+//    );
 
     SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock);
 
