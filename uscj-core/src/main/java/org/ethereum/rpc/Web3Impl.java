@@ -500,21 +500,21 @@ public class Web3Impl implements Web3 {
         }
     }
 
-    @Override
-    public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
-        Block b = getBlockByJSonHash(blockHash);
-        long n = b.getUncleList().size();
-
-        return toJsonHex(n);
-    }
-
-    @Override
-    public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
-        Block b = getBlockByNumberOrStr(bnOrId, blockchain);
-        long n = b.getUncleList().size();
-
-        return toJsonHex(n);
-    }
+//    @Override
+//    public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
+//        Block b = getBlockByJSonHash(blockHash);
+//        long n = b.getUncleList().size();
+//
+//        return toJsonHex(n);
+//    }
+//
+//    @Override
+//    public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
+//        Block b = getBlockByNumberOrStr(bnOrId, blockchain);
+//        long n = b.getUncleList().size();
+//
+//        return toJsonHex(n);
+//    }
 
     @Override
     public String eth_getCode(String address, String blockId) throws Exception {
@@ -572,7 +572,7 @@ public class Web3Impl implements Web3 {
     public BlockInformationResult getBlockInformationResult(BlockInformation blockInformation) {
         BlockInformationResult bir = new BlockInformationResult();
         bir.hash = TypeConverter.toJsonHex(blockInformation.getHash());
-        bir.totalDifficulty = TypeConverter.toJsonHex(blockInformation.getTotalDifficulty().asBigInteger());
+//        bir.totalDifficulty = TypeConverter.toJsonHex(blockInformation.getTotalDifficulty().asBigInteger());
         bir.inMainChain = blockInformation.isInMainChain();
 
         return bir;
@@ -583,22 +583,22 @@ public class Web3Impl implements Web3 {
             return null;
         }
 
-        byte[] mergeHeader = b.getUlordMergedMiningHeader();
+//        byte[] mergeHeader = b.getUlordMergedMiningHeader();
 
-        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
+//        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
         BlockResult br = new BlockResult();
-        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
-        br.hash = isPending ? null : b.getHashJsonString();
+//        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
+//        br.hash = isPending ? null : b.getHashJsonString();
         br.parentHash = b.getParentHashJsonString();
-        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
-        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
+//        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
+//        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
-        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
-        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty().getBytes());
-        br.totalDifficulty = TypeConverter.toJsonHex(this.blockchain.getBlockStore().getTotalDifficultyForHash(b.getHash().getBytes()).asBigInteger());
+//        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
+//        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty().getBytes());
+//        br.totalDifficulty = TypeConverter.toJsonHex(this.blockchain.getBlockStore().getTotalDifficultyForHash(b.getHash().getBytes()).asBigInteger());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
         br.size = TypeConverter.toJsonHex(b.getEncoded().length);
         br.gasLimit = TypeConverter.toJsonHex(b.getGasLimit());
@@ -621,13 +621,13 @@ public class Web3Impl implements Web3 {
 
         br.transactions = txes.toArray();
 
-        List<String> ul = new ArrayList<>();
+//        List<String> ul = new ArrayList<>();
 
-        for (BlockHeader header : b.getUncleList()) {
-            ul.add(toJsonHex(header.getHash().getBytes()));
-        }
+//        for (BlockHeader header : b.getUncleList()) {
+//            ul.add(toJsonHex(header.getHash().getBytes()));
+//        }
 
-        br.uncles = ul.toArray(new String[ul.size()]);
+//        br.uncles = ul.toArray(new String[ul.size()]);
 
         return br;
     }
@@ -789,51 +789,51 @@ public class Web3Impl implements Web3 {
         return new TransactionReceiptDTO(block, txInfo);
     }
 
-    @Override
-    public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
-        BlockResult s = null;
-        try {
-            Block block = blockchain.getBlockByHash(stringHexToByteArray(blockHash));
+//    @Override
+//    public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block block = blockchain.getBlockByHash(stringHexToByteArray(blockHash));
+//
+//            if (block == null) {
+//                return null;
+//            }
+//
+//            int idx = JSonHexToInt(uncleIdx);
+//
+//            if (idx >= block.getUncleList().size()) {
+//                return null;
+//            }
+//
+//            BlockHeader uncleHeader = block.getUncleList().get(idx);
+//            Block uncle = blockchain.getBlockByHash(uncleHeader.getHash().getBytes());
+//
+//            if (uncle == null) {
+//                uncle = new Block(uncleHeader, Collections.emptyList(), Collections.emptyList());
+//            }
+//
+//            return s = getBlockResult(uncle, false);
+//        } finally {
+//            if (logger.isDebugEnabled()) {
+//                logger.debug("eth_getUncleByBlockHashAndIndex({}, {}): {}", blockHash, uncleIdx, s);
+//            }
+//        }
+//    }
 
-            if (block == null) {
-                return null;
-            }
-
-            int idx = JSonHexToInt(uncleIdx);
-
-            if (idx >= block.getUncleList().size()) {
-                return null;
-            }
-
-            BlockHeader uncleHeader = block.getUncleList().get(idx);
-            Block uncle = blockchain.getBlockByHash(uncleHeader.getHash().getBytes());
-
-            if (uncle == null) {
-                uncle = new Block(uncleHeader, Collections.emptyList(), Collections.emptyList());
-            }
-
-            return s = getBlockResult(uncle, false);
-        } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("eth_getUncleByBlockHashAndIndex({}, {}): {}", blockHash, uncleIdx, s);
-            }
-        }
-    }
-
-    @Override
-    public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
-        BlockResult s = null;
-        try {
-            Block block = getByJsonBlockId(blockId);
-
-            return s = block == null ? null :
-                    eth_getUncleByBlockHashAndIndex(Hex.toHexString(block.getHash().getBytes()), uncleIdx);
-        } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("eth_getUncleByBlockNumberAndIndex({}, {}): {}", blockId, uncleIdx, s);
-            }
-        }
-    }
+//    @Override
+//    public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block block = getByJsonBlockId(blockId);
+//
+//            return s = block == null ? null :
+//                    eth_getUncleByBlockHashAndIndex(Hex.toHexString(block.getHash().getBytes()), uncleIdx);
+//        } finally {
+//            if (logger.isDebugEnabled()) {
+//                logger.debug("eth_getUncleByBlockNumberAndIndex({}, {}): {}", blockId, uncleIdx, s);
+//            }
+//        }
+//    }
 
     @Override
     public String[] eth_getCompilers() {

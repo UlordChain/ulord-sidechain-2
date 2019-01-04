@@ -27,12 +27,12 @@ public interface MnrModule {
 
     SubmittedBlockInfo submitUlordBlock(String ulordBlockHex);
 
-    SubmittedBlockInfo submitUlordBlockTransactions(
-            String blockHashHex,
-            String blockHeaderHex,
-            String coinbaseHex,
-            String txnHashesHex
-    );
+//    SubmittedBlockInfo submitUlordBlockTransactions(
+//            String blockHashHex,
+//            String blockHeaderHex,
+//            String coinbaseHex,
+//            String txnHashesHex
+//    );
 
     SubmittedBlockInfo submitSignature(String signature);
 

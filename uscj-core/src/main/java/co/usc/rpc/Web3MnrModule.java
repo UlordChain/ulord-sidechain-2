@@ -24,21 +24,21 @@ import co.usc.rpc.modules.mnr.MnrModule;
 
 public interface Web3MnrModule {
 
-    default MinerWork mnr_getWork() {
-        return getMnrModule().getWork();
-    }
+//    default MinerWork mnr_getWork() {
+//        return getMnrModule().getWork();
+//    }
 
-    default SubmittedBlockInfo mnr_submitUlordBlock(String ulordBlockHex) {
-        return getMnrModule().submitUlordBlock(ulordBlockHex);
-    }
+//    default SubmittedBlockInfo mnr_submitUlordBlock(String ulordBlockHex) {
+//        return getMnrModule().submitUlordBlock(ulordBlockHex);
+//    }
 
-    default SubmittedBlockInfo mnr_submitUlordBlockTransactions(
-            String blockHashHex,
-            String blockHeaderHex,
-            String coinbaseHex,
-            String txnHashesHex) {
-        return getMnrModule().submitUlordBlockTransactions(blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
-    }
+//    default SubmittedBlockInfo mnr_submitUlordBlockTransactions(
+//            String blockHashHex,
+//            String blockHeaderHex,
+//            String coinbaseHex,
+//            String txnHashesHex) {
+//        return getMnrModule().submitUlordBlockTransactions(blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
+//    }
 
     default SubmittedBlockInfo bp_submitSignature(String signature) {
         return getMnrModule().submitSignature(signature);
