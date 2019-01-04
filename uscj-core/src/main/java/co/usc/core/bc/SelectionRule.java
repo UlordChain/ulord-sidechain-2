@@ -1,6 +1,5 @@
 package co.usc.core.bc;
 
-import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.remasc.Sibling;
 import org.ethereum.core.Block;

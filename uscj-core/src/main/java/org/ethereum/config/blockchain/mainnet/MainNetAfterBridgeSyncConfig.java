@@ -2,7 +2,6 @@ package org.ethereum.config.blockchain.mainnet;
 
 import co.usc.config.BridgeConstants;
 import co.usc.config.BridgeMainNetConstants;
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.GenesisConfig;
 import org.ethereum.core.BlockHeader;

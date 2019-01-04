@@ -21,7 +21,6 @@ package org.ethereum.config.blockchain.testnet;
 
 import co.usc.config.BridgeConstants;
 import co.usc.config.BridgeTestNetConstants;
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.GenesisConfig;
 import org.ethereum.core.BlockHeader;

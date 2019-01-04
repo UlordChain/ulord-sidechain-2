@@ -1,6 +1,5 @@
 package org.ethereum.config.blockchain.mainnet;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.mainnet.MainNetAfterBridgeSyncConfig;
 import org.ethereum.core.BlockHeader;

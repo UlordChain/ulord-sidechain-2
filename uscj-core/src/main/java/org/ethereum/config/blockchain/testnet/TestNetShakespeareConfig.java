@@ -1,6 +1,5 @@
 package org.ethereum.config.blockchain.testnet;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.core.BlockHeader;
 
 public class TestNetShakespeareConfig extends TestNetAfterBridgeSyncConfig {
