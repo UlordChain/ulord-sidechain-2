@@ -30,6 +30,7 @@ import co.usc.trie.TrieImpl;
 import co.usc.ulordj.core.Address;
 import co.usc.ulordj.core.NetworkParameters;
 import co.usc.ulordj.params.RegTestParams;
+import org.ethereum.config.BlockchainConfig;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.rpc.TypeConverter;
 import org.ethereum.util.RLP;
@@ -151,6 +152,8 @@ public class Block {
         this.header.setStateRoot(stateRoot);
         this.header.setReceiptsRoot(receiptsRoot);
         this.header.setBpAddress(bpAddress);
+
+        // TODO: Perhaps this should be called before sealing the block, after receiving all the signatures, because the signatureList is empty when the block is created.
         this.header.setSignatureRoot(getSignaturesHash(signaturesList));
 
         this.flushRLP();
@@ -206,7 +209,7 @@ public class Block {
         RLPList header = (RLPList) block.get(0);
 
         // TODO: Find a way to pass current network parameters
-        this.header = new BlockHeader(BridgeRegTestConstants.getInstance(), header, this.sealed);
+        this.header = new BlockHeader(header, this.sealed);
 
         // Parse Transactions
         RLPList txTransactions = (RLPList) block.get(1);

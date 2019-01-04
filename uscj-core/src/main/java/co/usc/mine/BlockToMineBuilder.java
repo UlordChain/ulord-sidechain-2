@@ -31,8 +31,11 @@ import co.usc.ulordj.core.UldECKey;
 import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.RegTestParams;
 import co.usc.ulordj.params.TestNet3Params;
+import co.usc.ulordj.params.UnitTestParams;
 import co.usc.validators.BlockValidationRule;
 import org.apache.commons.collections4.CollectionUtils;
+import org.ethereum.config.SystemProperties;
+import org.ethereum.config.net.DevNetConfig;
 import org.ethereum.core.*;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
@@ -175,12 +178,21 @@ public class BlockToMineBuilder {
             Coin minimumGasPrice) {
 
         NetworkParameters params;
-        if(config.getBlockchainConfig() instanceof BridgeRegTestConstants)
-            params = RegTestParams.get();
-        else if(config.getBlockchainConfig() instanceof BridgeTestNetConstants)
-            params = TestNet3Params.get();
-        else
-            params = MainNetParams.get();
+
+        switch (config.netName()) {
+            case SystemProperties.REGTEST:
+                params = RegTestParams.get();
+                break;
+            case SystemProperties.TESTNET:
+                params = TestNet3Params.get();
+                break;
+            case SystemProperties.DEVNET:
+                params = UnitTestParams.get();
+                break;
+            default:
+                params = MainNetParams.get();
+                break;
+        }
 
         Address bpAddr = UldECKey.fromPublicOnly(config.getMyKey().getPubKey(true)).toAddress(params);
         final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice, bpAddr);

@@ -101,6 +101,10 @@ public abstract class SystemProperties {
     private static final Boolean DEFAULT_VMTEST_LOAD_LOCAL = false;
     private static final String DEFAULT_BLOCKS_LOADER = "";
 
+    public static final String MAINNET = "main";
+    public static final String TESTNET = "testnet";
+    public static final String REGTEST = "regtest";
+    public static final String DEVNET  = "devnet";
 
 
     /**
@@ -201,16 +205,16 @@ public abstract class SystemProperties {
         }
         if (netName != null) {
             switch(netName) {
-                case "main":
+                case MAINNET:
                     blockchainConfig = new MainNetConfig();
                     break;
-                case "testnet":
+                case TESTNET:
                     blockchainConfig = new TestNetConfig();
                     break;
-                case "devnet":
+                case DEVNET:
                     blockchainConfig = DevNetConfig.getFromConfig(getHardForkActivationConfig());
                     break;
-                case "regtest":
+                case REGTEST:
                     blockchainConfig = RegTestConfig.getFromConfig(getHardForkActivationConfig());
                     break;
                 default:

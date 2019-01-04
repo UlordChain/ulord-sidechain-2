@@ -19,7 +19,6 @@
 
 package org.ethereum.util;
 
-import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.ulordj.core.Address;
@@ -493,17 +492,17 @@ public class RLP {
         return new Coin(bytes);
     }
 
-    /**
-     * @param bytes the difficulty bytes, as expected by {@link BigInteger#BigInteger(byte[])}.
-     */
-    @Nullable
-    public static BlockDifficulty parseBlockDifficulty(@Nullable byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-
-        return new BlockDifficulty(new BigInteger(bytes));
-    }
+//    /**
+//     * @param bytes the difficulty bytes, as expected by {@link BigInteger#BigInteger(byte[])}.
+//     */
+//    @Nullable
+//    public static BlockDifficulty parseBlockDifficulty(@Nullable byte[] bytes) {
+//        if (bytes == null) {
+//            return null;
+//        }
+//
+//        return new BlockDifficulty(new BigInteger(bytes));
+//    }
 
     /**
      * Get exactly one message payload
@@ -680,13 +679,13 @@ public class RLP {
         return encodeCoinNonNullZero(coin);
     }
 
-    public static byte[] encodeBlockDifficulty(BlockDifficulty difficulty) {
-        if (difficulty == null) {
-            return encodeElement(null);
-        }
-
-        return encodeElement(difficulty.getBytes());
-    }
+//    public static byte[] encodeBlockDifficulty(BlockDifficulty difficulty) {
+//        if (difficulty == null) {
+//            return encodeElement(null);
+//        }
+//
+//        return encodeElement(difficulty.getBytes());
+//    }
 
     public static byte[] encodeElement(@Nullable byte[] srcData) {
         if (srcData == null || srcData.length == 0) {
