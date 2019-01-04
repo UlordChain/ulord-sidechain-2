@@ -49,7 +49,7 @@ public interface Blockchain {
      *
      * @return - total difficulty
      */
-    BlockDifficulty getTotalDifficulty();
+//    BlockDifficulty getTotalDifficulty();
 
     /**
      * @return - last added block from blockchain
@@ -64,7 +64,7 @@ public interface Blockchain {
 
     void setBestBlock(Block block);
 
-    void setStatus(Block block, BlockDifficulty totalDifficulty);
+    void setStatus(Block block /*, BlockDifficulty totalDifficulty*/);
 
     BlockChainStatus getStatus();
 
@@ -72,7 +72,7 @@ public interface Blockchain {
 
     void close();
 
-    void setTotalDifficulty(BlockDifficulty totalDifficulty);
+//    void setTotalDifficulty(BlockDifficulty totalDifficulty);
 
     byte[] getBestBlockHash();
 

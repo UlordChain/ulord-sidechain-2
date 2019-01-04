@@ -36,9 +36,7 @@ public interface MinerServer {
 
     boolean isRunning();
 
-    SubmitBlockResult submitSignature(
-            byte[] signature
-    );
+    SubmitBlockResult submitSignature(String signature);
 
     SubmitBlockResult submitUlordBlockTransactions(
             String blockHashForMergedMining,

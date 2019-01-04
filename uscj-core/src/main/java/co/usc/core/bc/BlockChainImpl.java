@@ -84,7 +84,7 @@ public class BlockChainImpl implements Blockchain {
     private EthereumListener listener;
     private BlockValidator blockValidator;
 
-    private volatile BlockChainStatus status = new BlockChainStatus(null, BlockDifficulty.ZERO);
+    private volatile BlockChainStatus status = new BlockChainStatus(null /*, BlockDifficulty.ZERO*/);
 
     private final Object connectLock = new Object();
     private final Object accessLock = new Object();
@@ -350,17 +350,17 @@ public class BlockChainImpl implements Blockchain {
         return status;
     }
 
-    /**
-     * Change the blockchain status, to a new best block with difficulty
-     *
-     * @param block        The new best block
-     * @param totalDifficulty   The total difficulty of the new blockchain
-     */
+//    /**
+//     * Change the blockchain status, to a new best block with difficulty
+//     *
+//     * @param block        The new best block
+//     * @param totalDifficulty   The total difficulty of the new blockchain
+//     */
     @Override
-    public void setStatus(Block block, BlockDifficulty totalDifficulty) {
+    public void setStatus(Block block /*, BlockDifficulty totalDifficulty*/) {
         synchronized (accessLock) {
-            status = new BlockChainStatus(block, totalDifficulty);
-            blockStore.saveBlock(block, totalDifficulty, true);
+            status = new BlockChainStatus(block /*, totalDifficulty*/);
+            blockStore.saveBlock(block, /*totalDifficulty,*/ true);
             repository.syncToRoot(block.getStateRoot());
         }
     }
@@ -442,7 +442,7 @@ public class BlockChainImpl implements Blockchain {
 
     @Override
     public void setBestBlock(Block block) {
-        this.setStatus(block, status.getTotalDifficulty());
+        this.setStatus(block /*, status.getTotalDifficulty()*/);
     }
 
     @Override
@@ -479,15 +479,15 @@ public class BlockChainImpl implements Blockchain {
 
     }
 
-    @Override
-    public BlockDifficulty getTotalDifficulty() {
-        return status.getTotalDifficulty();
-    }
-
-    @Override
-    public void setTotalDifficulty(BlockDifficulty totalDifficulty) {
-        setStatus(status.getBestBlock(), totalDifficulty);
-    }
+//    @Override
+//    public BlockDifficulty getTotalDifficulty() {
+//        return status.getTotalDifficulty();
+//    }
+//
+//    @Override
+//    public void setTotalDifficulty(BlockDifficulty totalDifficulty) {
+//        setStatus(status.getBestBlock(), totalDifficulty);
+//    }
 
     @Override @VisibleForTesting
     public byte[] getBestBlockHash() {
@@ -499,23 +499,23 @@ public class BlockChainImpl implements Blockchain {
         this.blockRecorder = blockRecorder;
     }
 
-    private void switchToBlockChain(Block block, BlockDifficulty totalDifficulty) {
-        synchronized (accessLock) {
-            storeBlock(block, totalDifficulty, true);
-            status = new BlockChainStatus(block, totalDifficulty);
-            repository.syncToRoot(block.getStateRoot());
-        }
-    }
-
-    private void extendAlternativeBlockChain(Block block, BlockDifficulty totalDifficulty) {
-        storeBlock(block, totalDifficulty, false);
-    }
-
-    private void storeBlock(Block block, BlockDifficulty totalDifficulty, boolean inBlockChain) {
-        blockStore.saveBlock(block, totalDifficulty, inBlockChain);
-        logger.trace("Block saved: number: {}, hash: {}, TD: {}",
-                block.getNumber(), block.getShortHash(), totalDifficulty);
-    }
+//    private void switchToBlockChain(Block block, BlockDifficulty totalDifficulty) {
+//        synchronized (accessLock) {
+//            storeBlock(block, totalDifficulty, true);
+//            status = new BlockChainStatus(block, totalDifficulty);
+//            repository.syncToRoot(block.getStateRoot());
+//        }
+//    }
+//
+//    private void extendAlternativeBlockChain(Block block, BlockDifficulty totalDifficulty) {
+//        storeBlock(block, totalDifficulty, false);
+//    }
+//
+//    private void storeBlock(Block block, BlockDifficulty totalDifficulty, boolean inBlockChain) {
+//        blockStore.saveBlock(block, totalDifficulty, inBlockChain);
+//        logger.trace("Block saved: number: {}, hash: {}, TD: {}",
+//                block.getNumber(), block.getShortHash(), totalDifficulty);
+//    }
 
     private void saveReceipts(Block block, BlockResult result) {
         if (result == null) {

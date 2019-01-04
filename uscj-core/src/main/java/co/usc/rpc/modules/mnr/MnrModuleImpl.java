@@ -42,11 +42,11 @@ import java.util.List;
 import java.util.Queue;
 
 @Component
-public class MnrModuleImpl implements MnrModule, Runnable {
+public class MnrModuleImpl implements MnrModule /*, Runnable*/ {
 
     private static Queue<String> submittedQueue = EvictingQueue.create(10);
 
-    private Thread processUlordBlockPartialMerkleThread;
+//    private Thread processUlordBlockPartialMerkleThread;
 
     private static final Logger logger = LoggerFactory.getLogger("web3");
 
@@ -100,26 +100,19 @@ public class MnrModuleImpl implements MnrModule, Runnable {
     }
 
     @Override
-    public SubmittedBlockInfo submitUlordBlockPartialMerkle(String blockHashHex, String blockHeaderHex, String coinbaseHex, String merkleHashesHex, String blockTxnCountHex) {
-        synchronized (this) {
-            submittedQueue.add(blockHashHex + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
-        }
+    public SubmittedBlockInfo submitSignature(String signature) {
+//        synchronized (this) {
+//            submittedQueue.add(signature + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
+//        }
+//
+//        logger.debug("Queue Size: " + submittedQueue.size());
+//        if(processUlordBlockPartialMerkleThread == null) {
+//            processUlordBlockPartialMerkleThread = new Thread(this);
+//            processUlordBlockPartialMerkleThread.setName("processUlordBlockPartialMerkle");
+//            processUlordBlockPartialMerkleThread.start();
+//        }
 
-        logger.debug("Queue Size: " + submittedQueue.size());
-        if(processUlordBlockPartialMerkleThread == null) {
-            processUlordBlockPartialMerkleThread = new Thread(this);
-            processUlordBlockPartialMerkleThread.setName("processUlordBlockPartialMerkle");
-            processUlordBlockPartialMerkleThread.start();
-        }
-
-        return parseResultAndReturn(new SubmitBlockResult("OK", "OK"));
-    }
-
-    @Override
-    public SubmittedBlockInfo addSignature(byte[] signature) {
-        //TODO: verify and add signature to the block.
-        //Once enough signatures are received hash the block, add it to the blockchain and broadcast it to other peers.
-        return null;
+        return parseResultAndReturn(minerServer.submitSignature(signature));
     }
 
     private UldBlock getUldBlock(String blockHeaderHex, NetworkParameters params) {
@@ -152,59 +145,59 @@ public class MnrModuleImpl implements MnrModule, Runnable {
         }
     }
 
-    private void processUlordBlockPartialMerkle() {
+//    private void processUlordBlockPartialMerkle() {
+//
+//        while(true) {
+//            try {
+//                if (submittedQueue.isEmpty()) {
+//                    try {
+//                        Thread.sleep(10);
+//                    } catch (InterruptedException ex) {
+//                        logger.warn("processUlordBlockPartialMerkle thread interrupted: " + ex);
+//                    }
+//                    continue;
+//                }
+//
+//                String data = "";
+//                synchronized (this) {
+//                    data = submittedQueue.poll();
+//                }
+//
+//                if (data == null) continue;
+//                String[] dataObjects = data.split(":");
+//
+//                String blockHashHex = dataObjects[0];
+//                String blockHeaderHex = dataObjects[1];
+//                String coinbaseHex = dataObjects[2];
+//                String merkleHashesHex = dataObjects[3];
+//                String blockTxnCountHex = dataObjects[4];
+//
+//                logger.debug("submitSignature(): {}, {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, merkleHashesHex, blockTxnCountHex);
+//
+//                NetworkParameters params = RegTestParams.get();
+//                new Context(params);
+//
+//                UldBlock ulordBlockWithHeaderOnly = getUldBlock(blockHeaderHex, params);
+//                UldTransaction coinbase = new UldTransaction(params, Hex.decode(coinbaseHex));
+//
+//                String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
+//
+//                List<String> merkleHashes = parseHashes(merkleHashesHex);
+//
+//                int txnCount = Integer.parseInt(blockTxnCountHex, 16);
+//
+//                SubmitBlockResult result = minerServer.submitSignature(blockHashForMergedMining);
+//
+//                logger.debug("result" + result.getMessage() + " " + result.getStatus() + " " + result.getBlockInfo().getBlockIncludedHeight());
+//            } catch (Exception e) {
+//                logger.warn("Exception in processUlordBlockPartialMerkle:" + e);
+//            }
+//
+//        }
+//    }
 
-        while(true) {
-            try {
-                if (submittedQueue.isEmpty()) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException ex) {
-                        logger.warn("processUlordBlockPartialMerkle thread interrupted: " + ex);
-                    }
-                    continue;
-                }
-
-                String data = "";
-                synchronized (this) {
-                    data = submittedQueue.poll();
-                }
-
-                if (data == null) continue;
-                String[] dataObjects = data.split(":");
-
-                String blockHashHex = dataObjects[0];
-                String blockHeaderHex = dataObjects[1];
-                String coinbaseHex = dataObjects[2];
-                String merkleHashesHex = dataObjects[3];
-                String blockTxnCountHex = dataObjects[4];
-
-                logger.debug("submitSignature(): {}, {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, merkleHashesHex, blockTxnCountHex);
-
-                NetworkParameters params = RegTestParams.get();
-                new Context(params);
-
-                UldBlock ulordBlockWithHeaderOnly = getUldBlock(blockHeaderHex, params);
-                UldTransaction coinbase = new UldTransaction(params, Hex.decode(coinbaseHex));
-
-                String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
-
-                List<String> merkleHashes = parseHashes(merkleHashesHex);
-
-                int txnCount = Integer.parseInt(blockTxnCountHex, 16);
-
-                SubmitBlockResult result = minerServer.submitSignature(blockHashForMergedMining);
-
-                logger.debug("result" + result.getMessage() + " " + result.getStatus() + " " + result.getBlockInfo().getBlockIncludedHeight());
-            } catch (Exception e) {
-                logger.warn("Exception in processUlordBlockPartialMerkle:" + e);
-            }
-
-        }
-    }
-
-    @Override
-    public void run() {
-        processUlordBlockPartialMerkle();
-    }
+//    @Override
+//    public void run() {
+//        processUlordBlockPartialMerkle();
+//    }
 }

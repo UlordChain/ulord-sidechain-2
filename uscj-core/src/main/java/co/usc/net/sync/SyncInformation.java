@@ -13,7 +13,7 @@ import java.time.Instant;
 public interface SyncInformation {
     boolean isKnownBlock(byte[] hash);
 
-    boolean hasLowerDifficulty(NodeID nodeID);
+//    boolean hasLowerDifficulty(NodeID nodeID);
 
     BlockProcessResult processBlock(Block block, MessageChannel channel);
 

@@ -23,7 +23,6 @@ import co.usc.ulordj.core.UldTransaction;
 import co.usc.config.MiningConfig;
 import co.usc.config.UscMiningConstants;
 import co.usc.config.UscSystemProperties;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
@@ -195,16 +194,17 @@ public class MinerServerImpl implements MinerServer {
     }
 
     @Override
-    public SubmitBlockResult submitSignature(byte[] signature) {
-        logger.debug("Received merkle solution with hash {} for merged mining", signature);
+    public SubmitBlockResult submitSignature(String signature) {
+        logger.debug("Received signature {} ", signature);
 
-        return processSolution(
-                signature,
-                blockWithHeaderOnly,
-                coinbase,
-                (pb) -> pb.buildFromMerkleHashes(blockWithHeaderOnly, merkleHashes, blockTxnCount),
-                true
-        );
+//        return processSolution(
+//                signature,
+//                blockWithHeaderOnly,
+//                coinbase,
+//                (pb) -> pb.buildFromMerkleHashes(blockWithHeaderOnly, merkleHashes, blockTxnCount),
+//                true
+//        );
+        return new SubmitBlockResult("OK", "OK");
     }
 
     @Override

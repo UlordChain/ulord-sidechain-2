@@ -34,13 +34,6 @@ public interface MnrModule {
             String txnHashesHex
     );
 
-    SubmittedBlockInfo submitUlordBlockPartialMerkle(
-            String blockHashHex,
-            String blockHeaderHex,
-            String coinbaseHex,
-            String merkleHashesHex,
-            String blockTxnCountHex
-    );
+    SubmittedBlockInfo submitSignature(String signature);
 
-    SubmittedBlockInfo addSignature(byte[] signature);
 }

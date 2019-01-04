@@ -40,13 +40,8 @@ public interface Web3MnrModule {
         return getMnrModule().submitUlordBlockTransactions(blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
     }
 
-    default SubmittedBlockInfo mnr_submitUlordBlockPartialMerkle(
-            String blockHashHex,
-            String blockHeaderHex,
-            String coinbaseHex,
-            String merkleHashesHex,
-            String blockTxnCountHex) {
-        return getMnrModule().submitUlordBlockPartialMerkle(blockHashHex, blockHeaderHex, coinbaseHex, merkleHashesHex, blockTxnCountHex);
+    default SubmittedBlockInfo bp_submitSignature(String signature) {
+        return getMnrModule().submitSignature(signature);
     }
 
     MnrModule getMnrModule();

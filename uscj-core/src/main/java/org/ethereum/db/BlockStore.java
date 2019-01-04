@@ -19,7 +19,6 @@
 
 package org.ethereum.db;
 
-import co.usc.core.BlockDifficulty;
 import co.usc.db.RemascCache;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
@@ -61,9 +60,9 @@ public interface BlockStore extends RemascCache {
 
     List<Block> getListBlocksEndWith(byte[] hash, long qty);
 
-    void saveBlock(Block block, BlockDifficulty cummDifficulty, boolean mainChain);
+    void saveBlock(Block block, /*BlockDifficulty cummDifficulty,*/ boolean mainChain);
 
-    BlockDifficulty getTotalDifficultyForHash(byte[] hash);
+//    BlockDifficulty getTotalDifficultyForHash(byte[] hash);
 
     Block getBestBlock();
 
