@@ -59,8 +59,8 @@ public class TestNetShakespeareConfig extends TestNetAfterBridgeSyncConfig {
         return true;
     }
 
-    @Override   // UscIP97  Remove difficulty drop
-    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        return getBlockDifficulty(getConstants(), curBlock, parent);
-    }
+//    @Override   // UscIP97  Remove difficulty drop
+//    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
+//        return getBlockDifficulty(getConstants(), curBlock, parent);
+//    }
 }

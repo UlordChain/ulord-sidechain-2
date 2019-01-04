@@ -70,8 +70,8 @@ public class RegTestShakespeareConfig extends RegTestGenesisConfig {
         return true;
     }
 
-    @Override   // UscIP97
-    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        return getBlockDifficulty(getConstants(), curBlock, parent);
-    }
+//    @Override   // UscIP97
+//    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
+//        return getBlockDifficulty(getConstants(), curBlock, parent);
+//    }
 }

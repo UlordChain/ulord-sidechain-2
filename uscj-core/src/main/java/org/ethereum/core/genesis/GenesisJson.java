@@ -20,8 +20,6 @@
 package org.ethereum.core.genesis;
 
 
-import co.usc.core.UscAddress;
-
 import java.util.Map;
 
 public class GenesisJson {

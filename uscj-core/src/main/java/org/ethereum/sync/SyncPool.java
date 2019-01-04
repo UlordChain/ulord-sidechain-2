@@ -20,7 +20,6 @@
 package org.ethereum.sync;
 
 import co.usc.net.NodeID;
-import co.usc.core.BlockDifficulty;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.Blockchain;
 import org.ethereum.listener.EthereumListener;
@@ -68,8 +67,6 @@ public class SyncPool implements Iterable<Channel> {
     private final List<Channel> activePeers = Collections.synchronizedList(new ArrayList<Channel>());
     private final Map<String, Long> pendingConnections = new HashMap<>();
 
-    private BlockDifficulty lowerUsefulDifficulty = BlockDifficulty.ZERO;
-
     private final EthereumListener ethereumListener;
     private final Blockchain blockchain;
     private final SystemProperties config;
@@ -90,7 +87,7 @@ public class SyncPool implements Iterable<Channel> {
                 try {
                     heartBeat();
                     processConnections();
-                    updateLowerUsefulDifficulty();
+                    //updateLowerUsefulDifficulty();
                     fillUp(peerClientFactory);
                     prepareActive();
                 } catch (Throwable t) {
@@ -373,13 +370,13 @@ public class SyncPool implements Iterable<Channel> {
         );
     }
 
-    public void updateLowerUsefulDifficulty() {
-        BlockDifficulty td = blockchain.getTotalDifficulty();
-
-        if (td.compareTo(lowerUsefulDifficulty) > 0) {
-            lowerUsefulDifficulty = td;
-        }
-    }
+//    public void updateLowerUsefulDifficulty() {
+//        BlockDifficulty td = blockchain.getTotalDifficulty();
+//
+//        if (td.compareTo(lowerUsefulDifficulty) > 0) {
+//            lowerUsefulDifficulty = td;
+//        }
+//    }
 
     private void heartBeat() {
         for (Channel peer : this) {

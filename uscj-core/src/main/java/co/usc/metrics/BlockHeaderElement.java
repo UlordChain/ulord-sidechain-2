@@ -18,7 +18,6 @@
 
 package co.usc.metrics;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.core.BlockHeader;
 
 import java.util.Objects;

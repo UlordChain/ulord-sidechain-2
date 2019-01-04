@@ -19,32 +19,18 @@
 
 package co.usc.validators;
 
-import co.usc.ulordj.core.UldBlock;
-import co.usc.ulordj.core.Sha256Hash;
 import co.usc.config.BridgeConstants;
-import co.usc.config.UscMiningConstants;
 import co.usc.config.UscSystemProperties;
-import co.usc.util.DifficultyUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.util.Pack;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.config.Constants;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
-import org.ethereum.crypto.ECKey;
-import org.ethereum.util.RLP;
-import org.ethereum.util.RLPElement;
-import org.ethereum.util.RLPList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Checks proof value against its boundary for the block header.

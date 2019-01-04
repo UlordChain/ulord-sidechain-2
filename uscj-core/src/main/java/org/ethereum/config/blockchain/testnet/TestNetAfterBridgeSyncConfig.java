@@ -35,17 +35,17 @@ public class TestNetAfterBridgeSyncConfig extends GenesisConfig {
 
         private static final BigInteger DIFFICULTY_BOUND_DIVISOR = BigInteger.valueOf(5);
         private static final byte CHAIN_ID = 51;
-        private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf(896));
+//        private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf(896));
 
         @Override
         public BridgeConstants getBridgeConstants() {
             return BridgeTestNetConstants.getInstance();
         }
 
-        @Override
-        public BlockDifficulty getMinimumDifficulty() {
-            return minimumDifficulty;
-        }
+//        @Override
+//        public BlockDifficulty getMinimumDifficulty() {
+//            return minimumDifficulty;
+//        }
 
         @Override
         public int getDurationLimit() {
@@ -78,24 +78,24 @@ public class TestNetAfterBridgeSyncConfig extends GenesisConfig {
     }
 
 
-    @Override
-    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
+//    @Override
+//    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
 
         // Created Fork at Thursday, August 16, 2018 3:00:00 PM GMT+08:00
         // Changed 10 minutes to 2.5 minutes
 
         // If more than 10 minutes, reset to original difficulty 0x00100000
-        if(curBlock.getTimestamp() < 1534402800l) {
-            if (curBlock.getTimestamp() >= parent.getTimestamp() + 600) {
-                return getConstants().getMinimumDifficulty();
-            }
-        }
-        else {
-            if (curBlock.getTimestamp() >= parent.getTimestamp() + 150) {
-                return getConstants().getMinimumDifficulty();
-            }
-        }
-
-        return super.calcDifficulty(curBlock, parent);
-    }
+//        if(curBlock.getTimestamp() < 1534402800l) {
+//            if (curBlock.getTimestamp() >= parent.getTimestamp() + 600) {
+//                return getConstants().getMinimumDifficulty();
+//            }
+//        }
+//        else {
+//            if (curBlock.getTimestamp() >= parent.getTimestamp() + 150) {
+//                return getConstants().getMinimumDifficulty();
+//            }
+//        }
+//
+//        return super.calcDifficulty(curBlock, parent);
+//    }
 }

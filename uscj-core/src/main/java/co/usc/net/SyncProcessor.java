@@ -13,7 +13,6 @@ import org.ethereum.core.Blockchain;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.server.ChannelManager;
 import org.ethereum.validator.DependentBlockHeaderRule;
-import org.ethereum.validator.DifficultyRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
