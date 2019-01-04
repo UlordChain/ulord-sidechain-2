@@ -173,7 +173,7 @@ public class MinerServerImpl implements MinerServer {
             started = true;
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
-            buildBlockToMine(blockchain.getBestBlock(), false);
+            buildBlockToSign(blockchain.getBestBlock(), false);
 
         }
     }
@@ -375,20 +375,20 @@ public class MinerServerImpl implements MinerServer {
     }
 
     /**
-     * buildBlockToMine creates a block to mine based on the given block as parent.
+     * buildBlockToSign creates a block to sign based on the given block as parent.
      *
      * @param newBlockParent         the new block parent.
      * @param createCompetitiveBlock used for testing.
      */
     @Override
-    public void buildBlockToMine(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
+    public void buildBlockToSign(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
             // Just for testing, mine on top of bestblock's parent
             newBlockParent = blockchain.getBlockByHash(newBlockParent.getParentHash().getBytes());
         }
 
-        logger.info("Starting block to mine from parent {} {}", newBlockParent.getNumber(), newBlockParent.getHash());
+        logger.info("Starting block to sign from parent {} {}", newBlockParent.getNumber(), newBlockParent.getHash());
 
         final Block newBlock = builder.build(newBlockParent, extraData);
 
@@ -448,7 +448,7 @@ public class MinerServerImpl implements MinerServer {
 
             if (!work.getParentBlockHash().equals(bestBlockHash)) {
                 //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
-                buildBlockToMine(bestBlock, false);
+                buildBlockToSign(bestBlock, false);
             } else {
                 //logger.debug("New block arrived but there is no need to build a new block to mine: {}", block.getShortHashForMergedMining());
             }

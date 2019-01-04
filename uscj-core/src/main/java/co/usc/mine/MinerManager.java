@@ -25,7 +25,7 @@ import org.ethereum.core.Blockchain;
  */
 public class MinerManager {
     public void mineBlock(Blockchain blockchain, MinerClient minerClient, MinerServer minerServer) {
-        minerServer.buildBlockToMine(blockchain.getBestBlock(), false);
+        minerServer.buildBlockToSign(blockchain.getBestBlock(), false);
         minerClient.mineBlock();
     }
 }

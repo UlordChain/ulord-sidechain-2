@@ -101,7 +101,7 @@ public class Block {
         this.parsed = true;
     }
 
-    public Block(BlockHeader header, List<Transaction> transactionsList, List<byte[]> signaturesList) {
+    public Block(BlockHeader header, List<Transaction> transactionsList) {
 
         this(
                 header.getParentHash().getBytes(),
@@ -117,20 +117,18 @@ public class Block {
                 header.getStateRoot(),
                 transactionsList,
                 header.getMinimumGasPrice() == null ? null : header.getMinimumGasPrice().getBytes(),
-                header.getBpAddress(),
-                signaturesList);
+                header.getBpAddress());
     }
 
     public Block(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress,
-                 List<byte[]> signaturesList) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
                 gasUsed, timestamp, extraData, receiptsRoot, transactionsRoot,
-                stateRoot, transactionsList, minimumGasPrice, Coin.ZERO, bpAddress, signaturesList);
+                stateRoot, transactionsList, minimumGasPrice, Coin.ZERO, bpAddress);
 
         this.flushRLP();
     }
@@ -139,11 +137,10 @@ public class Block {
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees, Address bpAddress,
-                 List<byte[]> signaturesList) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees, Address bpAddress) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
-                gasUsed, timestamp, extraData, transactionsList, minimumGasPrice, bpAddress, signaturesList);
+                gasUsed, timestamp, extraData, transactionsList, minimumGasPrice, bpAddress);
 
         this.header.setPaidFees(paidFees);
 
@@ -161,8 +158,7 @@ public class Block {
 
     public Block(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                  long number, byte[] gasLimit, long gasUsed, long timestamp,
-                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress,
-                 List<byte[]> signaturesList) {
+                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress) {
 
         if (transactionsList == null) {
             this.transactionsList = Collections.emptyList();
@@ -170,7 +166,7 @@ public class Block {
         else {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
-        this.signaturesList = signaturesList;
+        this.signaturesList = new ArrayList<>();
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
                 timestamp, extraData, minimumGasPrice, bpAddress);

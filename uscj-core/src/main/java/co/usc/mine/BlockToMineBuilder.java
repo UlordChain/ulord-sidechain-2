@@ -18,14 +18,19 @@
 
 package co.usc.mine;
 
-import co.usc.config.MiningConfig;
-import co.usc.config.UscSystemProperties;
+import co.usc.config.*;
 import co.usc.core.Coin;
 import co.usc.core.DifficultyCalculator;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockExecutor;
 import co.usc.core.bc.FamilyUtils;
 import co.usc.remasc.RemascTransaction;
+import co.usc.ulordj.core.Address;
+import co.usc.ulordj.core.NetworkParameters;
+import co.usc.ulordj.core.UldECKey;
+import co.usc.ulordj.params.MainNetParams;
+import co.usc.ulordj.params.RegTestParams;
+import co.usc.ulordj.params.TestNet3Params;
 import co.usc.validators.BlockValidationRule;
 import org.apache.commons.collections4.CollectionUtils;
 import org.ethereum.core.*;
@@ -65,6 +70,8 @@ public class BlockToMineBuilder {
     private final MinimumGasPriceCalculator minimumGasPriceCalculator;
     private final MinerUtils minerUtils;
     private final BlockExecutor executor;
+
+    private final UscSystemProperties config;
 
     private final Coin minerMinGasPriceTarget;
 
@@ -115,12 +122,12 @@ public class BlockToMineBuilder {
                 config.vmTraceDir(),
                 config.vmTraceCompressed()
         ));
-
+        this.config = config;
         this.minerMinGasPriceTarget = Coin.valueOf(miningConfig.getMinGasPriceTarget());
     }
 
     /**
-     * build creates a block to mine based on the given block as parent.
+     * build creates a block to sign based on the given block as parent.
      *
      * @param newBlockParent the new block parent.
      * @param extraData      extra data to pass to the block being built
@@ -166,15 +173,26 @@ public class BlockToMineBuilder {
             Block newBlockParent,
             List<Transaction> txs,
             Coin minimumGasPrice) {
-        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice);
+
+        NetworkParameters params;
+        if(config.getBlockchainConfig() instanceof BridgeRegTestConstants)
+            params = RegTestParams.get();
+        else if(config.getBlockchainConfig() instanceof BridgeTestNetConstants)
+            params = TestNet3Params.get();
+        else
+            params = MainNetParams.get();
+
+        Address bpAddr = UldECKey.fromPublicOnly(config.getMyKey().getPubKey(true)).toAddress(params);
+        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice, bpAddr);
         final Block newBlock = new Block(newHeader, txs);
-        return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs, null);
+        return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs);
     }
 
     private BlockHeader createHeader(
             Block newBlockParent,
             List<Transaction> txs,
-            Coin minimumGasPrice) {
+            Coin minimumGasPrice,
+            Address bpAddress) {
 
         final long timestampSeconds = this.getCurrentTimeInSeconds();
 
@@ -191,16 +209,13 @@ public class BlockToMineBuilder {
                 newBlockParent.getHash().getBytes(),
                 miningConfig.getCoinbaseAddress().getBytes(),
                 new Bloom().getData(),
-                new byte[]{1},
                 newBlockParent.getNumber() + 1,
                 gasLimit.toByteArray(),
                 0,
                 timestampSeconds,
                 new byte[]{},
-                new byte[]{},
-                new byte[]{},
-                new byte[]{},
-                minimumGasPrice.getBytes()
+                minimumGasPrice.getBytes(),
+                bpAddress
         );
         newHeader.setTransactionsRoot(Block.getTxTrie(txs).getHash().getBytes());
         return newHeader;
