@@ -19,7 +19,6 @@
 package co.usc.net.eth;
 
 import co.usc.config.UscSystemProperties;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.bc.BlockChainStatus;
 import co.usc.net.*;
 import co.usc.net.messages.BlockMessage;
@@ -136,9 +135,11 @@ public class UscWireProtocol extends EthHandler {
                         syncStats.addStatus();
                         break;
                     case BLOCK_SIGN_REQUEST_MESSAGE:
+                        //This is a broadcast message sent from current BP creating block to other BP's
                         //TODO Blocks received here needs BP's sign. This sign will be sent back to sender BP.
                         break;
                     case BLOCK_SIGN_RESPONSE_MESSAGE:
+                        //This is where current BP creating block receives sign from other BP's
                         //TODO Signs from all BP's to be included in the block.
                         break;
                 }
@@ -233,16 +234,15 @@ public class UscWireProtocol extends EthHandler {
 
         BlockChainStatus blockChainStatus = this.blockchain.getStatus();
         Block bestBlock = blockChainStatus.getBestBlock();
-        BlockDifficulty totalDifficulty = blockChainStatus.getTotalDifficulty();
 
         // Original status
         Genesis genesis = GenesisLoader.loadGenesis(config, config.genesisInfo(), config.getBlockchainConfig().getCommonConstants().getInitialNonce(), true);
         org.ethereum.net.eth.message.StatusMessage msg = new org.ethereum.net.eth.message.StatusMessage(protocolVersion, networkId,
-                ByteUtil.bigIntegerToBytes(totalDifficulty.asBigInteger()), bestBlock.getHash().getBytes(), genesis.getHash().getBytes());
+                bestBlock.getHash().getBytes(), genesis.getHash().getBytes());
         sendMessage(msg);
 
         // USC new protocol send status
-        Status status = new Status(bestBlock.getNumber(), bestBlock.getHash().getBytes(), bestBlock.getParentHash().getBytes(), totalDifficulty);
+        Status status = new Status(bestBlock.getNumber(), bestBlock.getHash().getBytes(), bestBlock.getParentHash().getBytes());
         UscMessage uscmessage = new UscMessage(new StatusMessage(status));
         loggerNet.trace("Sending status best block {} to {}", status.getBestBlockNumber(), this.messageSender.getPeerNodeID().toString());
         sendMessage(uscmessage);

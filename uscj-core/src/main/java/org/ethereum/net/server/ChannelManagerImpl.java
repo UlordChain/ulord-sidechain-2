@@ -375,6 +375,9 @@ public class ChannelManagerImpl implements ChannelManager {
     @Override
     public Set<NodeID> sendSignForBlock(@Nonnull final String sign){
         //TODO send back sign for Block produced by current BP. See UscWireProtocol.java
+        final Set<NodeID> nodesIdsBroadcastedTo = new HashSet<>();
+
+        return nodesIdsBroadcastedTo;
     }
 
 }

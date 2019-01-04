@@ -39,10 +39,6 @@ public class StatusMessage extends EthMessage {
     protected int networkId;
 
     /**
-     * Total difficulty of the best chain as found in block header.
-     */
-    protected byte[] totalDifficulty;
-    /**
      * The hash of the best (i.e. highest TD) known block.
      */
     protected byte[] bestHash;
@@ -56,10 +52,9 @@ public class StatusMessage extends EthMessage {
     }
 
     public StatusMessage(byte protocolVersion, int networkId,
-                         byte[] totalDifficulty, byte[] bestHash, byte[] genesisHash) {
+                         byte[] bestHash, byte[] genesisHash) {
         this.protocolVersion = protocolVersion;
         this.networkId = networkId;
-        this.totalDifficulty = totalDifficulty;
         this.bestHash = bestHash;
         this.genesisHash = genesisHash;
         this.parsed = true;
@@ -73,7 +68,6 @@ public class StatusMessage extends EthMessage {
         this.networkId = networkIdBytes == null ? 0 : ByteUtil.byteArrayToInt(networkIdBytes);
 
         byte[] diff = paramsList.get(2).getRLPData();
-        this.totalDifficulty = (diff == null) ? ZERO_BYTE_ARRAY : diff;
         this.bestHash = paramsList.get(3).getRLPData();
         this.genesisHash = paramsList.get(4).getRLPData();
 
@@ -83,12 +77,11 @@ public class StatusMessage extends EthMessage {
     protected void encode() {
         byte[] protocolVersion = RLP.encodeByte(this.protocolVersion);
         byte[] networkId = RLP.encodeInt(this.networkId);
-        byte[] totalDifficulty = RLP.encodeElement(this.totalDifficulty);
         byte[] bestHash = RLP.encodeElement(this.bestHash);
         byte[] genesisHash = RLP.encodeElement(this.genesisHash);
 
         this.encoded = RLP.encodeList( protocolVersion, networkId,
-                totalDifficulty, bestHash, genesisHash);
+                bestHash, genesisHash);
     }
 
     @Override
@@ -116,17 +109,6 @@ public class StatusMessage extends EthMessage {
             parse();
         }
         return networkId;
-    }
-
-    public byte[] getTotalDifficulty() {
-        if (!parsed) {
-            parse();
-        }
-        return totalDifficulty;
-    }
-
-    public BigInteger getTotalDifficultyAsBigInt() {
-        return new BigInteger(1, getTotalDifficulty());
     }
 
     public byte[] getBestHash() {
@@ -157,7 +139,6 @@ public class StatusMessage extends EthMessage {
         return "[" + this.getCommand().name() +
                 " protocolVersion=" + this.protocolVersion +
                 " networkId=" + this.networkId +
-                " totalDifficulty=" + ByteUtil.toHexString(this.totalDifficulty) +
                 " bestHash=" + Hex.toHexString(this.bestHash) +
                 " genesisHash=" + Hex.toHexString(this.genesisHash) +
                 "]";
