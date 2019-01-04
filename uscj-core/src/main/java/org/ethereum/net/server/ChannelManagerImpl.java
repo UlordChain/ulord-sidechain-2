@@ -371,4 +371,10 @@ public class ChannelManagerImpl implements ChannelManager {
 
         return nodesIdsBroadcastedTo;
     }
+
+    @Override
+    public Set<NodeID> sendSignForBlock(@Nonnull final String sign){
+        //TODO send back sign for Block produced by current BP. See UscWireProtocol.java
+    }
+
 }

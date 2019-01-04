@@ -236,6 +236,18 @@ public enum MessageType {
             byte[] hash = list.get(0).getRLPData();
             return new NewBlockHashMessage(hash);
         }
+    },
+    BLOCK_BROADCAST_FOR_BP_SIGN_MESSAGE(19) {
+        @Override
+        public Message createMessage(RLPList list) {
+            //TODO create Block that needs sign
+        }
+    },
+    SIGN_RECEIVED_FROM_BP_MESSAGE(20) {
+        @Override
+        public Message createMessage(RLPList list) {
+            //TODO create sign to be included in a block inside blockchain
+        }
     };
 
     private int type;
