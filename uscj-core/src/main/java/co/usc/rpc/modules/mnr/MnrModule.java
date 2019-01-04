@@ -23,9 +23,9 @@ import co.usc.mine.SubmittedBlockInfo;
 
 public interface MnrModule {
 
-    MinerWork getWork();
+//    MinerWork getWork();
 
-    SubmittedBlockInfo submitUlordBlock(String ulordBlockHex);
+//    SubmittedBlockInfo submitUlordBlock(String ulordBlockHex);
 
 //    SubmittedBlockInfo submitUlordBlockTransactions(
 //            String blockHashHex,

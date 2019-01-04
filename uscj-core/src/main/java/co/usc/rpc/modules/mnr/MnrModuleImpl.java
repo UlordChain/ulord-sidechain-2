@@ -56,48 +56,48 @@ public class MnrModuleImpl implements MnrModule /*, Runnable*/ {
     public MnrModuleImpl(MinerServer minerServer) {
         this.minerServer = minerServer;
     }
+//
+//    @Override
+//    public MinerWork getWork() {
+//        logger.debug("getWork()");
+//        return minerServer.getWork();
+//    }
 
-    @Override
-    public MinerWork getWork() {
-        logger.debug("getWork()");
-        return minerServer.getWork();
-    }
+//    @Override
+//    public SubmittedBlockInfo submitUlordBlock(String ulordBlockHex) {
+//        logger.debug("submitUlordBlock(): {}", ulordBlockHex.length());
+//
+//        NetworkParameters params = RegTestParams.get();
+//        new Context(params);
+//
+//        UldBlock ulordBlock = getUldBlock(ulordBlockHex, params);
+//        UldTransaction coinbase = ulordBlock.getTransactions().get(0);
+//
+//        String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
+//
+//        SubmitBlockResult result = minerServer.submitUlordBlock(blockHashForMergedMining, ulordBlock);
+//
+//        return parseResultAndReturn(result);
+//    }
 
-    @Override
-    public SubmittedBlockInfo submitUlordBlock(String ulordBlockHex) {
-        logger.debug("submitUlordBlock(): {}", ulordBlockHex.length());
-
-        NetworkParameters params = RegTestParams.get();
-        new Context(params);
-
-        UldBlock ulordBlock = getUldBlock(ulordBlockHex, params);
-        UldTransaction coinbase = ulordBlock.getTransactions().get(0);
-
-        String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
-
-        SubmitBlockResult result = minerServer.submitUlordBlock(blockHashForMergedMining, ulordBlock);
-
-        return parseResultAndReturn(result);
-    }
-
-    @Override
-    public SubmittedBlockInfo submitUlordBlockTransactions(String blockHashHex, String blockHeaderHex, String coinbaseHex, String txnHashesHex) {
-        logger.debug("submitUlordBlockTransactions(): {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
-
-        NetworkParameters params = RegTestParams.get();
-        new Context(params);
-
-        UldBlock ulordBlockWithHeaderOnly = getUldBlock(blockHeaderHex, params);
-        UldTransaction coinbase = new UldTransaction(params, Hex.decode(coinbaseHex));
-
-        String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
-
-        List<String> txnHashes = parseHashes(txnHashesHex);
-
-        SubmitBlockResult result = minerServer.submitUlordBlockTransactions(blockHashForMergedMining, ulordBlockWithHeaderOnly, coinbase, txnHashes);
-
-        return parseResultAndReturn(result);
-    }
+//    @Override
+//    public SubmittedBlockInfo submitUlordBlockTransactions(String blockHashHex, String blockHeaderHex, String coinbaseHex, String txnHashesHex) {
+//        logger.debug("submitUlordBlockTransactions(): {}, {}, {}, {}", blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
+//
+//        NetworkParameters params = RegTestParams.get();
+//        new Context(params);
+//
+//        UldBlock ulordBlockWithHeaderOnly = getUldBlock(blockHeaderHex, params);
+//        UldTransaction coinbase = new UldTransaction(params, Hex.decode(coinbaseHex));
+//
+//        String blockHashForMergedMining = extractBlockHashForMergedMining(coinbase);
+//
+//        List<String> txnHashes = parseHashes(txnHashesHex);
+//
+//        SubmitBlockResult result = minerServer.submitUlordBlockTransactions(blockHashForMergedMining, ulordBlockWithHeaderOnly, coinbase, txnHashes);
+//
+//        return parseResultAndReturn(result);
+//    }
 
     @Override
     public SubmittedBlockInfo submitSignature(String signature) {

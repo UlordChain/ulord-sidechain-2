@@ -1,18 +1,18 @@
 package org.ethereum.db;
 
-import co.usc.core.BlockDifficulty;
+//import co.usc.core.BlockDifficulty;
 
 /**
  * Created by usuario on 07/06/2017.
  */
 public class BlockInformation {
     private byte[] hash;
-    private BlockDifficulty totalDifficulty;
+//    private BlockDifficulty totalDifficulty;
     private boolean inMainChain;
 
-    public BlockInformation(byte[] hash, BlockDifficulty totalDifficulty, boolean inMainChain) {
+    public BlockInformation(byte[] hash, /*BlockDifficulty totalDifficulty,*/ boolean inMainChain) {
         this.hash = hash;
-        this.totalDifficulty = totalDifficulty;
+//        this.totalDifficulty = totalDifficulty;
         this.inMainChain = inMainChain;
     }
 
@@ -20,9 +20,9 @@ public class BlockInformation {
         return this.hash;
     }
 
-    public BlockDifficulty getTotalDifficulty() {
-        return this.totalDifficulty;
-    }
+//    public BlockDifficulty getTotalDifficulty() {
+//        return this.totalDifficulty;
+//    }
 
     public boolean isInMainChain() {
         return this.inMainChain;

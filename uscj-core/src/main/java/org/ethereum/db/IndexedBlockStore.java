@@ -19,7 +19,7 @@
 
 package org.ethereum.db;
 
-import co.usc.core.BlockDifficulty;
+//import co.usc.core.BlockDifficulty;
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockCache;
 import co.usc.remasc.Sibling;
@@ -40,7 +40,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static co.usc.core.BlockDifficulty.ZERO;
+//import static co.usc.core.BlockDifficulty.ZERO;
 import static org.ethereum.crypto.HashUtil.shortHash;
 import static org.bouncycastle.util.Arrays.areEqual;
 
@@ -139,7 +139,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
     }
 
     @Override
-    public synchronized void saveBlock(Block block, BlockDifficulty cummDifficulty, boolean mainChain) {
+    public synchronized void saveBlock(Block block, /*BlockDifficulty cummDifficulty, */boolean mainChain) {
         List<BlockInfo> blockInfos = index.get(block.getNumber());
         if (blockInfos == null) {
             blockInfos = new ArrayList<>();
@@ -158,7 +158,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
             blockInfos.add(blockInfo);
         }
 
-        blockInfo.setCummDifficulty(cummDifficulty);
+//        blockInfo.setCummDifficulty(cummDifficulty);
         blockInfo.setHash(block.getHash().getBytes());
         blockInfo.setMainChain(mainChain);
 
@@ -182,10 +182,10 @@ public class IndexedBlockStore extends AbstractBlockstore {
 
         for (BlockInfo blockInfo : blockInfos) {
             byte[] hash = ByteUtils.clone(blockInfo.getHash().getBytes());
-            BlockDifficulty totalDifficulty = blockInfo.getCummDifficulty();
+//            BlockDifficulty totalDifficulty = blockInfo.getCummDifficulty();
             boolean isInBlockChain = blockInfo.isMainChain();
 
-            result.add(new BlockInformation(hash, totalDifficulty, isInBlockChain));
+            result.add(new BlockInformation(hash, /*totalDifficulty,*/ isInBlockChain));
         }
 
         return result;
@@ -238,37 +238,37 @@ public class IndexedBlockStore extends AbstractBlockstore {
         return new Block(blockRlp);
     }
 
-    public synchronized Map<Long, List<Sibling>> getSiblingsFromBlockByHash(Keccak256 hash) {
-        return this.remascCache.computeIfAbsent(hash, key -> getSiblingsFromBlock(getBlock(key.getBytes())));
-    }
+//    public synchronized Map<Long, List<Sibling>> getSiblingsFromBlockByHash(Keccak256 hash) {
+//        return this.remascCache.computeIfAbsent(hash, key -> getSiblingsFromBlock(getBlock(key.getBytes())));
+//    }
 
     @Override
     public synchronized boolean isBlockExist(byte[] hash) {
         return getBlockByHash(hash) != null;
     }
 
-    @Override
-    public synchronized BlockDifficulty getTotalDifficultyForHash(byte[] hash){
-        Block block = this.getBlockByHash(hash);
-        if (block == null) {
-            return ZERO;
-        }
-
-        Long level  =  block.getNumber();
-        List<BlockInfo> blockInfos =  index.get(level);
-
-        if (blockInfos == null) {
-            return ZERO;
-        }
-
-        for (BlockInfo blockInfo : blockInfos) {
-            if (areEqual(blockInfo.getHash().getBytes(), hash)) {
-                return blockInfo.getCummDifficulty();
-            }
-        }
-
-        return ZERO;
-    }
+//    @Override
+//    public synchronized BlockDifficulty getTotalDifficultyForHash(byte[] hash){
+//        Block block = this.getBlockByHash(hash);
+//        if (block == null) {
+//            return ZERO;
+//        }
+//
+//        Long level  =  block.getNumber();
+//        List<BlockInfo> blockInfos =  index.get(level);
+//
+//        if (blockInfos == null) {
+//            return ZERO;
+//        }
+//
+//        for (BlockInfo blockInfo : blockInfos) {
+//            if (areEqual(blockInfo.getHash().getBytes(), hash)) {
+//                return blockInfo.getCummDifficulty();
+//            }
+//        }
+//
+//        return ZERO;
+//    }
 
     @Override
     public synchronized long getMaxNumber() {
@@ -433,13 +433,13 @@ public class IndexedBlockStore extends AbstractBlockstore {
             this.hash = hash;
         }
 
-        private BlockDifficulty getCummDifficulty() {
-            return new BlockDifficulty(cummDifficulty);
-        }
+//        private BlockDifficulty getCummDifficulty() {
+//            return new BlockDifficulty(cummDifficulty);
+//        }
 
-        private void setCummDifficulty(BlockDifficulty cummDifficulty) {
-            this.cummDifficulty = cummDifficulty.asBigInteger();
-        }
+//        private void setCummDifficulty(BlockDifficulty cummDifficulty) {
+//            this.cummDifficulty = cummDifficulty.asBigInteger();
+//        }
 
         private boolean isMainChain() {
             return mainChain;
@@ -546,17 +546,17 @@ public class IndexedBlockStore extends AbstractBlockstore {
      * @param block the block is looked for siblings
      * @return
      */
-    private Map<Long, List<Sibling>> getSiblingsFromBlock(Block block) {
-        return block.getUncleList().stream()
-                .collect(
-                    Collectors.groupingBy(
-                        BlockHeader::getNumber,
-                        Collectors.mapping(
-                                header -> new Sibling(header, block.getCoinbase(), block.getNumber()),
-                                Collectors.toList()
-                        )
-                    )
-                );
-    }
+//    private Map<Long, List<Sibling>> getSiblingsFromBlock(Block block) {
+//        return block.getUncleList().stream()
+//                .collect(
+//                    Collectors.groupingBy(
+//                        BlockHeader::getNumber,
+//                        Collectors.mapping(
+//                                header -> new Sibling(header, block.getCoinbase(), block.getNumber()),
+//                                Collectors.toList()
+//                        )
+//                    )
+//                );
+//    }
 
 }
