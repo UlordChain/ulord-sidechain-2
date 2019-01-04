@@ -449,15 +449,6 @@ public class RLP {
     }
 
     @Nonnull
-    public static Address parseAddress(NetworkParameters params, @Nullable byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
-            return null;
-        } else {
-            return new Address(params, bytes);
-        }
-    }
-
-    @Nonnull
     public static Coin parseCoin(@Nullable byte[] bytes) {
         if (bytes == null || isAllZeroes(bytes)) {
             return Coin.ZERO;

@@ -177,25 +177,7 @@ public class BlockToMineBuilder {
             List<Transaction> txs,
             Coin minimumGasPrice) {
 
-        NetworkParameters params;
-
-        switch (config.netName()) {
-            case SystemProperties.REGTEST:
-                params = RegTestParams.get();
-                break;
-            case SystemProperties.TESTNET:
-                params = TestNet3Params.get();
-                break;
-            case SystemProperties.DEVNET:
-                params = UnitTestParams.get();
-                break;
-            default:
-                params = MainNetParams.get();
-                break;
-        }
-
-        Address bpAddr = UldECKey.fromPublicOnly(config.getMyKey().getPubKey(true)).toAddress(params);
-        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice, bpAddr);
+        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice, new UscAddress(config.getMyKey().getAddress()));
         final Block newBlock = new Block(newHeader, txs);
         return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs);
     }
@@ -204,7 +186,7 @@ public class BlockToMineBuilder {
             Block newBlockParent,
             List<Transaction> txs,
             Coin minimumGasPrice,
-            Address bpAddress) {
+            UscAddress bpAddress) {
 
         final long timestampSeconds = this.getCurrentTimeInSeconds();
 

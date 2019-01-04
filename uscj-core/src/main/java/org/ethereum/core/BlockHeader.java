@@ -92,8 +92,8 @@ public class BlockHeader {
      * With the exception of the genesis block, this must be 32 bytes or fewer */
     private byte[] extraData;
 
-    /* The address of the current Block Producer (BP) */
-    private Address bpAddress;
+    /* The Usc Address of the current Block Producer (BP) Converted from Ulord Address*/
+    private UscAddress bpAddress;
 
     // TODO: Add RLP.
     /* The SHA3 256-bit hash of signatures of all the BPs */
@@ -107,11 +107,11 @@ public class BlockHeader {
     /* Indicates if this block header cannot be changed */
     private volatile boolean sealed;
 
-    public BlockHeader(BridgeConstants constants, byte[] encoded, boolean sealed) {
-        this(constants, RLP.decodeList(encoded), sealed);
+    public BlockHeader(byte[] encoded, boolean sealed) {
+        this(RLP.decodeList(encoded), sealed);
     }
 
-    public BlockHeader(BridgeConstants constants, RLPList rlpHeader, boolean sealed) {
+    public BlockHeader(RLPList rlpHeader, boolean sealed) {
         // TODO fix old tests that have other sizes
         if (rlpHeader.size() != 19 && rlpHeader.size() != 16) {
             throw new IllegalArgumentException(String.format(
@@ -155,15 +155,7 @@ public class BlockHeader {
         this.paidFees = RLP.parseCoin(rlpHeader.get(11).getRLPData());
         this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(12).getRLPData());
 
-        NetworkParameters params;
-        if(constants instanceof BridgeTestNetConstants)
-            params = TestNet3Params.get();
-        else if(constants instanceof BridgeRegTestConstants)
-            params = RegTestParams.get();
-        else
-            params = MainNetParams.get();
-
-        this.bpAddress = RLP.parseAddress(params,rlpHeader.get(13).getRLPData());
+        this.bpAddress = RLP.parseUscAddress(rlpHeader.get(13).getRLPData());
         this.sealed = sealed;
     }
 
@@ -171,7 +163,7 @@ public class BlockHeader {
                        byte[] logsBloom, long number,
                        byte[] gasLimit, long gasUsed, long timestamp,
                        byte[] extraData,
-                       byte[] minimumGasPrice, Address bpAddress) {
+                       byte[] minimumGasPrice, UscAddress bpAddress) {
         this.parentHash = parentHash;
         this.coinbase = new UscAddress(coinbase);
         this.logsBloom = logsBloom;
@@ -197,7 +189,7 @@ public class BlockHeader {
     }
 
     public BlockHeader cloneHeader(BridgeConstants constants) {
-        return new BlockHeader(constants, (RLPList) RLP.decode2(this.getEncoded()).get(0), false);
+        return new BlockHeader((RLPList) RLP.decode2(this.getEncoded()).get(0), false);
     }
 
     public boolean isGenesis() {
@@ -379,7 +371,7 @@ public class BlockHeader {
         byte[] extraData = RLP.encodeElement(this.extraData);
         byte[] paidFees = RLP.encodeCoin(this.paidFees);
         byte[] mgp = RLP.encodeSignedCoinNonNullZero(this.minimumGasPrice);
-        byte[] bpAddr = RLP.encodeElement(this.bpAddress.getHash160());
+        byte[] bpAddr = RLP.encodeElement(this.bpAddress.getBytes());
         List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, coinbase,
                 stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, number,
                 gasLimit, gasUsed, timestamp, extraData, paidFees, mgp, bpAddr);
@@ -405,7 +397,7 @@ public class BlockHeader {
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
         toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
-        toStringBuff.append("  blockProducerAddress=").append(toHexString(bpAddress.getHash160())).append(suffix);
+        toStringBuff.append("  blockProducerAddress=").append(bpAddress.toString()).append(suffix);
         toStringBuff.append("  signatureRoot=").append(toHexString(stateRoot)).append(suffix);
 
         return toStringBuff.toString();
@@ -438,11 +430,11 @@ public class BlockHeader {
         return bytes == null ? BigInteger.ZERO : BigIntegers.fromUnsignedByteArray(bytes);
     }
 
-    public Address getBpAddress() {
+    public UscAddress getBpAddress() {
         return this.bpAddress;
     }
 
-    public void setBpAddress(Address bpAddress) {
+    public void setBpAddress(UscAddress bpAddress) {
         this.bpAddress = bpAddress;
     }
 

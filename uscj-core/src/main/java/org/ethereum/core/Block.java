@@ -125,7 +125,7 @@ public class Block {
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice, UscAddress bpAddress) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
                 gasUsed, timestamp, extraData, receiptsRoot, transactionsRoot,
@@ -138,7 +138,7 @@ public class Block {
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees, Address bpAddress) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees, UscAddress bpAddress) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
                 gasUsed, timestamp, extraData, transactionsList, minimumGasPrice, bpAddress);
@@ -161,7 +161,7 @@ public class Block {
 
     public Block(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                  long number, byte[] gasLimit, long gasUsed, long timestamp,
-                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice, Address bpAddress) {
+                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice, UscAddress bpAddress) {
 
         if (transactionsList == null) {
             this.transactionsList = Collections.emptyList();
