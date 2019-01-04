@@ -20,6 +20,8 @@
 package org.ethereum.core.genesis;
 
 
+import co.usc.core.UscAddress;
+
 import java.util.Map;
 
 public class GenesisJson {
@@ -32,11 +34,8 @@ public class GenesisJson {
     String gasLimit;
     String nonce;
     String difficulty;
-    String ulordMergedMiningHeader;
-    String ulordMergedMiningMerkleProof;
-    String ulordMergedMiningCoinbaseTransaction;
     String minimumGasPrice;
-
+    String bpAddress;
     Map<String, AllocatedAccount> alloc;
 
     public GenesisJson() {
@@ -115,20 +114,11 @@ public class GenesisJson {
         this.alloc = alloc;
     }
 
-    public String getUlordMergedMiningHeader() {return ulordMergedMiningHeader;}
-
-    public void setUlordMergedMiningHeader(String ulordMergedMiningHeader) {this.ulordMergedMiningHeader = ulordMergedMiningHeader;}
-
-    public String getUlordMergedMiningMerkleProof() {return ulordMergedMiningMerkleProof;}
-
-    public void setUlordMergedMiningMerkleProof(String ulordMergedMiningMerkleProof) {this.ulordMergedMiningMerkleProof = ulordMergedMiningMerkleProof;}
-
-    public String getUlordMergedMiningCoinbaseTransaction() {return ulordMergedMiningCoinbaseTransaction;}
-
-    public void setUlordMergedMiningCoinbaseTransaction(String ulordMergedMiningCoinbaseTransaction) {this.ulordMergedMiningCoinbaseTransaction = ulordMergedMiningCoinbaseTransaction;}
-
     public String getMinimumGasPrice() {
         return minimumGasPrice;
     }
 
+    public String getUscAddress() {
+        return bpAddress;
+    }
 }

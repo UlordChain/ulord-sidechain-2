@@ -19,6 +19,7 @@
 
 package org.ethereum.core.genesis;
 
+import co.usc.core.UscAddress;
 import org.ethereum.core.Genesis;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.json.Utils;
@@ -46,21 +47,15 @@ public class GenesisMapper {
         byte[] gasLimitBytes = Utils.parseData(json.gasLimit);
         long gasLimit = ByteUtil.byteArrayToLong(gasLimitBytes);
 
-        byte[] ulordMergedMiningHeader = null;
-        byte[] ulordMergedMiningMerkleProof = null;
-        byte[] ulordMergedMiningCoinbaseTransaction = null;
         byte[] minGasPrice = null;
-
+        UscAddress bpAddress = null;
         if (uscFormat) {
-            ulordMergedMiningHeader = Utils.parseData(json.ulordMergedMiningHeader);
-            ulordMergedMiningMerkleProof = Utils.parseData(json.ulordMergedMiningMerkleProof);
-            ulordMergedMiningCoinbaseTransaction = Utils.parseData(json.ulordMergedMiningCoinbaseTransaction);
             minGasPrice = Utils.parseData(json.getMinimumGasPrice());
+            bpAddress = new UscAddress(Utils.parseData(json.getUscAddress()));
         }
 
-        return new Genesis(parentHash, EMPTY_LIST_HASH, coinbase, Genesis.getZeroHash(),
-                difficulty, 0, gasLimit, 0, timestamp, extraData,
-                mixHash, nonce, ulordMergedMiningHeader, ulordMergedMiningMerkleProof,
-                ulordMergedMiningCoinbaseTransaction, minGasPrice);
+        return new Genesis(parentHash, coinbase, Genesis.getZeroHash(),
+                0, gasLimit, 0, timestamp, extraData,
+                minGasPrice, bpAddress);
     }
 }
