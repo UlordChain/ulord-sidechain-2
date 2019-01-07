@@ -15,16 +15,6 @@ public class MainNetBeforeBridgeSyncConfig extends MainNetAfterBridgeSyncConfig 
     }
 
     @Override
-    public BlockDifficulty calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        // If more than 2.5 minutes, reset to original difficulty 0x0000001B58
-        if (curBlock.getTimestamp() >= parent.getTimestamp() + 150) {
-            return getConstants().getMinimumDifficulty();
-        }
-
-        return super.calcDifficulty(curBlock, parent);
-    }
-
-    @Override
     public boolean areBridgeTxsFree() {
         return true;
     }

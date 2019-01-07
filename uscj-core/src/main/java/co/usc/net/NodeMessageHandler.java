@@ -19,7 +19,6 @@
 package co.usc.net;
 
 import co.usc.config.UscSystemProperties;
-import co.usc.core.BlockDifficulty;
 import co.usc.core.bc.BlockChainStatus;
 import co.usc.crypto.Keccak256;
 import co.usc.net.messages.*;
@@ -242,19 +241,14 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
     private synchronized void sendStatusToAll() {
         BlockChainStatus blockChainStatus = this.blockProcessor.getBlockchain().getStatus();
         Block block = blockChainStatus.getBestBlock();
-        BlockDifficulty totalDifficulty = blockChainStatus.getTotalDifficulty();
 
-        Status status = new Status(block.getNumber(), block.getHash().getBytes(), block.getParentHash().getBytes(), totalDifficulty);
+        Status status = new Status(block.getNumber(), block.getHash().getBytes(), block.getParentHash().getBytes());
         logger.trace("Sending status best block to all {} {}", status.getBestBlockNumber(), Hex.toHexString(status.getBestBlockHash()).substring(0, 8));
         this.channelManager.broadcastStatus(status);
     }
 
     public synchronized Block getBestBlock() {
         return this.blockProcessor.getBlockchain().getBestBlock();
-    }
-
-    public synchronized BlockDifficulty getTotalDifficulty() {
-        return this.blockProcessor.getBlockchain().getTotalDifficulty();
     }
 
     /**

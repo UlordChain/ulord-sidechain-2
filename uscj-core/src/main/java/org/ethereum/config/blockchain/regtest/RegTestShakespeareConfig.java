@@ -19,7 +19,6 @@
 
 package org.ethereum.config.blockchain.regtest;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.core.BlockHeader;
 
 public class RegTestShakespeareConfig extends RegTestGenesisConfig {

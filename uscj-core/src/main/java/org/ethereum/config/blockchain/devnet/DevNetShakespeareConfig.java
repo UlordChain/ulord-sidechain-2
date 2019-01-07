@@ -19,7 +19,6 @@
 
 package org.ethereum.config.blockchain.devnet;
 
-import co.usc.core.BlockDifficulty;
 import org.ethereum.core.BlockHeader;
 
 public class DevNetShakespeareConfig extends DevNetGenesisConfig {
