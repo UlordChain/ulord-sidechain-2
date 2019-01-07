@@ -25,7 +25,7 @@ import org.ethereum.rpc.TypeConverter;
  * The block header DTO for JSON serialization purposes.
  */
 public class BlockHeaderNotification {
-    private final String difficulty;
+    //private final String difficulty;
     private final String extraData;
     private final String gasLimit;
     private final String gasUsed;
@@ -34,14 +34,14 @@ public class BlockHeaderNotification {
     private final String number;
     private final String parentHash;
     private final String receiptsRoot;
-    private final String sha3Uncles;
+    //private final String sha3Uncles;
     private final String stateRoot;
     private final String timestamp;
     private final String transactionsRoot;
     private final String hash;
 
     public BlockHeaderNotification(Block block) {
-        difficulty = TypeConverter.toJsonHex(block.getDifficulty().getBytes());
+        //difficulty = TypeConverter.toJsonHex(block.getDifficulty().getBytes());
         extraData = TypeConverter.toJsonHex(block.getExtraData());
         gasLimit = TypeConverter.toJsonHex(block.getGasLimit());
         gasUsed = TypeConverter.toJsonHex(block.getGasUsed());
@@ -50,16 +50,18 @@ public class BlockHeaderNotification {
         number = TypeConverter.toJsonHex(block.getNumber());
         parentHash = block.getParentHashJsonString();
         receiptsRoot = TypeConverter.toJsonHex(block.getReceiptsRoot());
-        sha3Uncles = TypeConverter.toJsonHex(block.getUnclesHash());
+        //sha3Uncles = TypeConverter.toJsonHex(block.getUnclesHash());
         stateRoot = TypeConverter.toJsonHex(block.getStateRoot());
         timestamp = TypeConverter.toJsonHex(block.getTimestamp());
         transactionsRoot = TypeConverter.toJsonHex(block.getTxTrieRoot());
         hash = block.getHashJsonString();
     }
 
+    /*
     public String getDifficulty() {
         return difficulty;
     }
+    */
 
     public String getExtraData() {
         return extraData;
@@ -93,9 +95,11 @@ public class BlockHeaderNotification {
         return receiptsRoot;
     }
 
+    /*
     public String getSha3Uncles() {
         return sha3Uncles;
     }
+    */
 
     public String getStateRoot() {
         return stateRoot;
