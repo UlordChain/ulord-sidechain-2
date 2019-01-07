@@ -17,20 +17,8 @@ public class SelectionRule {
     private static final BigInteger PAID_FEES_MULTIPLIER_CRITERIA = BigInteger.valueOf(2);
 
     public static boolean shouldWeAddThisBlock(
-            BlockDifficulty blockDifficulty,
-            BlockDifficulty currentDifficulty,
             Block block,
             Block currentBlock) {
-
-        int compareDifficulties = blockDifficulty.compareTo(currentDifficulty);
-
-        if (compareDifficulties > 0) {
-            return true;
-        }
-
-        if (compareDifficulties < 0) {
-            return false;
-        }
 
         Coin pfm = currentBlock.getHeader().getPaidFees().multiply(PAID_FEES_MULTIPLIER_CRITERIA);
         // fees over PAID_FEES_MULTIPLIER_CRITERIA times higher
@@ -46,6 +34,7 @@ public class SelectionRule {
                 isThisBlockHashSmaller(block.getHash().getBytes(), currentBlock.getHash().getBytes());
     }
     
+    /*
     public static boolean isBrokenSelectionRule(
             BlockHeader processingBlockHeader, List<Sibling> siblings) {
         int maxUncleCount = 0;
@@ -63,6 +52,7 @@ public class SelectionRule {
         }
         return maxUncleCount > processingBlockHeader.getUncleCount();
     }
+    */
 
     public static boolean isThisBlockHashSmaller(byte[] thisBlockHash, byte[] compareBlockHash) {
         return FastByteComparisons.compareTo(
