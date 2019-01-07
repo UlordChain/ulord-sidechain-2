@@ -92,9 +92,6 @@ public class BlockHeader {
      * With the exception of the genesis block, this must be 32 bytes or fewer */
     private byte[] extraData;
 
-    /* The Usc Address of the current Block Producer (BP) Converted from Ulord Address*/
-    private UscAddress bpAddress;
-
     // TODO: Add RLP.
     /* The SHA3 256-bit hash of signatures of all the BPs */
     private byte[] signatureRoot;
@@ -155,7 +152,6 @@ public class BlockHeader {
         this.paidFees = RLP.parseCoin(rlpHeader.get(11).getRLPData());
         this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(12).getRLPData());
 
-        this.bpAddress = RLP.parseUscAddress(rlpHeader.get(13).getRLPData());
         this.sealed = sealed;
     }
 
@@ -163,7 +159,7 @@ public class BlockHeader {
                        byte[] logsBloom, long number,
                        byte[] gasLimit, long gasUsed, long timestamp,
                        byte[] extraData,
-                       byte[] minimumGasPrice, UscAddress bpAddress) {
+                       byte[] minimumGasPrice) {
         this.parentHash = parentHash;
         this.coinbase = new UscAddress(coinbase);
         this.logsBloom = logsBloom;
@@ -176,7 +172,6 @@ public class BlockHeader {
         this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(minimumGasPrice);
         this.receiptTrieRoot = ByteUtils.clone(EMPTY_TRIE_HASH);
         this.paidFees = Coin.ZERO;
-        this.bpAddress = bpAddress;
     }
 
     @VisibleForTesting
@@ -371,10 +366,9 @@ public class BlockHeader {
         byte[] extraData = RLP.encodeElement(this.extraData);
         byte[] paidFees = RLP.encodeCoin(this.paidFees);
         byte[] mgp = RLP.encodeSignedCoinNonNullZero(this.minimumGasPrice);
-        byte[] bpAddr = RLP.encodeElement(this.bpAddress.getBytes());
         List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, coinbase,
                 stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, number,
-                gasLimit, gasUsed, timestamp, extraData, paidFees, mgp, bpAddr);
+                gasLimit, gasUsed, timestamp, extraData, paidFees, mgp);
 
 
         return RLP.encodeList(fieldToEncodeList.toArray(new byte[][]{}));
@@ -397,7 +391,6 @@ public class BlockHeader {
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
         toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
-        toStringBuff.append("  blockProducerAddress=").append(bpAddress.toString()).append(suffix);
         toStringBuff.append("  signatureRoot=").append(toHexString(stateRoot)).append(suffix);
 
         return toStringBuff.toString();
@@ -428,14 +421,6 @@ public class BlockHeader {
 
     private static BigInteger parseBigInteger(byte[] bytes) {
         return bytes == null ? BigInteger.ZERO : BigIntegers.fromUnsignedByteArray(bytes);
-    }
-
-    public UscAddress getBpAddress() {
-        return this.bpAddress;
-    }
-
-    public void setBpAddress(UscAddress bpAddress) {
-        this.bpAddress = bpAddress;
     }
 
     public void setSignatureRoot(byte[] signatureRoot) {

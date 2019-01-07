@@ -21,8 +21,6 @@ package org.ethereum.util;
 
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
-import co.usc.ulordj.core.Address;
-import co.usc.ulordj.core.NetworkParameters;
 import co.usc.util.ByteBufferUtil;
 import co.usc.util.RLPElementType;
 import co.usc.util.RLPElementView;

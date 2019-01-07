@@ -19,7 +19,6 @@
 
 package org.ethereum.core;
 
-import co.usc.config.BridgeRegTestConstants;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
@@ -27,10 +26,6 @@ import co.usc.panic.PanicProcessor;
 import co.usc.remasc.RemascTransaction;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
-import co.usc.ulordj.core.Address;
-import co.usc.ulordj.core.NetworkParameters;
-import co.usc.ulordj.params.RegTestParams;
-import org.ethereum.config.BlockchainConfig;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.rpc.TypeConverter;
 import org.ethereum.util.RLP;
@@ -47,11 +42,9 @@ import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -117,19 +110,18 @@ public class Block {
                 header.getTxTrieRoot(),
                 header.getStateRoot(),
                 transactionsList,
-                header.getMinimumGasPrice() == null ? null : header.getMinimumGasPrice().getBytes(),
-                header.getBpAddress());
+                header.getMinimumGasPrice() == null ? null : header.getMinimumGasPrice().getBytes());
     }
 
     public Block(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, UscAddress bpAddress) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
                 gasUsed, timestamp, extraData, receiptsRoot, transactionsRoot,
-                stateRoot, transactionsList, minimumGasPrice, Coin.ZERO, bpAddress);
+                stateRoot, transactionsList, minimumGasPrice, Coin.ZERO);
 
         this.flushRLP();
     }
@@ -138,10 +130,10 @@ public class Block {
                  long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
                  byte[] receiptsRoot, byte[] transactionsRoot, byte[] stateRoot,
-                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees, UscAddress bpAddress) {
+                 List<Transaction> transactionsList, byte[] minimumGasPrice, Coin paidFees) {
 
         this(parentHash, coinbase, logsBloom, number, gasLimit,
-                gasUsed, timestamp, extraData, transactionsList, minimumGasPrice, bpAddress);
+                gasUsed, timestamp, extraData, transactionsList, minimumGasPrice);
 
         this.header.setPaidFees(paidFees);
 
@@ -151,7 +143,6 @@ public class Block {
 
         this.header.setStateRoot(stateRoot);
         this.header.setReceiptsRoot(receiptsRoot);
-        this.header.setBpAddress(bpAddress);
 
         // TODO: Perhaps this should be called before sealing the block, after receiving all the signatures, because the signatureList is empty when the block is created.
         this.header.setSignatureRoot(getSignaturesHash(signaturesList));
@@ -161,7 +152,7 @@ public class Block {
 
     public Block(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                  long number, byte[] gasLimit, long gasUsed, long timestamp,
-                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice, UscAddress bpAddress) {
+                 byte[] extraData, List<Transaction> transactionsList, byte[] minimumGasPrice) {
 
         if (transactionsList == null) {
             this.transactionsList = Collections.emptyList();
@@ -172,7 +163,7 @@ public class Block {
         this.signaturesList = new ArrayList<>();
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
-                timestamp, extraData, minimumGasPrice, bpAddress);
+                timestamp, extraData, minimumGasPrice);
 
         this.parsed = true;
     }
