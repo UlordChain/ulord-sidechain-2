@@ -33,9 +33,6 @@ public class GenesisMapper {
     private static final byte[] EMPTY_LIST_HASH = HashUtil.keccak256(RLP.encodeList());
 
     public Genesis mapFromJson(GenesisJson json, boolean uscFormat) {
-        byte[] nonce = Utils.parseData(json.nonce);
-        byte[] difficulty = Utils.parseData(json.difficulty);
-        byte[] mixHash = Utils.parseData(json.mixhash);
         byte[] coinbase = Utils.parseData(json.coinbase);
 
         byte[] timestampBytes = Utils.parseData(json.timestamp);
@@ -48,14 +45,12 @@ public class GenesisMapper {
         long gasLimit = ByteUtil.byteArrayToLong(gasLimitBytes);
 
         byte[] minGasPrice = null;
-        UscAddress bpAddress = null;
         if (uscFormat) {
             minGasPrice = Utils.parseData(json.getMinimumGasPrice());
-            bpAddress = new UscAddress(Utils.parseData(json.getUscAddress()));
         }
 
         return new Genesis(parentHash, coinbase, Genesis.getZeroHash(),
                 0, gasLimit, 0, timestamp, extraData,
-                minGasPrice, bpAddress);
+                minGasPrice);
     }
 }

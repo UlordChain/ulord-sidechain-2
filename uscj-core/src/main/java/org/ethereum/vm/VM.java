@@ -1001,18 +1001,18 @@ public class VM {
         program.step();
     }
 
-    protected void doDIFFICULTY() {
-        spendOpCodeGas();
-        // EXECUTION PHASE
-        DataWord difficulty = program.getDifficulty();
-
-        if (isLogEnabled) {
-            hint = "difficulty: " + difficulty;
-        }
-
-        program.stackPush(difficulty);
-        program.step();
-    }
+//    protected void doDIFFICULTY() {
+//        spendOpCodeGas();
+//        // EXECUTION PHASE
+//        DataWord difficulty = program.getDifficulty();
+//
+//        if (isLogEnabled) {
+//            hint = "difficulty: " + difficulty;
+//        }
+//
+//        program.stackPush(difficulty);
+//        program.step();
+//    }
 
     protected void doGASLIMIT() {
         spendOpCodeGas();
@@ -1749,8 +1749,8 @@ public class VM {
             break;
             case OpCodes.OP_NUMBER: doNUMBER();
             break;
-            case OpCodes.OP_DIFFICULTY: doDIFFICULTY();
-            break;
+//            case OpCodes.OP_DIFFICULTY: doDIFFICULTY();
+//            break;
             case OpCodes.OP_GASLIMIT: doGASLIMIT();
             break;
             case OpCodes.OP_TXINDEX: doTXINDEX();

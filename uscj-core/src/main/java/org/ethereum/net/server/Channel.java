@@ -227,10 +227,6 @@ public class Channel {
         eth.logSyncStats();
     }
 
-    public BigInteger getTotalDifficulty() {
-        return nodeStatistics.getEthTotalDifficulty();
-    }
-
     public SyncStatistics getSyncStats() {
         return eth.getStats();
     }
