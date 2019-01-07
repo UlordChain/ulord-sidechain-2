@@ -24,7 +24,6 @@ import co.usc.core.UscAddress;
 import co.usc.core.SnapshotManager;
 import co.usc.core.bc.AccountInformationProvider;
 import co.usc.crypto.Keccak256;
-import co.usc.metrics.HashRateCalculator;
 import co.usc.mine.MinerClient;
 import co.usc.mine.MinerManager;
 import co.usc.mine.MinerServer;
@@ -59,7 +58,6 @@ import org.ethereum.util.BuildInfo;
 import org.ethereum.vm.DataWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

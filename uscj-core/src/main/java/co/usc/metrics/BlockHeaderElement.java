@@ -28,19 +28,13 @@ import java.util.Objects;
 public class BlockHeaderElement {
 
     private final BlockHeader blockHeader;
-    private final BlockDifficulty difficulty;
 
-    public BlockHeaderElement(BlockHeader blockHeader, BlockDifficulty difficulty) {
+    public BlockHeaderElement(BlockHeader blockHeader) {
         this.blockHeader = blockHeader;
-        this.difficulty = difficulty;
     }
 
     public BlockHeader getBlockHeader() {
         return blockHeader;
-    }
-
-    public BlockDifficulty getDifficulty() {
-        return difficulty;
     }
 
     @Override
@@ -55,12 +49,11 @@ public class BlockHeaderElement {
         
         BlockHeaderElement that = (BlockHeaderElement) o;
 
-        return Objects.equals(blockHeader, that.blockHeader) &&
-                Objects.equals(difficulty, that.difficulty);
+        return Objects.equals(blockHeader, that.blockHeader);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(blockHeader, difficulty);
+        return Objects.hash(blockHeader);
     }
 }
