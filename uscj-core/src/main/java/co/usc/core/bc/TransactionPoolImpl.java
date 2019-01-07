@@ -441,25 +441,17 @@ public class TransactionPoolImpl implements TransactionPool {
 
         // creating fake lightweight calculated block with no hashes calculations
         return new Block(best.getHash().getBytes(),
-                            emptyUncleHashList, // uncleHash
                             new byte[20], //coinbase
                             new byte[32], // log bloom - from tx receipts
-                            best.getDifficulty().getBytes(), // difficulty
                             best.getNumber() + 1, //number
                             ByteUtil.longToBytesNoLeadZeroes(Long.MAX_VALUE), // max Gas Limit
                             0,  // gas used
                             best.getTimestamp() + 1,  // block time
                             new byte[0],  // extra data
-                            new byte[0],  // mixHash (to mine)
-                            new byte[0],  // nonce   (to mine)
-                            new byte[0],
-                            new byte[0],
-                            new byte[0],
                             new byte[32],  // receiptsRoot
                             txsTrie.getHash().getBytes(),  // TransactionsRoot-
                             new byte[32],  // stateRoot
                             Collections.<Transaction>emptyList(), // tx list
-                            Collections.<BlockHeader>emptyList(), // uncle list
                             ByteUtil.bigIntegerToBytes(BigInteger.ZERO)); //minimum gas price
     }
 

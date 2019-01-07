@@ -92,9 +92,11 @@ public class FamilyUtils {
         Block it = blockStore.getBlockByHash(parentHash);
 
         while(it != null && it.getNumber() >= minNumber) {
+            /*
             for (BlockHeader uncle : it.getUncleList()) {
                 ret.add(uncle.getHash());
             }
+            */
             it = blockStore.getBlockByHash(it.getParentHash().getBytes());
         }
 

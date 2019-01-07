@@ -85,11 +85,13 @@ public class BlockUtils {
             if (!block.isGenesis() && !blockInSomeBlockChain(block, blockChain)) {
                 nextHashes.add(block.getParentHash());
 
+                /*
                 if (withUncles) {
                     for (BlockHeader uncleHeader : block.getUncleList()) {
                         nextHashes.add(uncleHeader.getHash());
                     }
                 }
+                */
             }
         }
         return nextHashes;
