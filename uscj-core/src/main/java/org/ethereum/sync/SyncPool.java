@@ -318,27 +318,27 @@ public class SyncPool implements Iterable<Channel> {
             }
 
             // filtering by 20% from top difficulty
-            Collections.sort(active, new Comparator<Channel>() {
-                @Override
-                public int compare(Channel c1, Channel c2) {
-                    return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
-                }
-            });
+//            Collections.sort(active, new Comparator<Channel>() {
+//                @Override
+//                public int compare(Channel c1, Channel c2) {
+//                    return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
+//                }
+//            });
+//
+//            BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
+//            int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
+//
+//            for (int i = thresholdIdx; i >= 0; i--) {
+//                if (isIn20PercentRange(active.get(i).getTotalDifficulty(), highestDifficulty)) {
+//                    thresholdIdx = i;
+//                    break;
+//                }
+//            }
 
-            BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
-            int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
-
-            for (int i = thresholdIdx; i >= 0; i--) {
-                if (isIn20PercentRange(active.get(i).getTotalDifficulty(), highestDifficulty)) {
-                    thresholdIdx = i;
-                    break;
-                }
-            }
-
-            List<Channel> filtered = active.subList(0, thresholdIdx + 1);
+            //List<Channel> filtered = active.subList(0, thresholdIdx + 1);
 
             // sorting by latency in asc order
-            Collections.sort(filtered, new Comparator<Channel>() {
+            Collections.sort(active, new Comparator<Channel>() {
                 @Override
                 public int compare(Channel c1, Channel c2) {
                     return Double.compare(c1.getPeerStats().getAvgLatency(), c2.getPeerStats().getAvgLatency());
@@ -347,7 +347,7 @@ public class SyncPool implements Iterable<Channel> {
 
             synchronized (activePeers) {
                 activePeers.clear();
-                activePeers.addAll(filtered);
+                activePeers.addAll(active);
             }
         }
     }
