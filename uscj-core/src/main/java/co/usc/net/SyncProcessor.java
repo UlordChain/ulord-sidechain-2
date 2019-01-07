@@ -50,8 +50,8 @@ public class SyncProcessor implements SyncEventsHandler {
                          PeerScoringManager peerScoringManager,
                          ChannelManager channelManager,
                          SyncConfiguration syncConfiguration,
-                         BlockHeaderValidationRule blockHeaderValidationRule,
-                         DifficultyCalculator difficultyCalculator) {
+                         BlockHeaderValidationRule blockHeaderValidationRule/*,
+                         DifficultyCalculator difficultyCalculator*/) {
         this.blockchain = blockchain;
         this.blockSyncService = blockSyncService;
         this.peerScoringManager = peerScoringManager;

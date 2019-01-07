@@ -112,12 +112,12 @@ public class UscFactory {
                                           PeerScoringManager peerScoringManager,
                                           ChannelManager channelManager,
                                           SyncConfiguration syncConfiguration,
-                                          DifficultyCalculator difficultyCalculator,
+                                          //DifficultyCalculator difficultyCalculator,
                                           ProofOfWorkRule proofOfWorkRule) {
 
         // TODO(lsebrie): add new BlockCompositeRule(new ProofOfWorkRule(), blockTimeStampValidationRule, new ValidGasUsedRule());
         return new SyncProcessor(blockchain, blockSyncService, peerScoringManager, channelManager,
-                syncConfiguration, proofOfWorkRule, difficultyCalculator);
+                syncConfiguration, proofOfWorkRule/*, difficultyCalculator*/);
     }
 
     @Bean
@@ -157,7 +157,7 @@ public class UscFactory {
                         ReceiptStore receiptStore,
                         PeerServer peerServer,
                         BlockProcessor nodeBlockProcessor,
-                        HashRateCalculator hashRateCalculator,
+                        //HashRateCalculator hashRateCalculator,
                         ConfigCapabilities configCapabilities) {
         return new Web3UscImpl(
                 usc,
@@ -179,7 +179,7 @@ public class UscFactory {
                 receiptStore,
                 peerServer,
                 nodeBlockProcessor,
-                hashRateCalculator,
+                //hashRateCalculator,
                 configCapabilities
         );
     }

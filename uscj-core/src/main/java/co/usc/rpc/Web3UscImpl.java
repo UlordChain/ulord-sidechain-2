@@ -77,12 +77,12 @@ public class Web3UscImpl extends Web3Impl {
                        ReceiptStore receiptStore,
                        PeerServer peerServer,
                        BlockProcessor nodeBlockProcessor,
-                       HashRateCalculator hashRateCalculator,
+                       //HashRateCalculator hashRateCalculator,
                        ConfigCapabilities configCapabilities) {
         super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, minerClient, minerServer,
               personalModule, ethModule, txPoolModule, mnrModule, debugModule,
               channelManager, repository, peerScoringManager, peerServer, nodeBlockProcessor,
-              hashRateCalculator, configCapabilities);
+              /*hashRateCalculator,*/ configCapabilities);
 
         this.networkStateExporter = networkStateExporter;
         this.blockStore = blockStore;
@@ -121,11 +121,13 @@ public class Web3UscImpl extends Web3Impl {
             writer.println("#");
             for (Block block : result) {
                 writer.println(toSmallHash(block.getHash().getBytes()) + " " + toSmallHash(block.getParentHash().getBytes()) + " P");
+                /*
                 if (includeUncles) {
                     for (BlockHeader uncleHeader : block.getUncleList()) {
                         writer.println(toSmallHash(block.getHash().getBytes()) + " " + toSmallHash(uncleHeader.getHash().getBytes()) + " U");
                     }
                 }
+                */
             }
         } catch (IOException e) {
             logger.error("Could nos save node graph to file", e);
