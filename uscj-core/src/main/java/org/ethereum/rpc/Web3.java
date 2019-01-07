@@ -127,9 +127,9 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
         }
     }
 
-    void start();
-
-    void stop();
+//    void start();
+//
+//    void stop();
 
     String web3_clientVersion();
     String web3_sha3(String data) throws Exception;

@@ -89,7 +89,6 @@ public class Web3Impl implements Web3 {
     private final Blockchain blockchain;
     private final ReceiptStore receiptStore;
     private final BlockProcessor nodeBlockProcessor;
-    private final HashRateCalculator hashRateCalculator;
     private final ConfigCapabilities configCapabilities;
     private final BlockStore blockStore;
     private final TransactionPool transactionPool;
@@ -123,7 +122,6 @@ public class Web3Impl implements Web3 {
             PeerScoringManager peerScoringManager,
             PeerServer peerServer,
             BlockProcessor nodeBlockProcessor,
-            HashRateCalculator hashRateCalculator,
             ConfigCapabilities configCapabilities) {
         this.eth = eth;
         this.blockchain = blockchain;
@@ -142,7 +140,6 @@ public class Web3Impl implements Web3 {
         this.peerScoringManager = peerScoringManager;
         this.peerServer = peerServer;
         this.nodeBlockProcessor = nodeBlockProcessor;
-        this.hashRateCalculator = hashRateCalculator;
         this.configCapabilities = configCapabilities;
         this.config = config;
         filterManager = new FilterManager(eth);
@@ -152,15 +149,15 @@ public class Web3Impl implements Web3 {
         personalModule.init(this.config);
     }
 
-    @Override
-    public void start() {
-        hashRateCalculator.start();
-    }
-
-    @Override
-    public void stop() {
-        hashRateCalculator.stop();
-    }
+//    @Override
+//    public void start() {
+//        hashRateCalculator.start();
+//    }
+//
+//    @Override
+//    public void stop() {
+//        hashRateCalculator.stop();
+//    }
 
     public int JSonHexToInt(String x) throws Exception {
         if (!x.startsWith("0x")) {
@@ -307,25 +304,25 @@ public class Web3Impl implements Web3 {
         }
     }
 
-    @Override
-    public BigInteger eth_hashrate() {
-        BigInteger hashesPerHour = hashRateCalculator.calculateNodeHashRate(Duration.ofHours(1));
-        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-
-        logger.debug("eth_hashrate(): {}", hashesPerSecond);
-
-        return hashesPerSecond;
-    }
-
-    @Override
-    public BigInteger eth_netHashrate() {
-        BigInteger hashesPerHour = hashRateCalculator.calculateNetHashRate(Duration.ofHours(1));
-        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-
-        logger.debug("eth_netHashrate(): {}", hashesPerSecond);
-
-        return hashesPerSecond;
-    }
+//    @Override
+//    public BigInteger eth_hashrate() {
+//        BigInteger hashesPerHour = hashRateCalculator.calculateNodeHashRate(Duration.ofHours(1));
+//        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
+//
+//        logger.debug("eth_hashrate(): {}", hashesPerSecond);
+//
+//        return hashesPerSecond;
+//    }
+//
+//    @Override
+//    public BigInteger eth_netHashrate() {
+//        BigInteger hashesPerHour = hashRateCalculator.calculateNetHashRate(Duration.ofHours(1));
+//        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
+//
+//        logger.debug("eth_netHashrate(): {}", hashesPerSecond);
+//
+//        return hashesPerSecond;
+//    }
 
     @Override
     public String[] net_peerList() {

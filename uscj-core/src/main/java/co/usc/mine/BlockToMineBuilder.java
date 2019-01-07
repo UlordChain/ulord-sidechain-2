@@ -192,8 +192,7 @@ public class BlockToMineBuilder {
                 0,
                 timestampSeconds,
                 new byte[]{},
-                minimumGasPrice.getBytes(),
-                bpAddress
+                minimumGasPrice.getBytes()
         );
         newHeader.setTransactionsRoot(Block.getTxTrie(txs).getHash().getBytes());
         return newHeader;

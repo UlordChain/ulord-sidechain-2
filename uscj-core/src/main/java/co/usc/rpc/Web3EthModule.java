@@ -66,7 +66,7 @@ public interface Web3EthModule {
 
     boolean eth_mining();
 
-    BigInteger eth_hashrate();
+    //BigInteger eth_hashrate();
 
     String eth_gasPrice();
 
@@ -128,7 +128,7 @@ public interface Web3EthModule {
 
     Object[] eth_getLogs(Web3.FilterRequest fr) throws Exception;
 
-    BigInteger eth_netHashrate();
+    //BigInteger eth_netHashrate();
 
     boolean eth_submitWork(String nonce, String header, String mince);
 

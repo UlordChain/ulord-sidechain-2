@@ -236,7 +236,7 @@ public class OpCodes {
     /**
      * (0x44) Get the block’s difficulty
      */
-    static final byte OP_DIFFICULTY =0x44 ;
+//    static final byte OP_DIFFICULTY =0x44 ;
     /**
      * (0x45) Get the block’s gas limit
      */

@@ -60,10 +60,10 @@ public class Genesis extends Block {
     public Genesis(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                    long number, long gasLimit,
                    long gasUsed, long timestamp,
-                   byte[] extraData, byte[] minimumGasPrice, UscAddress bpAddress){
+                   byte[] extraData, byte[] minimumGasPrice){
         super(new BlockHeader(parentHash, coinbase, logsBloom, number,
                         ByteUtil.longToBytesNoLeadZeroes(gasLimit), gasUsed, timestamp, extraData,
-                        minimumGasPrice, bpAddress));
+                        minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
     }
