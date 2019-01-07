@@ -21,7 +21,6 @@ package co.usc.core;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.bc.BlockChainImpl;
 import co.usc.core.bc.TransactionPoolImpl;
-import co.usc.metrics.HashRateCalculator;
 import co.usc.mine.MinerClient;
 import co.usc.mine.MinerServer;
 import co.usc.net.*;
