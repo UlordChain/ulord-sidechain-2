@@ -19,7 +19,6 @@
 
 package org.ethereum.db;
 
-//import co.usc.core.BlockDifficulty;
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockCache;
 import co.usc.remasc.Sibling;
@@ -49,7 +48,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
     private final BlockCache blockCache;
-    private final MaxSizeHashMap<Keccak256, Map<Long, List<Sibling>>> remascCache;
+    //private final MaxSizeHashMap<Keccak256, Map<Long, List<Sibling>>> remascCache;
 
     private final Map<Long, List<BlockInfo>> index;
     private final DB indexDB;
@@ -62,13 +61,13 @@ public class IndexedBlockStore extends AbstractBlockstore {
         //TODO(lsebrie): move these maps creation outside blockstore,
         // remascCache should be an external component and not be inside blockstore
         this.blockCache = new BlockCache(5000);
-        this.remascCache = new MaxSizeHashMap<>(50000, true);
+        //this.remascCache = new MaxSizeHashMap<>(50000, true);
     }
 
     @Override
     public synchronized void removeBlock(Block block) {
         this.blockCache.removeBlock(block);
-        this.remascCache.remove(block.getHash());
+        //this.remascCache.remove(block.getHash());
         this.blocks.delete(block.getHash().getBytes());
 
         List<BlockInfo> binfos = this.index.get(block.getNumber());
@@ -167,7 +166,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
         }
         index.put(block.getNumber(), blockInfos);
         blockCache.addBlock(block);
-        remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+        //remascCache.put(block.getHash(), getSiblingsFromBlock(block));
     }
 
     @Override
@@ -219,7 +218,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
         }
 
         blockCache.addBlock(block);
-        remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+        //remascCache.put(block.getHash(), getSiblingsFromBlock(block));
         return block;
     }
 

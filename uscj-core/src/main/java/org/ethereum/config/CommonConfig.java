@@ -81,11 +81,10 @@ public class CommonConfig {
     }
 
     @Bean
-    public ParentBlockHeaderValidator parentHeaderValidator(UscSystemProperties config, DifficultyCalculator difficultyCalculator) {
+    public ParentBlockHeaderValidator parentHeaderValidator(UscSystemProperties config) {
 
         List<DependentBlockHeaderRule> rules = new ArrayList<>(asList(
                 new ParentNumberRule(),
-                new DifficultyRule(difficultyCalculator),
                 new ParentGasLimitRule(config.getBlockchainConfig().
                         getCommonConstants().getGasLimitBoundDivisor())));
 

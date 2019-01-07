@@ -19,7 +19,6 @@
 
 package org.ethereum.db;
 
-import co.usc.db.RemascCache;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 
@@ -30,7 +29,7 @@ import java.util.List;
  * @author Roman Mandeleil
  * @since 08.01.2015
  */
-public interface BlockStore extends RemascCache {
+public interface BlockStore {
 
     byte[] getBlockHashByNumber(long blockNumber);
 

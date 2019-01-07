@@ -55,7 +55,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     private final DataWord coinbase;
     private final DataWord timestamp;
     private final DataWord number;
-    private final DataWord difficulty;
     private final DataWord gaslimit;
 
     private final DataWord transactionIndex;
@@ -72,8 +71,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              DataWord gasPrice,
                              long gas,
                              DataWord callValue, byte[] msgData,
-                             DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord transactionIndex, DataWord
-                                     difficulty,
+                             DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord transactionIndex,
                              DataWord gaslimit, Repository repository, int callDeep, BlockStore blockStore,
                              boolean isStaticCall,boolean byTestingSuite) {
 
@@ -93,7 +91,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.timestamp = timestamp;
         this.number = number;
         this.transactionIndex = transactionIndex;
-        this.difficulty = difficulty;
         this.gaslimit = gaslimit;
 
         this.repository = repository;
@@ -106,12 +103,12 @@ public class ProgramInvokeImpl implements ProgramInvoke {
 
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
-                             byte[] lastHash, byte[] coinbase, long timestamp, long number, int transactionIndex, byte[] difficulty,
+                             byte[] lastHash, byte[] coinbase, long timestamp, long number, int transactionIndex,
                              byte[] gaslimit,
                              Repository repository, BlockStore blockStore,
                              boolean byTestingSuite) {
         this(address, origin, caller, balance, gasPrice, gas, callValue, msgData, lastHash, coinbase,
-                timestamp, number, transactionIndex, difficulty, gaslimit, repository, blockStore);
+                timestamp, number, transactionIndex, gaslimit, repository, blockStore);
 
         this.byTestingSuite = byTestingSuite;
     }
@@ -119,7 +116,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
 
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
-                             byte[] lastHash, byte[] coinbase, long timestamp, long number, int transactionIndex, byte[] difficulty,
+                             byte[] lastHash, byte[] coinbase, long timestamp, long number, int transactionIndex,
                              byte[] gaslimit,
                              Repository repository, BlockStore blockStore) {
 
@@ -139,7 +136,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.timestamp = new DataWord(timestamp);
         this.number = new DataWord(number);
         this.transactionIndex = new DataWord(transactionIndex);
-        this.difficulty = new DataWord(difficulty);
         this.gaslimit = new DataWord(gaslimit);
 
         this.repository = repository;
@@ -268,11 +264,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return transactionIndex;
     }
 
-    /*     DIFFICULTY op    */
-    public DataWord getDifficulty() {
-        return difficulty;
-    }
-
     /*     GASLIMIT op    */
     public DataWord getGaslimit() {
         return gaslimit;
@@ -344,9 +335,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         if (coinbase != null ? !coinbase.equals(that.coinbase) : that.coinbase != null) {
             return false;
         }
-        if (difficulty != null ? !difficulty.equals(that.difficulty) : that.difficulty != null) {
-            return false;
-        }
         if (gas!=that.gas) {
             return false;
         }
@@ -396,7 +384,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                 ", coinbase=" + coinbase +
                 ", timestamp=" + timestamp +
                 ", number=" + number +
-                ", difficulty=" + difficulty +
                 ", gaslimit=" + gaslimit +
                 ", storage=" + storage +
                 ", repository=" + repository +

@@ -1114,10 +1114,6 @@ public class Program {
         return invoke.getTransactionIndex().clone();
     }
 
-    public DataWord getDifficulty() {
-        return invoke.getDifficulty().clone();
-    }
-
     public DataWord getGasLimit() {
         return invoke.getGaslimit().clone();
     }
@@ -1576,7 +1572,7 @@ public class Program {
 
             Block executionBlock = new Block(getPrevHash().getData(), getCoinbase().getLast20Bytes(), EMPTY_BYTE_ARRAY,
                 getNumber().longValue(), getGasLimit().getData(), 0, getTimestamp().longValue(),
-                EMPTY_BYTE_ARRAY, new ArrayList<>(), null, null);
+                EMPTY_BYTE_ARRAY, new ArrayList<>(), null);
 
             contract.init(internalTx, executionBlock, track, this.invoke.getBlockStore(), null, null);
         }

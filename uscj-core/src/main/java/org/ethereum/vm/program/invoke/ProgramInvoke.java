@@ -59,8 +59,6 @@ public interface ProgramInvoke {
 
     DataWord getTransactionIndex();
 
-    DataWord getDifficulty();
-
     DataWord getGaslimit();
 
     boolean byTransaction();

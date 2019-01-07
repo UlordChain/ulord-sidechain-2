@@ -105,16 +105,6 @@ public class DefaultConfig {
     }
 
     @Bean
-    public HashRateCalculator hashRateCalculator(UscSystemProperties uscSystemProperties, BlockStore blockStore, MiningConfig miningConfig) {
-        UscCustomCache<Keccak256, BlockHeaderElement> cache = new UscCustomCache<>(60000L);
-        if (!uscSystemProperties.isMinerServerEnabled()) {
-            return new HashRateCalculatorNonMining(blockStore, cache);
-        }
-
-        return new HashRateCalculatorMining(blockStore, cache, miningConfig.getCoinbaseAddress());
-    }
-
-    @Bean
     public MiningConfig miningConfig(UscSystemProperties uscSystemProperties) {
         return new MiningConfig(
                 uscSystemProperties.coinbaseAddress(),
@@ -139,42 +129,40 @@ public class DefaultConfig {
     @Bean
     public BlockParentDependantValidationRule blockParentDependantValidationRule(
             Repository repository,
-            UscSystemProperties config,
-            DifficultyCalculator difficultyCalculator) {
+            UscSystemProperties config) {
         BlockTxsValidationRule blockTxsValidationRule = new BlockTxsValidationRule(repository);
         BlockTxsFieldsValidationRule blockTxsFieldsValidationRule = new BlockTxsFieldsValidationRule();
         PrevMinGasPriceRule prevMinGasPriceRule = new PrevMinGasPriceRule();
         BlockParentNumberRule parentNumberRule = new BlockParentNumberRule();
-        BlockDifficultyRule difficultyRule = new BlockDifficultyRule(difficultyCalculator);
         BlockParentGasLimitRule parentGasLimitRule = new BlockParentGasLimitRule(config.getBlockchainConfig().
                 getCommonConstants().getGasLimitBoundDivisor());
 
-        return new BlockParentCompositeRule(blockTxsFieldsValidationRule, blockTxsValidationRule, prevMinGasPriceRule, parentNumberRule, difficultyRule, parentGasLimitRule);
+        return new BlockParentCompositeRule(blockTxsFieldsValidationRule, blockTxsValidationRule, prevMinGasPriceRule, parentNumberRule, parentGasLimitRule);
     }
 
     @Bean(name = "blockValidationRule")
     public BlockValidationRule blockValidationRule(
             BlockStore blockStore,
             UscSystemProperties config,
-            DifficultyCalculator difficultyCalculator,
             ProofOfWorkRule proofOfWorkRule) {
         Constants commonConstants = config.getBlockchainConfig().getCommonConstants();
-        int uncleListLimit = commonConstants.getUncleListLimit();
-        int uncleGenLimit = commonConstants.getUncleGenerationLimit();
+        //int uncleListLimit = commonConstants.getUncleListLimit();
+        //int uncleGenLimit = commonConstants.getUncleGenerationLimit();
         int validPeriod = commonConstants.getNewBlockMaxSecondsInTheFuture();
         BlockTimeStampValidationRule blockTimeStampValidationRule = new BlockTimeStampValidationRule(validPeriod);
 
-        BlockParentGasLimitRule parentGasLimitRule = new BlockParentGasLimitRule(commonConstants.getGasLimitBoundDivisor());
-        BlockParentCompositeRule unclesBlockParentHeaderValidator = new BlockParentCompositeRule(new PrevMinGasPriceRule(), new BlockParentNumberRule(), blockTimeStampValidationRule, new BlockDifficultyRule(difficultyCalculator), parentGasLimitRule);
+        //BlockParentGasLimitRule parentGasLimitRule = new BlockParentGasLimitRule(commonConstants.getGasLimitBoundDivisor());
+        //BlockParentCompositeRule unclesBlockParentHeaderValidator = new BlockParentCompositeRule(new PrevMinGasPriceRule(), new BlockParentNumberRule(), blockTimeStampValidationRule, new BlockDifficultyRule(difficultyCalculator), parentGasLimitRule);
 
-        BlockCompositeRule unclesBlockHeaderValidator = new BlockCompositeRule(proofOfWorkRule, blockTimeStampValidationRule, new ValidGasUsedRule());
+        //BlockCompositeRule unclesBlockHeaderValidator = new BlockCompositeRule(proofOfWorkRule, blockTimeStampValidationRule, new ValidGasUsedRule());
 
-        BlockUnclesValidationRule blockUnclesValidationRule = new BlockUnclesValidationRule(config, blockStore, uncleListLimit, uncleGenLimit, unclesBlockHeaderValidator, unclesBlockParentHeaderValidator);
+        //BlockUnclesValidationRule blockUnclesValidationRule = new BlockUnclesValidationRule(config, blockStore, uncleListLimit, uncleGenLimit, unclesBlockHeaderValidator, unclesBlockParentHeaderValidator);
 
         int minGasLimit = commonConstants.getMinGasLimit();
         int maxExtraDataSize = commonConstants.getMaximumExtraDataSize();
 
-        return new BlockCompositeRule(new TxsMinGasPriceRule(), blockUnclesValidationRule, new BlockRootValidationRule(), new RemascValidationRule(), blockTimeStampValidationRule, new GasLimitRule(minGasLimit), new ExtraDataRule(maxExtraDataSize));
+        return new BlockCompositeRule(new TxsMinGasPriceRule(), new BlockRootValidationRule(), new RemascValidationRule(),
+                blockTimeStampValidationRule, new GasLimitRule(minGasLimit), new ExtraDataRule(maxExtraDataSize));
     }
 
     @Bean
@@ -182,26 +170,6 @@ public class DefaultConfig {
         return new NetworkStateExporter(repository);
     }
 
-
-    @Bean(name = "minerServerBlockValidation")
-    public BlockValidationRule minerServerBlockValidationRule(
-            BlockStore blockStore,
-            UscSystemProperties config,
-            DifficultyCalculator difficultyCalculator,
-            ProofOfWorkRule proofOfWorkRule) {
-        Constants commonConstants = config.getBlockchainConfig().getCommonConstants();
-        int uncleListLimit = commonConstants.getUncleListLimit();
-        int uncleGenLimit = commonConstants.getUncleGenerationLimit();
-
-        BlockParentGasLimitRule parentGasLimitRule = new BlockParentGasLimitRule(commonConstants.getGasLimitBoundDivisor());
-        BlockParentCompositeRule unclesBlockParentHeaderValidator = new BlockParentCompositeRule(new PrevMinGasPriceRule(), new BlockParentNumberRule(), new BlockDifficultyRule(difficultyCalculator), parentGasLimitRule);
-
-        int validPeriod = commonConstants.getNewBlockMaxSecondsInTheFuture();
-        BlockTimeStampValidationRule blockTimeStampValidationRule = new BlockTimeStampValidationRule(validPeriod);
-        BlockCompositeRule unclesBlockHeaderValidator = new BlockCompositeRule(proofOfWorkRule, blockTimeStampValidationRule, new ValidGasUsedRule());
-
-        return new BlockUnclesValidationRule(config, blockStore, uncleListLimit, uncleGenLimit, unclesBlockHeaderValidator, unclesBlockParentHeaderValidator);
-    }
 
     @Bean
     public PeerExplorer peerExplorer(UscSystemProperties uscConfig) {
