@@ -26,10 +26,10 @@ public class PeersInformation {
         this.channelManager = channelManager;
         this.syncInformation = syncInformation;
         this.syncConfiguration = syncConfiguration;
-        this.peerComparator = ((Comparator<Map.Entry<NodeID, SyncPeerStatus>>) this::comparePeerFailInstant)
+        this.peerComparator = ((Comparator<Map.Entry<NodeID, SyncPeerStatus>>) this::comparePeerFailInstant);
                 // TODO reenable when unprocessable blocks stop being marked as invalid blocks
 //                .thenComparing(this::comparePeerScoring)
-                .thenComparing(this::comparePeerTotalDifficulty);
+                //.thenComparing(this::comparePeerTotalDifficulty);
     }
 
     public int count() {
@@ -70,8 +70,8 @@ public class PeersInformation {
         return peerStatuses.entrySet().stream()
                 .filter(e -> peerNotExpired(e.getValue()))
                 .filter(e -> activeNodes.contains(e.getKey()))
-                .filter(e -> syncInformation.hasGoodReputation(e.getKey()))
-                .filter(e -> syncInformation.hasLowerDifficulty(e.getKey()));
+                .filter(e -> syncInformation.hasGoodReputation(e.getKey()));
+                //.filter(e -> syncInformation.hasLowerDifficulty(e.getKey()));
     }
 
     public List<NodeID> getPeerCandidates() {
@@ -120,6 +120,7 @@ public class PeersInformation {
         return Integer.compare(score, scoreOther);
     }
 
+    /*
     private int comparePeerTotalDifficulty(
             Map.Entry<NodeID, SyncPeerStatus> entry,
             Map.Entry<NodeID, SyncPeerStatus> other) {
@@ -141,4 +142,5 @@ public class PeersInformation {
 
         return ttd.compareTo(otd);
     }
+    */
 }
