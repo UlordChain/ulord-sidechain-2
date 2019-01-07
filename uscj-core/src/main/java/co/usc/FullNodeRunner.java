@@ -168,7 +168,7 @@ public class FullNodeRunner implements NodeRunner {
         }
 
         if (uscSystemProperties.isSyncEnabled()) {
-            syncPool.updateLowerUsefulDifficulty();
+            //syncPool.updateLowerUsefulDifficulty();
             syncPool.start(peerClientFactory);
             if (uscSystemProperties.waitForSync()) {
                 waitUscSyncDone();
@@ -194,9 +194,11 @@ public class FullNodeRunner implements NodeRunner {
         boolean rpcHttpEnabled = uscSystemProperties.isRpcHttpEnabled();
         boolean rpcWebSocketEnabled = uscSystemProperties.isRpcWebSocketEnabled();
 
+        /*
         if (rpcHttpEnabled || rpcWebSocketEnabled) {
             web3Service.start();
         }
+        */
 
         if (rpcHttpEnabled) {
             logger.info("RPC HTTP enabled");
@@ -256,9 +258,11 @@ public class FullNodeRunner implements NodeRunner {
             }
         }
 
+        /*
         if (rpcHttpEnabled || rpcWebSocketEnabled) {
             web3Service.stop();
         }
+        */
 
         if (uscSystemProperties.isMinerServerEnabled()) {
             minerServer.stop();
