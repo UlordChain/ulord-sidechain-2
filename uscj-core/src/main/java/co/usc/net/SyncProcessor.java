@@ -57,7 +57,7 @@ public class SyncProcessor implements SyncEventsHandler {
         this.peerScoringManager = peerScoringManager;
         this.channelManager = channelManager;
         this.syncConfiguration = syncConfiguration;
-        this.syncInformation = new SyncInformationImpl(blockHeaderValidationRule, difficultyCalculator);
+        this.syncInformation = new SyncInformationImpl(blockHeaderValidationRule/*, difficultyCalculator*/);
         this.peerStatuses = new PeersInformation(syncInformation, channelManager, syncConfiguration);
         this.pendingMessages = new LinkedHashMap<Long, MessageType>() {
             @Override
@@ -360,12 +360,14 @@ public class SyncProcessor implements SyncEventsHandler {
 
     private class SyncInformationImpl implements SyncInformation {
 
-        private final DependentBlockHeaderRule blockParentValidationRule;
+        //TODO this rule need to be changed according to PBFT
+        //private final DependentBlockHeaderRule blockParentValidationRule;
         private final BlockHeaderValidationRule blockHeaderValidationRule;
 
-        public SyncInformationImpl(BlockHeaderValidationRule blockHeaderValidationRule, DifficultyCalculator difficultyCalculator) {
+        public SyncInformationImpl(BlockHeaderValidationRule blockHeaderValidationRule/*, DifficultyCalculator difficultyCalculator*/) {
             this.blockHeaderValidationRule = blockHeaderValidationRule;
-            this.blockParentValidationRule = new DifficultyRule(difficultyCalculator);
+            //TODO this rule need to be changed according to PBFT
+            //this.blockParentValidationRule = new DifficultyRule(difficultyCalculator);
         }
 
         public boolean isKnownBlock(byte[] hash) {
@@ -397,8 +399,10 @@ public class SyncProcessor implements SyncEventsHandler {
             return blockHeaderValidationRule.isValid(header);
         }
 
+        //TODO this function need to be changed according to PBFT
         @Override
         public boolean blockHeaderIsValid(@Nonnull BlockHeader header, @Nonnull BlockHeader parentHeader) {
+            /*
             if (!parentHeader.getHash().equals(header.getParentHash())) {
                 return false;
             }
@@ -412,6 +416,8 @@ public class SyncProcessor implements SyncEventsHandler {
             }
 
             return blockParentValidationRule.validate(header, parentHeader);
+            */
+            return true;
         }
 
         @CheckForNull
