@@ -410,7 +410,7 @@ public class Block {
             toStringBuff.append("  BpSignatures []\n");
         }
         if (!getTransactionsList().isEmpty()) {
-            toStringBuff.append("Txs [\n");
+            toStringBuff.append("  Txs [\n");
             for (Transaction tx : getTransactionsList()) {
                 toStringBuff.append(tx);
                 toStringBuff.append("\n");
