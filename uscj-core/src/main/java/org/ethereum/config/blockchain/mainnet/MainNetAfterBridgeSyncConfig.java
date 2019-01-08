@@ -36,10 +36,10 @@ public class MainNetAfterBridgeSyncConfig extends GenesisConfig {
             return 14;
         }
 
-        @Override
-        public BigInteger getDifficultyBoundDivisor() {
-            return DIFFICULTY_BOUND_DIVISOR;
-        }
+        //@Override
+        //public BigInteger getDifficultyBoundDivisor() {
+        //    return DIFFICULTY_BOUND_DIVISOR;
+        //}
 
         @Override
         public int getNewBlockMaxSecondsInTheFuture() {

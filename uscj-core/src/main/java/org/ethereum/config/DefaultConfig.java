@@ -111,8 +111,8 @@ public class DefaultConfig {
                 uscSystemProperties.minerMinFeesNotifyInDollars(),
                 uscSystemProperties.minerGasUnitInDollars(),
                 uscSystemProperties.minerMinGasPrice(),
-                uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleListLimit(),
-                uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit(),
+                //uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleListLimit(),
+                //uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit(),
                 new GasLimitConfig(
                         uscSystemProperties.getBlockchainConfig().getCommonConstants().getMinGasLimit(),
                         uscSystemProperties.getTargetGasLimit(),

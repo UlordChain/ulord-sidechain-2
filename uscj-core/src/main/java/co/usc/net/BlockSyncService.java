@@ -138,10 +138,12 @@ public class BlockSyncService {
         return getLastKnownBlockNumber() >= getBestBlockNumber() + blocksDistance;
     }
 
+    /*
     public boolean canBeIgnoredForUnclesRewards(long blockNumber) {
         int blockDistance = config.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit();
         return blockNumber < getBestBlockNumber() - blockDistance;
     }
+    */
 
     public long getLastKnownBlockNumber() {
         return this.lastKnownBlockNumber;

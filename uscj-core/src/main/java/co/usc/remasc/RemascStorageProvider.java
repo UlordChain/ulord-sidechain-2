@@ -50,7 +50,7 @@ class RemascStorageProvider {
     private Coin rewardBalance;
     private Coin burnedBalance;
     private Coin federationBalance;
-    private SortedMap<Long, List<Sibling>> siblings;
+    //private SortedMap<Long, List<Sibling>> siblings;
     private Boolean brokenSelectionRule;
 
     public RemascStorageProvider(Repository repository, UscAddress contractAddress) {
@@ -154,6 +154,7 @@ class RemascStorageProvider {
         this.repository.addStorageRow(this.contractAddress, address, new DataWord(this.burnedBalance.getBytes()));
     }
 
+    /*
     public SortedMap<Long, List<Sibling>> getSiblings() {
         if (siblings != null) {
             return siblings;
@@ -244,6 +245,7 @@ class RemascStorageProvider {
 
         return RLP.encodeList(entriesBytes);
     }
+    */
 
     public Boolean getBrokenSelectionRule() {
         if (brokenSelectionRule!= null) {
@@ -289,7 +291,7 @@ class RemascStorageProvider {
     public void save() {
         saveRewardBalance();
         saveBurnedBalance();
-        saveSiblings();
+        //saveSiblings();
         saveBrokenSelectionRule();
         saveFederationBalance();
     }

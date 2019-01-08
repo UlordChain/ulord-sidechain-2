@@ -28,17 +28,17 @@ public class MiningConfig {
     private final double minFeesNotifyInDollars;
     private final double minerGasUnitInDollars;
     private final long minGasPriceTarget;
-    private final int uncleListLimit;
-    private final int uncleGenerationLimit;
+    //private final int uncleListLimit;
+    //private final int uncleGenerationLimit;
     private final GasLimitConfig gasLimit;
 
-    public MiningConfig(UscAddress coinbaseAddress, double minFeesNotifyInDollars, double minerGasUnitInDollars, long minGasPriceTarget, int uncleListLimit, int uncleGenerationLimit, GasLimitConfig gasLimit) {
+    public MiningConfig(UscAddress coinbaseAddress, double minFeesNotifyInDollars, double minerGasUnitInDollars, long minGasPriceTarget, /*int uncleListLimit, int uncleGenerationLimit,*/ GasLimitConfig gasLimit) {
         this.coinbaseAddress = coinbaseAddress;
         this.minFeesNotifyInDollars = minFeesNotifyInDollars;
         this.minerGasUnitInDollars = minerGasUnitInDollars;
         this.minGasPriceTarget= minGasPriceTarget;
-        this.uncleListLimit = uncleListLimit;
-        this.uncleGenerationLimit = uncleGenerationLimit;
+        //this.uncleListLimit = uncleListLimit;
+        //this.uncleGenerationLimit = uncleGenerationLimit;
         this.gasLimit = gasLimit;
     }
 
@@ -58,6 +58,7 @@ public class MiningConfig {
         return minGasPriceTarget;
     }
 
+    /*
     public int getUncleListLimit() {
         return uncleListLimit;
     }
@@ -65,6 +66,7 @@ public class MiningConfig {
     public int getUncleGenerationLimit() {
         return uncleGenerationLimit;
     }
+    */
 
     public GasLimitConfig getGasLimit() {
         return gasLimit;

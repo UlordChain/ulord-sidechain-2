@@ -34,14 +34,14 @@ import java.util.SortedMap;
 public class RemascState {
     private final Coin rewardBalance;
     private final Coin burnedBalance;
-    private final SortedMap<Long, List<Sibling>> siblings;
+    //private final SortedMap<Long, List<Sibling>> siblings;
 
     private final Boolean brokenSelectionRule;
 
-    public RemascState(Coin rewardBalance, Coin burnedBalance, SortedMap<Long, List<Sibling>> siblings, Boolean brokenSelectionRule) {
+    public RemascState(Coin rewardBalance, Coin burnedBalance, /*SortedMap<Long, List<Sibling>> siblings,*/ Boolean brokenSelectionRule) {
         this.rewardBalance = rewardBalance;
         this.burnedBalance = burnedBalance;
-        this.siblings = siblings;
+        //this.siblings = siblings;
         this.brokenSelectionRule = brokenSelectionRule;
     }
 
@@ -53,9 +53,11 @@ public class RemascState {
         return burnedBalance;
     }
 
+    /*
     public SortedMap<Long, List<Sibling>> getSiblings() {
         return siblings;
     }
+    */
 
     public Boolean getBrokenSelectionRule() {
         return brokenSelectionRule;
@@ -64,7 +66,7 @@ public class RemascState {
     public byte[] getEncoded() {
         byte[] rlpRewardBalance = RLP.encodeCoin(this.rewardBalance);
         byte[] rlpBurnedBalance = RLP.encodeCoin(this.burnedBalance);
-        byte[] rlpSiblings = RemascStorageProvider.getSiblingsBytes(this.siblings);
+        //byte[] rlpSiblings = RemascStorageProvider.getSiblingsBytes(this.siblings);
         byte[] rlpBrokenSelectionRule = new byte[1];
 
         if (brokenSelectionRule) {
@@ -73,7 +75,7 @@ public class RemascState {
             rlpBrokenSelectionRule[0] = 0;
         }
 
-        return RLP.encodeList(rlpRewardBalance, rlpBurnedBalance, rlpSiblings, rlpBrokenSelectionRule);
+        return RLP.encodeList(rlpRewardBalance, rlpBurnedBalance, /*rlpSiblings,*/ rlpBrokenSelectionRule);
     }
 
     public static RemascState create(byte[] data) {
@@ -82,7 +84,7 @@ public class RemascState {
         Coin rlpRewardBalance = RLP.parseCoin(rlpList.get(0).getRLPData());
         Coin rlpBurnedBalance = RLP.parseCoin(rlpList.get(1).getRLPData());
 
-        SortedMap<Long, List<Sibling>> rlpSiblings = RemascStorageProvider.getSiblingsFromBytes(rlpList.get(2).getRLPData());
+        //SortedMap<Long, List<Sibling>> rlpSiblings = RemascStorageProvider.getSiblingsFromBytes(rlpList.get(2).getRLPData());
 
         byte[] rlpBrokenSelectionRuleBytes = rlpList.get(3).getRLPData();
 
@@ -94,7 +96,7 @@ public class RemascState {
             rlpBrokenSelectionRule = Boolean.FALSE;
         }
 
-        return new RemascState(rlpRewardBalance, rlpBurnedBalance, rlpSiblings, rlpBrokenSelectionRule);
+        return new RemascState(rlpRewardBalance, rlpBurnedBalance, /*rlpSiblings,*/ rlpBrokenSelectionRule);
     }
 
     @Override
@@ -102,7 +104,7 @@ public class RemascState {
         return "RemascState{" +
                 "rewardBalance=" + rewardBalance +
                 ", burnedBalance=" + burnedBalance +
-                ", siblings=" + siblings +
+                //", siblings=" + siblings +
                 ", brokenSelectionRule=" + brokenSelectionRule +
                 '}';
     }

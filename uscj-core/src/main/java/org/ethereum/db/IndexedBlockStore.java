@@ -21,7 +21,7 @@ package org.ethereum.db;
 
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockCache;
-import co.usc.remasc.Sibling;
+//import co.usc.remasc.Sibling;
 import co.usc.util.MaxSizeHashMap;
 import com.google.common.annotations.VisibleForTesting;
 import org.ethereum.core.Block;

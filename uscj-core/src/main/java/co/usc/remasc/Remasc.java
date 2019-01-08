@@ -77,7 +77,7 @@ public class Remasc {
      * @return the internal contract state.
      */
     public RemascState getStateForDebugging() {
-        return new RemascState(this.provider.getRewardBalance(), this.provider.getBurnedBalance(), this.provider.getSiblings(), this.provider.getBrokenSelectionRule());
+        return new RemascState(this.provider.getRewardBalance(), this.provider.getBurnedBalance(), /*this.provider.getSiblings(),*/ this.provider.getBrokenSelectionRule());
     }
 
 
@@ -96,6 +96,7 @@ public class Remasc {
         BlockchainConfig configForBlock = config.getBlockchainConfig().getConfigForBlock(blockNbr);
         boolean isUscIP85Enabled = configForBlock.isUscIP85();
 
+        /*
         if (!isUscIP85Enabled) {
             this.addNewSiblings();
         } else {
@@ -103,6 +104,7 @@ public class Remasc {
                 this.provider.getSiblings().clear();
             }
         }
+        */
 
         long processingBlockNumber = blockNbr - remascConstants.getMaturity();
         if (processingBlockNumber < 1 ) {
@@ -110,7 +112,7 @@ public class Remasc {
             return;
         }
 
-        int uncleGenerationLimit = config.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit();
+        //int uncleGenerationLimit = config.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit();
         //Deque<Map<Long, List<Sibling>>> descendantsBlocks = new LinkedList<>();
 
         // this search can be optimized if have certainty that the execution block is not in a fork
@@ -123,10 +125,10 @@ public class Remasc {
 
         // descendants are stored in reverse order because the original order to pay siblings is defined in the way
         // blocks are ordered in the blockchain (the same as were stored in remasc contract)
-        for (int i = 0; i < uncleGenerationLimit - 1; i++) {
-            currentBlock = blockStore.getBlockByHash(currentBlock.getParentHash().getBytes());
-            descendantsBlocks.push(blockStore.getSiblingsFromBlockByHash(currentBlock.getHash()));
-        }
+        //for (int i = 0; i < uncleGenerationLimit - 1; i++) {
+            //currentBlock = blockStore.getBlockByHash(currentBlock.getParentHash().getBytes());
+            //descendantsBlocks.push(blockStore.getSiblingsFromBlockByHash(currentBlock.getHash()));
+        //}
 
         Block processingBlock = blockStore.getBlockByHash(currentBlock.getParentHash().getBytes());
         BlockHeader processingBlockHeader = processingBlock.getHeader();
@@ -182,9 +184,9 @@ public class Remasc {
             feesPayer.payMiningFees(processingBlockHeader.getHash().getBytes(), syntheticReward, processingBlockHeader.getCoinbase(), logs);
         //}
 
-        if (!isUscIP85Enabled) {
-            this.removeUsedSiblings(processingBlockHeader);
-        }
+        //if (!isUscIP85Enabled) {
+        //    this.removeUsedSiblings(processingBlockHeader);
+        //}
     }
 
     private Coin payToFederation(BlockchainConfig configForBlock, boolean isUscIP85Enabled, Block processingBlock, BlockHeader processingBlockHeader, Coin syntheticReward) {
@@ -226,13 +228,15 @@ public class Remasc {
     /**
      * Remove siblings just processed if any
      */
+    /*
     private void removeUsedSiblings(BlockHeader processingBlockHeader) {
         provider.getSiblings().remove(processingBlockHeader.getNumber());
     }
-
+    */
     /**
      * Saves uncles of the current block into the siblings map to use in the future for fee distribution
      */
+    /*
     private void addNewSiblings() {
         // Add uncles of the execution block to the siblings map
         List<BlockHeader> uncles = executionBlock.getUncleList();
@@ -250,6 +254,7 @@ public class Remasc {
             provider.getSiblings().put(uncleHeader.getNumber(), siblings);
         }
     }
+    */
 
     /**
      * Descendants included on the same chain as the processing block could include siblings
@@ -258,15 +263,18 @@ public class Remasc {
      * @param blockNumber number of the block is looked for siblings
      * @return
      */
+    /*
     private List<Sibling> getSiblingsToReward(Deque<Map<Long, List<Sibling>>> descendants, long blockNumber) {
         return descendants.stream()
                 .flatMap(map -> map.getOrDefault(blockNumber, Collections.emptyList()).stream())
                 .collect(Collectors.toList());
     }
+    */
 
     /**
      * Pay the mainchain block miner, its siblings miners and the publisher miners
      */
+    /*
     private void payWithSiblings(BlockHeader processingBlockHeader, Coin fullBlockReward, List<Sibling> siblings, boolean previousBrokenSelectionRule) {
         SiblingPaymentCalculator paymentCalculator = new SiblingPaymentCalculator(fullBlockReward, previousBrokenSelectionRule, siblings.size(), this.remascConstants);
 
@@ -301,6 +309,7 @@ public class Remasc {
             provider.addToBurnBalance(lateInclusionPunishment);
         }
     }
+    */
 
 }
 
