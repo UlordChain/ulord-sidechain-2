@@ -384,6 +384,13 @@ public class MinerServerImpl implements MinerServer {
      */
     @Override
     public void buildBlockToSign(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
+
+        //TODO this will be taken from config file of BP's and validated.
+        //TODO Instead of name it will be address/IP and it should also contain timestamp validation.
+        if (!currentBP().equals("dragonexsafe")){
+            return;
+        }
+
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
             // Just for testing, mine on top of bestblock's parent

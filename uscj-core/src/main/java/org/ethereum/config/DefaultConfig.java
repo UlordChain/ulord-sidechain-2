@@ -170,6 +170,11 @@ public class DefaultConfig {
         return new NetworkStateExporter(repository);
     }
 
+    @Bean(name = "minerServerBlockValidation")
+    public BlockValidationRule minerServerBlockvalidationRule(){
+        //TODO BlockSignaturevalidationRule need to be implemented
+        return new BlockSignatureValidationRule();
+    }
 
     @Bean
     public PeerExplorer peerExplorer(UscSystemProperties uscConfig) {
