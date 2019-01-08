@@ -60,8 +60,8 @@ public class UscSystemProperties extends SystemProperties {
     private static final int PD_DEFAULT_TIMEOUT_MESSAGE = PD_DEFAULT_CLEAN_PERIOD - 1; //miliseconds
     private static final int PD_DEFAULT_REFRESH_PERIOD = 60000; //miliseconds
 
-    private static final String MINER_REWARD_ADDRESS_CONFIG = "miner.reward.address";
-    private static final String MINER_COINBASE_SECRET_CONFIG = "miner.coinbase.secret";
+    private static final String MINER_REWARD_ADDRESS_CONFIG = "blockProducer.reward.address";
+    private static final String MINER_COINBASE_SECRET_CONFIG = "blockProducer.coinbase.secret";
     private static final int CHUNK_SIZE = 192;
 
     //TODO: REMOVE THIS WHEN THE LocalBLockTests starts working with REMASC
@@ -110,7 +110,7 @@ public class UscSystemProperties extends SystemProperties {
 
         if (!configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG) &&
                 !configFromFiles.hasPath(MINER_REWARD_ADDRESS_CONFIG)) {
-            throw new UscConfigurationException("It is required to either have " + MINER_REWARD_ADDRESS_CONFIG + " or " + MINER_COINBASE_SECRET_CONFIG + " to use the miner server");
+            throw new UscConfigurationException("It is required to either have " + MINER_REWARD_ADDRESS_CONFIG + " or " + MINER_COINBASE_SECRET_CONFIG + " to use the blockProducer server");
         }
 
         if (!configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG)) {
@@ -122,31 +122,31 @@ public class UscSystemProperties extends SystemProperties {
     }
 
     public boolean isMinerClientEnabled() {
-        return configFromFiles.getBoolean("miner.client.enabled");
+        return configFromFiles.getBoolean("blockProducer.client.enabled");
     }
 
     public Duration minerClientDelayBetweenBlocks() {
-        return configFromFiles.getDuration("miner.client.delayBetweenBlocks");
+        return configFromFiles.getDuration("blockProducer.client.delayBetweenBlocks");
     }
 
     public Duration minerClientDelayBetweenRefreshes() {
-        return configFromFiles.getDuration("miner.client.delayBetweenRefreshes");
+        return configFromFiles.getDuration("blockProducer.client.delayBetweenRefreshes");
     }
 
     public boolean isMinerServerEnabled() {
-        return getBoolean("miner.server.enabled", false);
+        return getBoolean("blockProducer.server.enabled", false);
     }
 
     public long minerMinGasPrice() {
-        return getLong("miner.minGasPrice", 0);
+        return getLong("blockProducer.minGasPrice", 0);
     }
 
     public double minerGasUnitInDollars() {
-        return getDouble("miner.gasUnitInDollars", 0);
+        return getDouble("blockProducer.gasUnitInDollars", 0);
     }
 
     public double minerMinFeesNotifyInDollars() {
-        return getDouble("miner.minFeesNotifyInDollars", 0);
+        return getDouble("blockProducer.minFeesNotifyInDollars", 0);
     }
 
     public boolean simulateTxs() {

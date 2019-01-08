@@ -52,7 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * (known as the blockheader), H, together with information corresponding to
  * the comprised transactions, R, and a set of other blockheaders U that are known
  * to have a parent equalBytes to the present block’s parent’s parent
- * (such blocks are known as uncles).
+ * (such blocks are known as signatures).
  *
  * @author Roman Mandeleil
  * @author Nick Savers

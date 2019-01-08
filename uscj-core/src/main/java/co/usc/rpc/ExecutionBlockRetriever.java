@@ -18,8 +18,8 @@
 
 package co.usc.rpc;
 
-import co.usc.mine.BlockToMineBuilder;
-import co.usc.mine.MinerServer;
+import co.usc.bp.BlockToSignBuilder;
+import co.usc.bp.MinerServer;
 import org.ethereum.core.Block;
 import org.ethereum.core.Blockchain;
 import org.ethereum.rpc.exception.JsonRpcInvalidParamException;
@@ -41,13 +41,13 @@ public class ExecutionBlockRetriever {
 
     private final Blockchain blockchain;
     private final MinerServer minerServer;
-    private final BlockToMineBuilder builder;
+    private final BlockToSignBuilder builder;
 
     @Nullable
     private Block cachedBlock;
 
     @Autowired
-    public ExecutionBlockRetriever(Blockchain blockchain, MinerServer minerServer, BlockToMineBuilder builder) {
+    public ExecutionBlockRetriever(Blockchain blockchain, MinerServer minerServer, BlockToSignBuilder builder) {
         this.blockchain = blockchain;
         this.minerServer = minerServer;
         this.builder = builder;

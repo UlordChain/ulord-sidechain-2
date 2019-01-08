@@ -18,7 +18,7 @@
 
 package co.usc.validators;
 
-import co.usc.mine.BlockGasPriceRange;
+import co.usc.bp.BlockGasPriceRange;
 import co.usc.panic.PanicProcessor;
 import org.ethereum.core.Block;
 import org.slf4j.Logger;

@@ -53,7 +53,7 @@ public class BlockValidatorImpl implements BlockValidator {
      * The validation includes
      * - Validate the header data relative to parent block
      * - Validate the transaction root hash to transaction list
-     * - Validate uncles
+     * - Validate signatures
      * - Validate transactions
      *
      * @param block        Block to validate

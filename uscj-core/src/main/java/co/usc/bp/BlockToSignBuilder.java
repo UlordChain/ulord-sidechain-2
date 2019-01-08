@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
 import co.usc.config.*;
 import co.usc.core.Coin;
@@ -40,12 +40,12 @@ import java.time.Clock;
 import java.util.*;
 
 /**
- * This component helps build a new block to mine.
+ * This component helps build a new block to be signed by the block producers.
  * It can also be used to generate a new block from the pending state, which is useful
  * in places like Web3 with the 'pending' parameter.
  */
 @Component
-public class BlockToMineBuilder {
+public class BlockToSignBuilder {
     private static final Logger logger = LoggerFactory.getLogger("blocktominebuilder");
 
     private final MiningConfig miningConfig;
@@ -68,7 +68,7 @@ public class BlockToMineBuilder {
     private long minimumAcceptableTime;
 
     @Autowired
-    public BlockToMineBuilder(
+    public BlockToSignBuilder(
             MiningConfig miningConfig,
             Repository repository,
             BlockStore blockStore,

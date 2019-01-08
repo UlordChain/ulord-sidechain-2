@@ -484,7 +484,7 @@ public class TransactionExecutor {
         track.addBalance(tx.getSender(), summary.getLeftover().add(summary.getRefund()));
         logger.trace("Pay total refund to sender: [{}], refund val: [{}]", tx.getSender(), summary.getRefund());
 
-        // Transfer fees to miner
+        // Transfer fees to blockProducer
         Coin summaryFee = summary.getFee();
 
         //TODO: REMOVE THIS WHEN THE LocalBLockTests starts working with REMASC

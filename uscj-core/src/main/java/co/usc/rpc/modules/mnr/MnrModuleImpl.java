@@ -20,11 +20,9 @@ package co.usc.rpc.modules.mnr;
 
 import co.usc.ulordj.core.UldBlock;
 import co.usc.ulordj.core.UldTransaction;
-import co.usc.ulordj.core.Context;
 import co.usc.ulordj.core.NetworkParameters;
-import co.usc.ulordj.params.RegTestParams;
 import co.usc.config.UscMiningConstants;
-import co.usc.mine.*;
+import co.usc.bp.*;
 import co.usc.rpc.exception.JsonRpcSubmitBlockException;
 import com.google.common.collect.EvictingQueue;
 import org.apache.commons.lang3.ArrayUtils;

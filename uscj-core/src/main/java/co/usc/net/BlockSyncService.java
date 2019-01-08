@@ -102,7 +102,7 @@ public class BlockSyncService {
         trySaveStore(block);
 
         Set<Keccak256> unknownHashes = BlockUtils.unknownDirectAncestorsHashes(block, blockchain, store);
-        // We can't add the block if there are missing ancestors or uncles. Request the missing blocks to the sender.
+        // We can't add the block if there are missing ancestors or signatures. Request the missing blocks to the sender.
         if (!unknownHashes.isEmpty()) {
             if (!ignoreMissingHashes){
                 logger.trace("Missing hashes for block in process {} {}", blockNumber, block.getShortHash());

@@ -16,15 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
 import co.usc.ulordj.core.UldBlock;
-import co.usc.ulordj.core.UldTransaction;
 import co.usc.core.UscAddress;
 import org.ethereum.core.Block;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Optional;
 
 

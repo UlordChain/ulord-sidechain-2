@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Usc;
@@ -36,7 +36,7 @@ import java.util.TimerTask;
 /**
  * MinerClient mines new blocks.
  * In fact it just performs the proof-of-work needed to find a valid block and uses
- * uses MinerServer to build blocks to mine and publish blocks once a valid nonce was found.
+ * uses MinerServer to build blocks to bp and publish blocks once a valid nonce was found.
  * @author Oscar Guindzberg
  */
 
@@ -109,7 +109,7 @@ public class MinerClientImpl implements MinerClient {
             }
         } catch (Exception e) {
             logger.error("Error on mining", e);
-            panicProcessor.panic("mine", e.getMessage());
+            panicProcessor.panic("bp", e.getMessage());
         }
     }
 

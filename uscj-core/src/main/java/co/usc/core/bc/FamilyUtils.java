@@ -75,7 +75,7 @@ public class FamilyUtils {
      * @param block         the block to use
      * @param limitNum      maximum number of ancestors to examine
      *
-     * @return set of already used uncles block hashes
+     * @return set of already used signatures block hashes
      */
     public static Set<Keccak256> getUsedUncles(BlockStore blockStore, Block block, int limitNum) {
         return getUsedUncles(blockStore, block.getNumber(), block.getParentHash().getBytes(), limitNum);

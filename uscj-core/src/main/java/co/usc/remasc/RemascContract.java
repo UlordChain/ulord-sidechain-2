@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Remasc contract which manages the distribution of miner fees.
+ * The Remasc contract which manages the distribution of blockProducer fees.
  * This class just extends PrecompiledContract, checks no wrong data was supplied and delegates to
  * Remasc the actual fee distribution logic
  * @author Oscar Guindzberg

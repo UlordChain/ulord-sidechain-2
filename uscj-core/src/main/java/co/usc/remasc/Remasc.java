@@ -234,17 +234,17 @@ public class Remasc {
     }
     */
     /**
-     * Saves uncles of the current block into the siblings map to use in the future for fee distribution
+     * Saves signatures of the current block into the siblings map to use in the future for fee distribution
      */
     /*
     private void addNewSiblings() {
-        // Add uncles of the execution block to the siblings map
-        List<BlockHeader> uncles = executionBlock.getUncleList();
-        if (uncles == null) {
+        // Add signatures of the execution block to the siblings map
+        List<BlockHeader> signatures = executionBlock.getUncleList();
+        if (signatures == null) {
             return;
         }
 
-        for (BlockHeader uncleHeader : uncles) {
+        for (BlockHeader uncleHeader : signatures) {
             List<Sibling> siblings = provider.getSiblings().get(uncleHeader.getNumber());
             if (siblings == null) {
                 siblings = new ArrayList<>();
@@ -272,7 +272,7 @@ public class Remasc {
     */
 
     /**
-     * Pay the mainchain block miner, its siblings miners and the publisher miners
+     * Pay the mainchain block blockProducer, its siblings miners and the publisher miners
      */
     /*
     private void payWithSiblings(BlockHeader processingBlockHeader, Coin fullBlockReward, List<Sibling> siblings, boolean previousBrokenSelectionRule) {
@@ -289,7 +289,7 @@ public class Remasc {
             provider.addToBurnBalance(paymentCalculator.getPunishment().multiply(BigInteger.valueOf(siblings.size() + 1L)));
         }
 
-        // Pay to main chain block miner
+        // Pay to main chain block blockProducer
         feesPayer.payMiningFees(processingBlockHeaderHash, paymentCalculator.getIndividualMinerReward(), processingBlockHeader.getCoinbase(), logs);
     }
 

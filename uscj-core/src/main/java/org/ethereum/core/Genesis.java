@@ -44,7 +44,7 @@ import java.util.Map;
  * - 2^22 refers to the difficulty;
  * - 0 refers to the timestamp (the Unix epoch);
  * - the transaction trie root and extradata are both 0, being equivalent to the empty byte array.
- * - The sequences of both uncles and transactions are empty and represented by ().
+ * - The sequences of both signatures and transactions are empty and represented by ().
  * - SHA3 (42) refers to the SHA3 hash of a byte array of length one whose first and only byte is of value 42.
  * - SHA3 RLP () value refers to the hash of the uncle lists in RLP, both empty lists.
  * <p>

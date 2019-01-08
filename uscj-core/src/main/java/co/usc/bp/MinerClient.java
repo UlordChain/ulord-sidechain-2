@@ -15,25 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.usc.mine;
 
-import co.usc.ulordj.core.UldBlock;
+package co.usc.bp;
 
-import java.util.List;
+public interface MinerClient {
+    void mine();
 
-/**
- * Builds Merkle proofs for inclusion in the merged-mining block header
- */
-public interface MerkleProofBuilder {
+    // Mines a PoW block
+    boolean mineBlock();
 
-    byte[] buildFromMerkleHashes(
-            UldBlock blockWithHeaderOnly,
-            List<String> merkleHashesString,
-            int blockTxnCount);
+    void stop();
 
-    byte[] buildFromTxHashes(
-            UldBlock blockWithHeaderOnly,
-            List<String> txHashesString);
-
-    byte[] buildFromBlock(UldBlock ulordMergedMiningBlock);
+    boolean isMining();
 }

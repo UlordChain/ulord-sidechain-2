@@ -45,7 +45,7 @@ public interface Ethereum {
      *
      * @param nonce - account nonce, based on number of transaction submited by
      *                this account
-     * @param gasPrice - gas price bid by miner , the user ask can be based on
+     * @param gasPrice - gas price bid by blockProducer , the user ask can be based on
      *                   lastr submited block
      * @param gas - the quantity of gas requested for the transaction
      * @param receiveAddress - the target address of the transaction

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
 import co.usc.ulordj.core.UldBlock;
 import co.usc.ulordj.core.UldTransaction;
@@ -57,7 +57,7 @@ import java.util.function.Function;
 import co.usc.rpc.uos.UOSRpcChannel;
 /**
  * The MinerServer provides support to components that perform the actual mining.
- * It builds blocks to mine and publishes blocks once a valid nonce was found by the miner.
+ * It builds blocks to bp and publishes blocks once a valid nonce was found by the blockProducer.
  *
  * @author Oscar Guindzberg
  */
@@ -73,7 +73,7 @@ public class MinerServerImpl implements MinerServer {
     private final Ethereum ethereum;
     private final Blockchain blockchain;
     private final ProofOfWorkRule powRule;
-    private final BlockToMineBuilder builder;
+    private final BlockToSignBuilder builder;
     private final BlockchainNetConfig blockchainConfig;
 
     private Timer refreshWorkTimer;
@@ -111,7 +111,7 @@ public class MinerServerImpl implements MinerServer {
             Blockchain blockchain,
             BlockProcessor nodeBlockProcessor,
             ProofOfWorkRule powRule,
-            BlockToMineBuilder builder,
+            BlockToSignBuilder builder,
             MiningConfig miningConfig) {
         this.config = config;
         this.ethereum = ethereum;
@@ -274,7 +274,7 @@ public class MinerServerImpl implements MinerServer {
 
         if (!isValid(newBlock)) {
 
-            String message = "Invalid block supplied by miner: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
+            String message = "Invalid block supplied by blockProducer: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
             logger.error(message);
 
             return new SubmitBlockResult("ERROR", message);
@@ -393,7 +393,7 @@ public class MinerServerImpl implements MinerServer {
 
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
-            // Just for testing, mine on top of bestblock's parent
+            // Just for testing, bp on top of bestblock's parent
             newBlockParent = blockchain.getBlockByHash(newBlockParent.getParentHash().getBytes());
         }
 
@@ -425,13 +425,13 @@ public class MinerServerImpl implements MinerServer {
     @Override
     @VisibleForTesting
     public long getCurrentTimeInSeconds() {
-        // this is not great, but it was the simplest way to extract BlockToMineBuilder
+        // this is not great, but it was the simplest way to extract BlockToSignBuilder
         return builder.getCurrentTimeInSeconds();
     }
 
     @Override
     public long increaseTime(long seconds) {
-        // this is not great, but it was the simplest way to extract BlockToMineBuilder
+        // this is not great, but it was the simplest way to extract BlockToSignBuilder
         return builder.increaseTime(seconds);
     }
 
@@ -439,12 +439,12 @@ public class MinerServerImpl implements MinerServer {
 
         @Override
         /**
-         * onBlock checks if we have to mine over a new block. (Only if the blockchain's best block changed).
+         * onBlock checks if we have to bp over a new block. (Only if the blockchain's best block changed).
          * This method will be called on every block added to the blockchain, even if it doesn't go to the best chain.
          * TODO(???): It would be cleaner to just send this when the blockchain's best block changes.
          * **/
         // This event executes in the thread context of the caller.
-        // In case of private miner, it's the "Private Mining timer" task
+        // In case of private blockProducer, it's the "Private Mining timer" task
         public void onBlock(Block block, List<TransactionReceipt> receipts) {
             if (isSyncing()) {
                 return;
@@ -459,7 +459,7 @@ public class MinerServerImpl implements MinerServer {
                 //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
                 buildBlockToSign(bestBlock, false);
             } else {
-                //logger.debug("New block arrived but there is no need to build a new block to mine: {}", block.getShortHashForMergedMining());
+                //logger.debug("New block arrived but there is no need to build a new block to bp: {}", block.getShortHashForMergedMining());
             }
 
             logger.trace("End onBlock");

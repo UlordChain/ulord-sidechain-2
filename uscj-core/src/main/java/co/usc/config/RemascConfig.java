@@ -44,7 +44,7 @@ public class RemascConfig {
     // Punishment in case of broken selection rule. The punishment applied is available reward / punishmentDivisor.
     private long punishmentDivisor = 10;
 
-    // Reward to block miners who included uncles in their blocks. Available reward / publishersDivisor is the total reward.
+    // Reward to block miners who included signatures in their blocks. Available reward / publishersDivisor is the total reward.
     private long publishersDivisor = 10;
 
     private long lateUncleInclusionPunishmentDivisor = 20;

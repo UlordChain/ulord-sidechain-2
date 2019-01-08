@@ -20,7 +20,7 @@ package co.usc.rpc;
 
 import co.usc.config.UscSystemProperties;
 import co.usc.core.NetworkStateExporter;
-import co.usc.mine.*;
+import co.usc.bp.*;
 import co.usc.net.BlockProcessor;
 import co.usc.rpc.modules.debug.DebugModule;
 import co.usc.rpc.modules.eth.EthModule;

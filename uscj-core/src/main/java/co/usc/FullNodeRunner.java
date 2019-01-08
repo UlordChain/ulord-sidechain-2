@@ -17,7 +17,6 @@
  */
 package co.usc;
 
-import co.usc.blocks.BlockPlayer;
 import co.usc.blocks.FileBlockPlayer;
 import co.usc.blocks.FileBlockRecorder;
 import co.usc.config.UscSystemProperties;
@@ -25,10 +24,10 @@ import co.usc.core.Usc;
 import co.usc.core.UscImpl;
 import co.usc.db.PruneConfiguration;
 import co.usc.db.PruneService;
-import co.usc.mine.MinerClient;
-import co.usc.mine.MinerServer;
-import co.usc.mine.TxBuilder;
-import co.usc.mine.TxBuilderEx;
+import co.usc.bp.MinerClient;
+import co.usc.bp.MinerServer;
+import co.usc.bp.TxBuilder;
+import co.usc.bp.TxBuilderEx;
 import co.usc.net.*;
 import co.usc.net.discovery.UDPServer;
 import co.usc.rpc.netty.Web3HttpServer;

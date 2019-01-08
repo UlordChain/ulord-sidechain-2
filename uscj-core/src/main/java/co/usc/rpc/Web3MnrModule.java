@@ -18,8 +18,7 @@
 
 package co.usc.rpc;
 
-import co.usc.mine.MinerWork;
-import co.usc.mine.SubmittedBlockInfo;
+import co.usc.bp.SubmittedBlockInfo;
 import co.usc.rpc.modules.mnr.MnrModule;
 
 public interface Web3MnrModule {

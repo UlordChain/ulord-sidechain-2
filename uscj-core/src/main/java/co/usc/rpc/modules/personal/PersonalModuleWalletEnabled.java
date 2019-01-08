@@ -67,7 +67,7 @@ public class PersonalModuleWalletEnabled implements PersonalModule {
         }
 
         // This creates a new account based on a configured secret passphrase,
-        // which is then used to set the current miner coinbase address.
+        // which is then used to set the current blockProducer coinbase address.
         // Generally used for testing, since you usually don't want to store
         // wallets in production for security reasons.
         Account coinbaseAccount = properties.localCoinbaseAccount();

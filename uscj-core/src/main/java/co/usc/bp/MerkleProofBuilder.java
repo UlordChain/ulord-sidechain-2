@@ -15,27 +15,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package co.usc.bp;
 
-package co.usc.mine;
+import co.usc.ulordj.core.UldBlock;
 
-import co.usc.core.Coin;
+import java.util.List;
 
 /**
- * This is the implementation of USCIP-09
- * Created by mario on 22/12/16.
+ * Builds Merkle proofs for inclusion in the merged-mining block header
  */
-public class MinimumGasPriceCalculator {
+public interface MerkleProofBuilder {
 
-    public Coin calculate(Coin previousMGP, Coin targetMGP) {
-        BlockGasPriceRange priceRange = new BlockGasPriceRange(previousMGP);
-        if (priceRange.inRange(targetMGP)) {
-            return targetMGP;
-        }
+    byte[] buildFromMerkleHashes(
+            UldBlock blockWithHeaderOnly,
+            List<String> merkleHashesString,
+            int blockTxnCount);
 
-        if (previousMGP.compareTo(targetMGP) < 0) {
-            return priceRange.getUpperLimit();
-        }
+    byte[] buildFromTxHashes(
+            UldBlock blockWithHeaderOnly,
+            List<String> txHashesString);
 
-        return priceRange.getLowerLimit();
-    }
+    byte[] buildFromBlock(UldBlock ulordMergedMiningBlock);
 }

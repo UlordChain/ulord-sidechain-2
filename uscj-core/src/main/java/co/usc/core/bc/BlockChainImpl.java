@@ -66,7 +66,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * For all in in 0...n-1, set S[i+1] = APPLY(S[i],TX[i]).
  * If any applications returns an error, or if the total gas consumed in the block
  * up until this point exceeds the GASLIMIT, return an error.</li>
- * <li>Let S_FINAL be S[n], but adding the block reward paid to the miner.</li>
+ * <li>Let S_FINAL be S[n], but adding the block reward paid to the blockProducer.</li>
  * <li>Check if S_FINAL is the same as the STATE_ROOT. If it is, the block is valid; otherwise, it is not valid.</li>
  * </ol>
  * See <a href="https://github.com/ethereum/wiki/wiki/White-Paper#blockchain-and-mining">Ethereum Whitepaper</a>

@@ -16,15 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
-public interface MinerClient {
-    void mine();
+import co.usc.core.Coin;
 
-    // Mines a PoW block
-    boolean mineBlock();
+/**
+ * This is the implementation of USCIP-09
+ * Created by mario on 22/12/16.
+ */
+public class MinimumGasPriceCalculator {
 
-    void stop();
+    public Coin calculate(Coin previousMGP, Coin targetMGP) {
+        BlockGasPriceRange priceRange = new BlockGasPriceRange(previousMGP);
+        if (priceRange.inRange(targetMGP)) {
+            return targetMGP;
+        }
 
-    boolean isMining();
+        if (previousMGP.compareTo(targetMGP) < 0) {
+            return priceRange.getUpperLimit();
+        }
+
+        return priceRange.getLowerLimit();
+    }
 }

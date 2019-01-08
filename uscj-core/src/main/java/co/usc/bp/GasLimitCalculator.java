@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.mine;
+package co.usc.bp;
 
 import co.usc.config.UscSystemProperties;
 import org.ethereum.config.Constants;

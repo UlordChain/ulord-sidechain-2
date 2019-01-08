@@ -24,9 +24,9 @@ import co.usc.core.UscAddress;
 import co.usc.core.SnapshotManager;
 import co.usc.core.bc.AccountInformationProvider;
 import co.usc.crypto.Keccak256;
-import co.usc.mine.MinerClient;
-import co.usc.mine.MinerManager;
-import co.usc.mine.MinerServer;
+import co.usc.bp.MinerClient;
+import co.usc.bp.MinerManager;
+import co.usc.bp.MinerServer;
 import co.usc.net.BlockProcessor;
 import co.usc.rpc.ModuleDescription;
 import co.usc.rpc.modules.debug.DebugModule;
@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.*;
 
 import static java.lang.Math.max;
@@ -591,7 +590,7 @@ public class Web3Impl implements Web3 {
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
-//        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
+//        br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
 //        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty().getBytes());
 //        br.totalDifficulty = TypeConverter.toJsonHex(this.blockchain.getBlockStore().getTotalDifficultyForHash(b.getHash().getBytes()).asBigInteger());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
@@ -622,7 +621,7 @@ public class Web3Impl implements Web3 {
 //            ul.add(toJsonHex(header.getHash().getBytes()));
 //        }
 
-//        br.uncles = ul.toArray(new String[ul.size()]);
+//        br.signatures = ul.toArray(new String[ul.size()]);
 
         return br;
     }
