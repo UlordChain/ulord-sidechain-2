@@ -45,6 +45,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -160,7 +161,10 @@ public class Block {
         else {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
-        this.signaturesList = new ArrayList<>();
+
+        if(this.signaturesList == null) {
+            this.signaturesList = new CopyOnWriteArrayList<>();
+        }
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
                 timestamp, extraData, minimumGasPrice);
@@ -396,14 +400,14 @@ public class Block {
         toStringBuff.append(header.toString());
 
         if(!signaturesList.isEmpty()) {
-            toStringBuff.append("BpSignatures [\n");
+            toStringBuff.append("  BpSignatures [\n");
             for(byte[] b : signaturesList) {
                 toStringBuff.append(Hex.toHexString(b));
                 toStringBuff.append("\n");
             }
             toStringBuff.append("]\n");
         } else {
-            toStringBuff.append("BpSignatures []\n");
+            toStringBuff.append("  BpSignatures []\n");
         }
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("Txs [\n");
@@ -413,7 +417,7 @@ public class Block {
             }
             toStringBuff.append("]\n");
         } else {
-            toStringBuff.append("Txs []\n");
+            toStringBuff.append("  Txs []\n");
         }
         toStringBuff.append("]");
 
