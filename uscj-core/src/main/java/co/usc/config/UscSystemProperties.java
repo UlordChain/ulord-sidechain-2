@@ -104,6 +104,7 @@ public class UscSystemProperties extends SystemProperties {
 
         if (configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG) &&
                 configFromFiles.hasPath(MINER_REWARD_ADDRESS_CONFIG)) {
+            System.out.println("Secret: " + configFromFiles.getString(MINER_COINBASE_SECRET_CONFIG) + "\nAddress: " + configFromFiles.getString(MINER_REWARD_ADDRESS_CONFIG));
             throw new UscConfigurationException("It is required to have only one of " + MINER_REWARD_ADDRESS_CONFIG + " or " + MINER_COINBASE_SECRET_CONFIG);
         }
 

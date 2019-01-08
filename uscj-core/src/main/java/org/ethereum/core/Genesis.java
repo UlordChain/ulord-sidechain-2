@@ -66,6 +66,7 @@ public class Genesis extends Block {
                         minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
+        setSignaturesList(Collections.emptyList());
     }
 
     public static Block getInstance(UscSystemProperties config) {
