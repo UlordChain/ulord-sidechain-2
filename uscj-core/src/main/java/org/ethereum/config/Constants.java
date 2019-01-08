@@ -42,7 +42,7 @@ public class Constants {
     private int minGasLimit = 3000000;
     private int gasLimitBoundDivisor = 1024;
 
-        private static long blockPerDay = 24*3600 / 14;
+    //private static long blockPerDay = 24*3600 / 14;
 
     // 0.5 peta/s. This means that on reset difficulty will allow private mining.
 //    private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf((long) 14E15 / 2 )); // 0.5 peta/s.
@@ -51,11 +51,11 @@ public class Constants {
     // private BigInteger minimumDifficulty = BigInteger.valueOf((long) 14E4 / 2 ); // 0.005 mega/s.
 
 
-    private BigInteger difficultyBoundDivisor = BigInteger.valueOf(2048);
-    private int expDifficultyPeriod = 100000;
+    //private BigInteger difficultyBoundDivisor = BigInteger.valueOf(2048);
+    //private int expDifficultyPeriod = 100000;
 
-    private int uncleGenerationLimit = 7;
-    private int uncleListLimit = 10;
+    //private int uncleGenerationLimit = 7;
+    //private int uncleListLimit = 10;
 
     private int bestNumberDiffLimit = 100;
 
@@ -107,14 +107,15 @@ public class Constants {
 //        return minimumDifficulty;
 //    }
 
-    public BigInteger getDifficultyBoundDivisor() {
-        return difficultyBoundDivisor;
-    }
+    //public BigInteger getDifficultyBoundDivisor() {
+    //    return difficultyBoundDivisor;
+    //}
 
-    public int getExpDifficultyPeriod() {
-        return expDifficultyPeriod;
-    }
+    //public int getExpDifficultyPeriod() {
+    //    return expDifficultyPeriod;
+    //}
 
+    /*
     public int getUncleGenerationLimit() {
         return uncleGenerationLimit;
     }
@@ -122,6 +123,7 @@ public class Constants {
     public int getUncleListLimit() {
         return uncleListLimit;
     }
+    */
 
     public int getBestNumberDiffLimit() {
         return bestNumberDiffLimit;

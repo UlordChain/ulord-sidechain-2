@@ -111,15 +111,15 @@ public class Remasc {
         }
 
         int uncleGenerationLimit = config.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit();
-        Deque<Map<Long, List<Sibling>>> descendantsBlocks = new LinkedList<>();
+        //Deque<Map<Long, List<Sibling>>> descendantsBlocks = new LinkedList<>();
 
         // this search can be optimized if have certainty that the execution block is not in a fork
         // larger than depth
         Block currentBlock = blockStore.getBlockByHashAndDepth(
                 executionBlock.getParentHash().getBytes(),
-                remascConstants.getMaturity() - 1 - uncleGenerationLimit
+                remascConstants.getMaturity() - 1 //- uncleGenerationLimit
         );
-        descendantsBlocks.push(blockStore.getSiblingsFromBlockByHash(currentBlock.getHash()));
+        //descendantsBlocks.push(blockStore.getSiblingsFromBlockByHash(currentBlock.getHash()));
 
         // descendants are stored in reverse order because the original order to pay siblings is defined in the way
         // blocks are ordered in the blockchain (the same as were stored in remasc contract)
@@ -142,10 +142,10 @@ public class Remasc {
             return;
         }
 
-        List<Sibling> siblings = getSiblingsToReward(descendantsBlocks, processingBlockNumber);
+        //List<Sibling> siblings = getSiblingsToReward(descendantsBlocks, processingBlockNumber);
         boolean previousBrokenSelectionRule = provider.getBrokenSelectionRule();
-        boolean brokenSelectionRule = SelectionRule.isBrokenSelectionRule(processingBlockHeader, siblings);
-        provider.setBrokenSelectionRule(!siblings.isEmpty() && brokenSelectionRule);
+        //boolean brokenSelectionRule = SelectionRule.isBrokenSelectionRule(processingBlockHeader, siblings);
+        //provider.setBrokenSelectionRule(!siblings.isEmpty() && brokenSelectionRule);
 
         // Takes from rewardBalance this block's height reward.
         Coin syntheticReward = rewardBalance.divide(BigInteger.valueOf(remascConstants.getSyntheticSpan()));
@@ -169,10 +169,10 @@ public class Remasc {
         Coin payToFederation = payToFederation(configForBlock, isUscIP85Enabled, processingBlock, processingBlockHeader, syntheticReward);
         syntheticReward = syntheticReward.subtract(payToFederation);
 
-        if (!siblings.isEmpty()) {
+        //if (!siblings.isEmpty()) {
             // Block has siblings, reward distribution is more complex
-            this.payWithSiblings(processingBlockHeader, syntheticReward, siblings, previousBrokenSelectionRule);
-        } else {
+        //    this.payWithSiblings(processingBlockHeader, syntheticReward, siblings, previousBrokenSelectionRule);
+        //} else {
             if (previousBrokenSelectionRule) {
                 // broken selection rule, apply punishment, ie burn part of the reward.
                 Coin punishment = syntheticReward.divide(BigInteger.valueOf(remascConstants.getPunishmentDivisor()));
@@ -180,7 +180,7 @@ public class Remasc {
                 provider.setBurnedBalance(provider.getBurnedBalance().add(punishment));
             }
             feesPayer.payMiningFees(processingBlockHeader.getHash().getBytes(), syntheticReward, processingBlockHeader.getCoinbase(), logs);
-        }
+        //}
 
         if (!isUscIP85Enabled) {
             this.removeUsedSiblings(processingBlockHeader);
