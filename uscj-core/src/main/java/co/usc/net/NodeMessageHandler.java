@@ -299,11 +299,11 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
             return;
         }
 
-        if (blockProcessor.canBeIgnoredForUnclesRewards(block.getNumber())){
-            logger.trace("Block ignored: too far from best block {} {}", blockNumber, block.getShortHash());
-            Metrics.processBlockMessage("blockIgnored", block, sender.getPeerNodeID());
-            return;
-        }
+//        if (blockProcessor.canBeIgnoredForUnclesRewards(block.getNumber())){
+//            logger.trace("Block ignored: too far from best block {} {}", blockNumber, block.getShortHash());
+//            Metrics.processBlockMessage("blockIgnored", block, sender.getPeerNodeID());
+//            return;
+//        }
 
         if (blockProcessor.hasBlockInSomeBlockchain(block.getHash().getBytes())){
             logger.trace("Block ignored: it's included in blockchain {} {}", blockNumber, block.getShortHash());

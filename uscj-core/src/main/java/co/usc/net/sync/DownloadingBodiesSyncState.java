@@ -60,7 +60,6 @@ public class DownloadingBodiesSyncState  extends BaseSyncState {
         super(syncInformation, syncEventsHandler, syncConfiguration);
         this.limit = syncConfiguration.getTimeoutWaitingRequest();
         this.blockValidationRules = new BlockCompositeRule(
-                new BlockUnclesHashValidationRule(),
                 new BlockRootValidationRule()
         );
         this.pendingBodyResponses = new HashMap<>();

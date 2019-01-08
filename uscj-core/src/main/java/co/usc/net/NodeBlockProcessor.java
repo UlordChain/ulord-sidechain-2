@@ -293,10 +293,10 @@ public class NodeBlockProcessor implements BlockProcessor {
         sender.sendMessage(responseMessage);
     }
 
-    @Override
-    public boolean canBeIgnoredForUnclesRewards(long blockNumber) {
-        return blockSyncService.canBeIgnoredForUnclesRewards(blockNumber);
-    }
+//    @Override
+//    public boolean canBeIgnoredForUnclesRewards(long blockNumber) {
+//        return blockSyncService.canBeIgnoredForUnclesRewards(blockNumber);
+//    }
 
     /**
      *
