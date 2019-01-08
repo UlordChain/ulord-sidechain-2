@@ -1,5 +1,7 @@
 package co.usc.rpc.uos;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -52,6 +54,8 @@ public class UOSRpcChannel {
         String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
         String urlParameters = "{\"scope\":\"uosio\",\"code\":\"uosio\",\"table\":\"bpoutlist\",\"json\":\"true\"}";
 
-        System.out.println(UOSRpcChannel.requestBPList(rpcUrl,urlParameters));
+        String list = UOSRpcChannel.requestBPList(rpcUrl,urlParameters);
+        JSONObject obj = new JSONObject(list);
+        System.out.println(obj.getJSONArray("rows").getJSONObject(0).getString("bpname"));
     }
 }

@@ -38,6 +38,7 @@ import org.ethereum.core.*;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.rpc.TypeConverter;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
+import co.usc.rpc.uos.UOSRpcChannel;
 /**
  * The MinerServer provides support to components that perform the actual mining.
  * It builds blocks to mine and publishes blocks once a valid nonce was found by the miner.
@@ -459,5 +461,15 @@ public class MinerServerImpl implements MinerServer {
         private boolean isSyncing() {
             return nodeBlockProcessor.hasBetterBlockToSync();
         }
+    }
+
+    public String currentBP(){
+        String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
+        String urlParameters = "{\"scope\":\"uosio\",\"code\":\"uosio\",\"table\":\"bpoutlist\",\"json\":\"true\"}";
+
+        String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
+
+        JSONObject bpListJson = new JSONObject(bpList);
+        return bpListJson.getJSONArray("rows").getJSONObject(0).getString("bpname");
     }
 }
