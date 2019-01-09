@@ -581,18 +581,18 @@ public class Web3Impl implements Web3 {
 
 //        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
+        // TODO: Add a condition to check if a block is pending - Block is pending if 2/3 or signature is not yet received.
+        boolean isPending = !b.isGenesis();
+
         BlockResult br = new BlockResult();
-//        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
-//        br.hash = isPending ? null : b.getHashJsonString();
+        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
+        br.hash = isPending ? null : b.getHashJsonString();
         br.parentHash = b.getParentHashJsonString();
-//        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
-//        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
+        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
-//        br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
-//        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty().getBytes());
-//        br.totalDifficulty = TypeConverter.toJsonHex(this.blockchain.getBlockStore().getTotalDifficultyForHash(b.getHash().getBytes()).asBigInteger());
+        br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
         br.size = TypeConverter.toJsonHex(b.getEncoded().length);
         br.gasLimit = TypeConverter.toJsonHex(b.getGasLimit());
@@ -615,13 +615,13 @@ public class Web3Impl implements Web3 {
 
         br.transactions = txes.toArray();
 
-//        List<String> ul = new ArrayList<>();
+        List<String> signatures = new ArrayList<>();
 
-//        for (BlockHeader header : b.getUncleList()) {
-//            ul.add(toJsonHex(header.getHash().getBytes()));
-//        }
+        for (byte[] signature: b.getSignaturesList()) {
+            signatures.add(toJsonHex(signature));
+        }
 
-//        br.signatures = ul.toArray(new String[ul.size()]);
+        br.signatures = signatures.toArray(new String[signatures.size()]);
 
         return br;
     }
