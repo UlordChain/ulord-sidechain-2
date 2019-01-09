@@ -6,6 +6,6 @@ public class BlockSignatureValidationRule implements BlockValidationRule{
 
     @Override
     public boolean isValid(Block block) {
-        return false;
+        return true;
     }
 }
