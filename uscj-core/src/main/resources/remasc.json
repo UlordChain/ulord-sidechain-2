@@ -6,8 +6,7 @@
       "punishmentDivisor" : 10,
       "publishersDivisor" : 10,
       "federationDivisor" : 100,
-      "uscLabsAddress" : "3d28a0682f69bb4a536ef6849c8ba3abf40dd02d",
-      "lateUncleInclusionPunishmentDivisor": 20
+      "uscLabsAddress" : "3d28a0682f69bb4a536ef6849c8ba3abf40dd02d"
    },
    "regtest": {
       "maturity" : 10,
@@ -17,7 +16,6 @@
       "publishersDivisor" : 10,
       "federationDivisor" : 100,
       "uscLabsAddress" : "dabadabadabadabadabadabadabadabadaba0001",
-      "lateUncleInclusionPunishmentDivisor": 20,
       "paidFeesMultiplier": 2,
       "paidFeesDivisor": 1
    },
@@ -29,7 +27,6 @@
       "publishersDivisor" : 10,
       "federationDivisor" : 100,
       "uscLabsAddress" : "44c079e24b1a000db08d363692194d7a547fe1b1",
-      "lateUncleInclusionPunishmentDivisor": 20,
       "paidFeesMultiplier": 2,
       "paidFeesDivisor": 1
    },
@@ -41,7 +38,6 @@
       "publishersDivisor" : 10,
       "federationDivisor" : 100,
       "uscLabsAddress" : "44c079e24b1a000db08d363692194d7a547fe1b1",
-      "lateUncleInclusionPunishmentDivisor": 20,
       "paidFeesMultiplier": 2,
       "paidFeesDivisor": 1
    },
@@ -53,7 +49,6 @@
       "publishersDivisor" : 10,
       "federationDivisor" : 100,
       "uscLabsAddress" : "3d28a0682f69bb4a536ef6849c8ba3abf40dd02d",
-      "lateUncleInclusionPunishmentDivisor": 20,
       "paidFeesMultiplier": 2,
       "paidFeesDivisor": 1
    }

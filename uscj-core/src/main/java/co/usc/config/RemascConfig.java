@@ -47,7 +47,7 @@ public class RemascConfig {
     // Reward to block miners who included signatures in their blocks. Available reward / publishersDivisor is the total reward.
     private long publishersDivisor = 10;
 
-    private long lateUncleInclusionPunishmentDivisor = 20;
+    //private long lateUncleInclusionPunishmentDivisor = 20;
 
     // Multiplier and Divisor for paid fees comparison in selection rule
     private long paidFeesMultiplier = 2;
@@ -80,8 +80,6 @@ public class RemascConfig {
     public long getPunishmentDivisor() {
         return punishmentDivisor;
     }
-
-    public long getLateUncleInclusionPunishmentDivisor() { return this.lateUncleInclusionPunishmentDivisor; }
 
     public long getPublishersDivisor() {
         return publishersDivisor;
