@@ -146,7 +146,7 @@ public class Block {
         this.header.setReceiptsRoot(receiptsRoot);
 
         // TODO: Perhaps this should be called before sealing the block, after receiving all the signatures, because the signatureList is empty when the block is created.
-        this.header.setSignatureRoot(getSignaturesHash(signaturesList));
+        this.header.setSignaturesRoot(getSignaturesHash(signaturesList));
 
         this.flushRLP();
     }
@@ -292,6 +292,12 @@ public class Block {
         return this.header.getReceiptsRoot();
     }
 
+    public byte[] getSignaturesRoot() {
+        if (!parsed) {
+            parseRLP();
+        }
+        return this.header.getSignaturesRoot();
+    }
 
     public byte[] getLogBloom() {
         if (!parsed) {

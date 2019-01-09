@@ -19,22 +19,13 @@
 package org.ethereum.core;
 
 import co.usc.config.BridgeConstants;
-import co.usc.config.BridgeRegTestConstants;
-import co.usc.config.BridgeTestNetConstants;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
-import co.usc.ulordj.core.Address;
-import co.usc.ulordj.core.NetworkParameters;
-import co.usc.ulordj.core.Sha256Hash;
-import co.usc.ulordj.params.MainNetParams;
-import co.usc.ulordj.params.RegTestParams;
-import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.bouncycastle.util.BigIntegers;
-import org.ethereum.config.SystemProperties;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
@@ -42,7 +33,6 @@ import org.ethereum.util.Utils;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.security.Signature;
 import java.util.List;
 
 import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
@@ -94,7 +84,7 @@ public class BlockHeader {
 
     // TODO: Add RLP.
     /* The SHA3 256-bit hash of signatures of all the BPs */
-    private byte[] signatureRoot;
+    private byte[] signaturesRoot;
 
     /**
      * The mgp for a tx to be included in the block.
@@ -391,7 +381,7 @@ public class BlockHeader {
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
         toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
-        toStringBuff.append("  signatureRoot=").append(toHexString(stateRoot)).append(suffix);
+        toStringBuff.append("  signaturesRoot=").append(toHexString(stateRoot)).append(suffix);
 
         return toStringBuff.toString();
     }
@@ -423,7 +413,11 @@ public class BlockHeader {
         return bytes == null ? BigInteger.ZERO : BigIntegers.fromUnsignedByteArray(bytes);
     }
 
-    public void setSignatureRoot(byte[] signatureRoot) {
-        this.signatureRoot = signatureRoot;
+    public void setSignaturesRoot(byte[] signaturesRoot) {
+        this.signaturesRoot = signaturesRoot;
+    }
+
+    public byte[] getSignaturesRoot() {
+        return signaturesRoot;
     }
 }
