@@ -528,7 +528,7 @@ public class MinerServerImpl implements MinerServer {
 
     public String currentBP(){
         String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
-        String urlParameters = "{\"scope\":\"uosio\",\"code\":\"uosio\",\"table\":\"bpoutlist\",\"json\":\"true\"}";
+        String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
 
         String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
 

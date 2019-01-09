@@ -212,23 +212,19 @@ public class BlockChainImpl implements Blockchain {
         }
 
         Block bestBlock;
-        //BlockDifficulty bestTotalDifficulty;
 
         logger.trace("get current state");
 
         // get current state
         synchronized (accessLock) {
             bestBlock = status.getBestBlock();
-            //bestTotalDifficulty = status.getTotalDifficulty();
         }
 
         Block parent;
-        //BlockDifficulty parentTotalDifficulty;
 
         // Incoming block is child of current best block
         if (bestBlock == null || bestBlock.isParentOf(block)) {
             parent = bestBlock;
-            //parentTotalDifficulty = bestTotalDifficulty;
         }
         // else, Get parent AND total difficulty
         else {
@@ -238,14 +234,6 @@ public class BlockChainImpl implements Blockchain {
             if (parent == null) {
                 return ImportResult.NO_PARENT;
             }
-
-            //parentTotalDifficulty = blockStore.getTotalDifficultyForHash(parent.getHash().getBytes());
-
-            /*
-            if (parentTotalDifficulty == null || parentTotalDifficulty.equals(BlockDifficulty.ZERO)) {
-                return ImportResult.NO_PARENT;
-            }
-            */
         }
 
         // Validate incoming block before its processing
@@ -282,17 +270,12 @@ public class BlockChainImpl implements Blockchain {
             logger.trace("block: num: [{}] hash: [{}], executed after: [{}]nano", block.getNumber(), block.getShortHash(), totalTime);
         }
 
-        // the new accumulated difficulty
-        //BlockDifficulty totalDifficulty = parentTotalDifficulty.add(block.getCumulativeDifficulty());
-        //logger.trace("TD: updated to {}", totalDifficulty);
-
         //TODO this need refactor to add the new block
         // It is the new best block
-        //if (SelectionRule.shouldWeAddThisBlock(totalDifficulty, status.getTotalDifficulty(),block, bestBlock)) {
+
             if (bestBlock != null && !bestBlock.isParentOf(block)) {
                 logger.trace("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
-                        bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber()/*,
-                        status.getTotalDifficulty().toString(), totalDifficulty.toString()*/);
+                        bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber());
                 BlockFork fork = new BlockFork();
                 fork.calculate(bestBlock, block, blockStore);
                 Metrics.rebranch(bestBlock, block, fork.getNewBlocks().size() + fork.getOldBlocks().size());

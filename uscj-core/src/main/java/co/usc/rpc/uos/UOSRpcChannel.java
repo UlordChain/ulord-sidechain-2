@@ -52,7 +52,7 @@ public class UOSRpcChannel {
     //TODO remove this function once requestBPList is used in Test/Production
     public static void main(String []args){
         String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
-        String urlParameters = "{\"scope\":\"uosio\",\"code\":\"uosio\",\"table\":\"bpoutlist\",\"json\":\"true\"}";
+        String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
 
         String list = UOSRpcChannel.requestBPList(rpcUrl,urlParameters);
         JSONObject obj = new JSONObject(list);

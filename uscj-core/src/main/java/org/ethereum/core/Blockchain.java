@@ -44,14 +44,6 @@ public interface Blockchain {
     Block getBlockByHash(byte[] hash);
 
     /**
-     * Get total difficulty from the start
-     * and until the head of the chain
-     *
-     * @return - total difficulty
-     */
-//    BlockDifficulty getTotalDifficulty();
-
-    /**
      * @return - last added block from blockchain
      */
     Block getBestBlock();
@@ -64,15 +56,13 @@ public interface Blockchain {
 
     void setBestBlock(Block block);
 
-    void setStatus(Block block /*, BlockDifficulty totalDifficulty*/);
+    void setStatus(Block block);
 
     BlockChainStatus getStatus();
 
     TransactionInfo getTransactionInfo(byte[] hash);
 
     void close();
-
-//    void setTotalDifficulty(BlockDifficulty totalDifficulty);
 
     byte[] getBestBlockHash();
 
