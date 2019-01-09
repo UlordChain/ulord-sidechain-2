@@ -184,8 +184,18 @@ public class MinerServerImpl implements MinerServer {
 
             refreshBlockTimer = new Timer("Refresh block for signing");
 
-            Date bpDateTime = new Date(bpTime);
-            refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+            //Date bpDateTime = new Date(bpTime);
+            //refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+
+
+            // ----------------------------------
+            // TODO: REMOVE THIS IN PRODUCTION
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.SECOND, 6);
+            Date bpTime = cal.getTime();
+            System.out.println("Later: " + bpTime);
+            refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
+            // ----------------------------------
         }
     }
 
@@ -208,7 +218,7 @@ public class MinerServerImpl implements MinerServer {
     public SubmitBlockResult submitSignature(String signature) {
         logger.debug("Received signature {} ", signature);
 
-//        return processSolution(
+//        return processBlock(
 //                signature,
 //                blockWithHeaderOnly,
 //                coinbase,
@@ -226,7 +236,7 @@ public class MinerServerImpl implements MinerServer {
 //            List<String> txHashes) {
 //        logger.debug("Received tx solution with hash {} for merged mining", blockHashForMergedMining);
 //
-//        return processSolution(
+//        return processBlock(
 //                blockHashForMergedMining,
 //                blockWithHeaderOnly,
 //                coinbase,
@@ -243,7 +253,7 @@ public class MinerServerImpl implements MinerServer {
     SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock, boolean lastTag) {
         logger.debug("Received block with hash {} for merged mining", blockHashForMergedMining);
 
-        return processSolution(
+        return processBlock(
                 blockHashForMergedMining,
                 ulordMergedMiningBlock,
                 ulordMergedMiningBlock.getTransactions().get(0),
@@ -252,7 +262,12 @@ public class MinerServerImpl implements MinerServer {
         );
     }
 
-    private SubmitBlockResult processSolution(
+    private void processBlock1(Block b) {
+        b.seal();
+        ethereum.addNewMinedBlock(b);
+    }
+
+    private SubmitBlockResult processBlock(
             String blockHashForMergedMining,
             UldBlock blockWithHeaderOnly,
             UldTransaction coinbase,
@@ -396,9 +411,9 @@ public class MinerServerImpl implements MinerServer {
 
         //TODO this will be taken from config file of BP's and validated.
         //TODO Instead of name it will be address/IP and it should also contain timestamp validation.
-        if (!currentBP().equals("dragonexsafe")){
-            return;
-        }
+//        if (!currentBP().equals("dragonexsafe")){
+//            return;
+//        }
 
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
@@ -420,6 +435,9 @@ public class MinerServerImpl implements MinerServer {
 
             //TODO DPOS: Possible broadcast area for block.
             //blocksWaitingforSignatures.put(latestBlockHashWaitingForPoW, latestBlock);
+
+            // process
+            processBlock1(newBlock);
             logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
         }
 
@@ -448,7 +466,7 @@ public class MinerServerImpl implements MinerServer {
 
         @Override
         /**
-         * onBlock checks if we have to bp over a new block. (Only if the blockchain's best block changed).
+         * onBlock checks if we have to build over a new block. (Only if the blockchain's best block changed).
          * This method will be called on every block added to the blockchain, even if it doesn't go to the best chain.
          * TODO(???): It would be cleaner to just send this when the blockchain's best block changes.
          * **/
@@ -461,15 +479,15 @@ public class MinerServerImpl implements MinerServer {
 
             logger.trace("Start onBlock");
             Block bestBlock = blockchain.getBestBlock();
-            MinerWork work = currentWork;
+            //MinerWork work = currentWork;
             String bestBlockHash = bestBlock.getHashJsonString();
 
-            if (!work.getParentBlockHash().equals(bestBlockHash)) {
-                //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
-                buildBlockToSign(bestBlock, false);
-            } else {
-                //logger.debug("New block arrived but there is no need to build a new block to bp: {}", block.getShortHashForMergedMining());
-            }
+//            if (!work.getParentBlockHash().equals(bestBlockHash)) {
+//                //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
+//                buildBlockToSign(bestBlock, false);
+//            } else {
+//                //logger.debug("New block arrived but there is no need to build a new block to bp: {}", block.getShortHashForMergedMining());
+//            }
 
             logger.trace("End onBlock");
         }
@@ -489,8 +507,18 @@ public class MinerServerImpl implements MinerServer {
             try {
                 buildBlockToSign(bestBlock, false);
                 // Set next schedule to refresh block.
-                Date bpDateTime = new Date(bpTime);
-                refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+//                Date bpDateTime = new Date(bpTime);
+//                refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+
+                // ----------------------------------
+                // TODO: REMOVE THIS IN PRODUCTION
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.SECOND, 6);
+                Date bpTime = cal.getTime();
+                refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
+                System.out.println("Next block at: " + bpTime.toString());
+                // ----------------------------------
+
             } catch (Throwable th) {
                 logger.error("Unexpected error: {}", th);
                 panicProcessor.panic("mserror", th.getMessage());

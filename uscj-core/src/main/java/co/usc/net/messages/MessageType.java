@@ -49,7 +49,6 @@ public enum MessageType {
             }
 
             byte[] parentHash = list.get(2).getRLPData();
-            byte[] rlpTotalDifficulty = list.get(3).getRLPData();
 
             return new StatusMessage(new Status(number, hash, parentHash));
         }
