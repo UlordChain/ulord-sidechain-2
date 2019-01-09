@@ -65,6 +65,7 @@ import co.usc.rpc.uos.UOSRpcChannel;
 @Component("MinerServer")
 public class MinerServerImpl implements MinerServer {
 
+    private static long bpTime;
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
@@ -76,7 +77,7 @@ public class MinerServerImpl implements MinerServer {
     private final BlockToSignBuilder builder;
     private final BlockchainNetConfig blockchainConfig;
 
-    private Timer refreshWorkTimer;
+    private Timer refreshBlockTimer;
 
     private NewBlockListener blockListener;
 
@@ -160,8 +161,8 @@ public class MinerServerImpl implements MinerServer {
         synchronized (lock) {
             started = false;
             ethereum.removeListener(blockListener);
-            refreshWorkTimer.cancel();
-            refreshWorkTimer = null;
+            refreshBlockTimer.cancel();
+            refreshBlockTimer = null;
         }
     }
 
@@ -177,6 +178,14 @@ public class MinerServerImpl implements MinerServer {
             ethereum.addListener(blockListener);
             buildBlockToSign(blockchain.getBestBlock(), false);
 
+            if (refreshBlockTimer != null) {
+                refreshBlockTimer.cancel();
+            }
+
+            refreshBlockTimer = new Timer("Refresh block for signing");
+
+            Date bpDateTime = new Date(bpTime);
+            refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
         }
     }
 
@@ -467,6 +476,25 @@ public class MinerServerImpl implements MinerServer {
 
         private boolean isSyncing() {
             return nodeBlockProcessor.hasBetterBlockToSync();
+        }
+    }
+
+    /**
+     * RefreshBlocks rebuilds the block to sign.
+     */
+    private class RefreshBlock extends TimerTask {
+        @Override
+        public void run() {
+            Block bestBlock = blockchain.getBestBlock();
+            try {
+                buildBlockToSign(bestBlock, false);
+                // Set next schedule to refresh block.
+                Date bpDateTime = new Date(bpTime);
+                refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+            } catch (Throwable th) {
+                logger.error("Unexpected error: {}", th);
+                panicProcessor.panic("mserror", th.getMessage());
+            }
         }
     }
 

@@ -161,7 +161,7 @@ public class BlockToSignBuilder {
             List<Transaction> txs,
             Coin minimumGasPrice) {
 
-        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice, new UscAddress(config.getMyKey().getAddress()));
+        final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice);
         final Block newBlock = new Block(newHeader, txs);
         return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs);
     }
@@ -169,8 +169,7 @@ public class BlockToSignBuilder {
     private BlockHeader createHeader(
             Block newBlockParent,
             List<Transaction> txs,
-            Coin minimumGasPrice,
-            UscAddress bpAddress) {
+            Coin minimumGasPrice) {
 
         final long timestampSeconds = this.getCurrentTimeInSeconds();
 

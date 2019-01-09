@@ -59,7 +59,6 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
 
     class BlockInformationResult {
         public String hash;
-        public String totalDifficulty;
         public boolean inMainChain;
     }
 
