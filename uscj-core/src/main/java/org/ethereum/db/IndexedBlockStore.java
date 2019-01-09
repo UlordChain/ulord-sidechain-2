@@ -21,8 +21,6 @@ package org.ethereum.db;
 
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockCache;
-//import co.usc.remasc.Sibling;
-import co.usc.util.MaxSizeHashMap;
 import com.google.common.annotations.VisibleForTesting;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
@@ -35,11 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
-//import static co.usc.core.BlockDifficulty.ZERO;
 import static org.ethereum.crypto.HashUtil.shortHash;
 import static org.bouncycastle.util.Arrays.areEqual;
 
@@ -48,7 +43,6 @@ public class IndexedBlockStore extends AbstractBlockstore {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
     private final BlockCache blockCache;
-    //private final MaxSizeHashMap<Keccak256, Map<Long, List<Sibling>>> remascCache;
 
     private final Map<Long, List<BlockInfo>> index;
     private final DB indexDB;
@@ -59,15 +53,12 @@ public class IndexedBlockStore extends AbstractBlockstore {
         this.blocks = blocks;
         this.indexDB  = indexDB;
         //TODO(lsebrie): move these maps creation outside blockstore,
-        // remascCache should be an external component and not be inside blockstore
         this.blockCache = new BlockCache(5000);
-        //this.remascCache = new MaxSizeHashMap<>(50000, true);
     }
 
     @Override
     public synchronized void removeBlock(Block block) {
         this.blockCache.removeBlock(block);
-        //this.remascCache.remove(block.getHash());
         this.blocks.delete(block.getHash().getBytes());
 
         List<BlockInfo> binfos = this.index.get(block.getNumber());
@@ -138,7 +129,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
     }
 
     @Override
-    public synchronized void saveBlock(Block block, /*BlockDifficulty cummDifficulty, */boolean mainChain) {
+    public synchronized void saveBlock(Block block, boolean mainChain) {
         List<BlockInfo> blockInfos = index.get(block.getNumber());
         if (blockInfos == null) {
             blockInfos = new ArrayList<>();
@@ -157,7 +148,6 @@ public class IndexedBlockStore extends AbstractBlockstore {
             blockInfos.add(blockInfo);
         }
 
-//        blockInfo.setCummDifficulty(cummDifficulty);
         blockInfo.setHash(block.getHash().getBytes());
         blockInfo.setMainChain(mainChain);
 
@@ -166,7 +156,6 @@ public class IndexedBlockStore extends AbstractBlockstore {
         }
         index.put(block.getNumber(), blockInfos);
         blockCache.addBlock(block);
-        //remascCache.put(block.getHash(), getSiblingsFromBlock(block));
     }
 
     @Override
@@ -181,10 +170,9 @@ public class IndexedBlockStore extends AbstractBlockstore {
 
         for (BlockInfo blockInfo : blockInfos) {
             byte[] hash = ByteUtils.clone(blockInfo.getHash().getBytes());
-//            BlockDifficulty totalDifficulty = blockInfo.getCummDifficulty();
             boolean isInBlockChain = blockInfo.isMainChain();
 
-            result.add(new BlockInformation(hash, /*totalDifficulty,*/ isInBlockChain));
+            result.add(new BlockInformation(hash, isInBlockChain));
         }
 
         return result;
@@ -211,14 +199,12 @@ public class IndexedBlockStore extends AbstractBlockstore {
 
     @Override
     public synchronized Block getBlockByHash(byte[] hash) {
-
         Block block = getBlock(hash);
         if (block == null) {
             return null;
         }
 
         blockCache.addBlock(block);
-        //remascCache.put(block.getHash(), getSiblingsFromBlock(block));
         return block;
     }
 
@@ -237,37 +223,10 @@ public class IndexedBlockStore extends AbstractBlockstore {
         return new Block(blockRlp);
     }
 
-//    public synchronized Map<Long, List<Sibling>> getSiblingsFromBlockByHash(Keccak256 hash) {
-//        return this.remascCache.computeIfAbsent(hash, key -> getSiblingsFromBlock(getBlock(key.getBytes())));
-//    }
-
     @Override
     public synchronized boolean isBlockExist(byte[] hash) {
         return getBlockByHash(hash) != null;
     }
-
-//    @Override
-//    public synchronized BlockDifficulty getTotalDifficultyForHash(byte[] hash){
-//        Block block = this.getBlockByHash(hash);
-//        if (block == null) {
-//            return ZERO;
-//        }
-//
-//        Long level  =  block.getNumber();
-//        List<BlockInfo> blockInfos =  index.get(level);
-//
-//        if (blockInfos == null) {
-//            return ZERO;
-//        }
-//
-//        for (BlockInfo blockInfo : blockInfos) {
-//            if (areEqual(blockInfo.getHash().getBytes(), hash)) {
-//                return blockInfo.getCummDifficulty();
-//            }
-//        }
-//
-//        return ZERO;
-//    }
 
     @Override
     public synchronized long getMaxNumber() {
@@ -421,7 +380,6 @@ public class IndexedBlockStore extends AbstractBlockstore {
         private static final long serialVersionUID = 5906746360128478753L;
 
         private byte[] hash;
-        private BigInteger cummDifficulty;
         private boolean mainChain;
 
         public Keccak256 getHash() {
@@ -431,14 +389,6 @@ public class IndexedBlockStore extends AbstractBlockstore {
         private void setHash(byte[] hash) {
             this.hash = hash;
         }
-
-//        private BlockDifficulty getCummDifficulty() {
-//            return new BlockDifficulty(cummDifficulty);
-//        }
-
-//        private void setCummDifficulty(BlockDifficulty cummDifficulty) {
-//            this.cummDifficulty = cummDifficulty.asBigInteger();
-//        }
 
         private boolean isMainChain() {
             return mainChain;
@@ -538,24 +488,4 @@ public class IndexedBlockStore extends AbstractBlockstore {
 
         return result;
     }
-
-    /**
-     * When a block is processed on remasc the contract needs to calculate all siblings that
-     * that should be rewarded when fees on this block are paid
-     * @param block the block is looked for siblings
-     * @return
-     */
-//    private Map<Long, List<Sibling>> getSiblingsFromBlock(Block block) {
-//        return block.getUncleList().stream()
-//                .collect(
-//                    Collectors.groupingBy(
-//                        BlockHeader::getNumber,
-//                        Collectors.mapping(
-//                                header -> new Sibling(header, block.getCoinbase(), block.getNumber()),
-//                                Collectors.toList()
-//                        )
-//                    )
-//                );
-//    }
-
 }
