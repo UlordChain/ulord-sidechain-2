@@ -581,8 +581,9 @@ public class Web3Impl implements Web3 {
 
 //        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
-        // TODO: Add a condition to check if a block is pending - Block is pending if 2/3 or signature is not yet received.
-        boolean isPending = (b.getSignaturesList().size() < (21/3 + 1)) && !b.isGenesis();
+        //TODO Remove comment before moving to Production
+        //boolean isPending = (b.getSignaturesList().size() < (21*2/3 + 1)) && !b.isGenesis();
+        boolean isPending = false;
 
         BlockResult br = new BlockResult();
         br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());

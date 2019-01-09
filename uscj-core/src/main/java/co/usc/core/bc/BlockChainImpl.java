@@ -301,7 +301,7 @@ public class BlockChainImpl implements Blockchain {
 
             logger.trace("Start switchToBlockChain");
             //TODO this function handles fork
-            //switchToBlockChain(block, totalDifficulty);
+            switchToBlockChain(block);
             logger.trace("Start saveReceipts");
             saveReceipts(block, result);
             logger.trace("Start processBest");
@@ -506,23 +506,23 @@ public class BlockChainImpl implements Blockchain {
     }
 
     //TODO this function handles fork
-//    private void switchToBlockChain(Block block, BlockDifficulty totalDifficulty) {
-//        synchronized (accessLock) {
-//            storeBlock(block, totalDifficulty, true);
-//            status = new BlockChainStatus(block, totalDifficulty);
-//            repository.syncToRoot(block.getStateRoot());
-//        }
-//    }
+    private void switchToBlockChain(Block block) {
+        synchronized (accessLock) {
+            storeBlock(block, true);
+            status = new BlockChainStatus(block);
+            repository.syncToRoot(block.getStateRoot());
+        }
+    }
 //
 //    private void extendAlternativeBlockChain(Block block, BlockDifficulty totalDifficulty) {
 //        storeBlock(block, totalDifficulty, false);
 //    }
 //
-//    private void storeBlock(Block block, BlockDifficulty totalDifficulty, boolean inBlockChain) {
-//        blockStore.saveBlock(block, totalDifficulty, inBlockChain);
-//        logger.trace("Block saved: number: {}, hash: {}, TD: {}",
-//                block.getNumber(), block.getShortHash(), totalDifficulty);
-//    }
+    private void storeBlock(Block block, boolean inBlockChain) {
+        blockStore.saveBlock(block, inBlockChain);
+        logger.trace("Block saved: number: {}, hash: {}, TD: {}",
+                block.getNumber(), block.getShortHash());
+    }
 
     private void saveReceipts(Block block, BlockResult result) {
         if (result == null) {
