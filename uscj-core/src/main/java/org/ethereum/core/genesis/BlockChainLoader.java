@@ -154,7 +154,7 @@ public class BlockChainLoader {
             blockchain.setBestBlock(bestBlock);
 //            blockchain.setTotalDifficulty(totalDifficulty);
 
-            logger.info("*** Loaded up to block [{}] totalDifficulty [{}] with stateRoot [{}]",
+            logger.info("*** Loaded up to block [{}] with stateRoot [{}]",
                     blockchain.getBestBlock().getNumber(),
 //                    blockchain.getTotalDifficulty().toString(),
                     Hex.toHexString(blockchain.getBestBlock().getStateRoot()));
