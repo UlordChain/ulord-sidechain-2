@@ -582,7 +582,7 @@ public class Web3Impl implements Web3 {
 //        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
         // TODO: Add a condition to check if a block is pending - Block is pending if 2/3 or signature is not yet received.
-        boolean isPending = !b.isGenesis();
+        boolean isPending = (b.getSignaturesList().size() < (21/3 + 1)) && !b.isGenesis();
 
         BlockResult br = new BlockResult();
         br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
@@ -592,6 +592,7 @@ public class Web3Impl implements Web3 {
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
+        br.signaturesRoot = isPending ? null : TypeConverter.toJsonHex(b.getSignaturesRoot());
         br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
         br.size = TypeConverter.toJsonHex(b.getEncoded().length);

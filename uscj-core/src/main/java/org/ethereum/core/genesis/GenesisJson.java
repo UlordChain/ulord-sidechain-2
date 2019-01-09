@@ -24,29 +24,19 @@ import java.util.Map;
 
 public class GenesisJson {
 
-    String mixhash;
     String coinbase;
     String timestamp;
     String parentHash;
     String extraData;
     String gasLimit;
-    String nonce;
-    String difficulty;
     String minimumGasPrice;
     String bpAddress;
+
     Map<String, AllocatedAccount> alloc;
 
     public GenesisJson() {
     }
 
-
-    public String getMixhash() {
-        return mixhash;
-    }
-
-    public void setMixhash(String mixhash) {
-        this.mixhash = mixhash;
-    }
 
     public String getCoinbase() {
         return coinbase;
@@ -86,22 +76,6 @@ public class GenesisJson {
 
     public void setGasLimit(String gasLimit) {
         this.gasLimit = gasLimit;
-    }
-
-    public String getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
-
-    public String getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(String difficulty) {
-        this.difficulty = difficulty;
     }
 
     public Map<String, AllocatedAccount> getAlloc() {
