@@ -32,6 +32,7 @@ import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.ethereum.vm.PrecompiledContracts;
+import org.postgresql.core.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.Arrays;
@@ -45,7 +46,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -69,8 +69,8 @@ public class Block {
     /* Transactions */
     private List<Transaction> transactionsList;
 
-    /* Block Producers Signatures*/
-    private List<byte[]> signaturesList;
+    /* Block Producers Signature*/
+    private byte[] signature;
 
     /* Private */
     private byte[] rlpEncoded;
@@ -145,9 +145,6 @@ public class Block {
         this.header.setStateRoot(stateRoot);
         this.header.setReceiptsRoot(receiptsRoot);
 
-        // TODO: Perhaps this should be called before sealing the block, after receiving all the signatures, because the signatureList is empty when the block is created.
-        this.header.setSignaturesRoot(getSignaturesHash(signaturesList));
-
         this.flushRLP();
     }
 
@@ -162,8 +159,8 @@ public class Block {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
 
-        if(this.signaturesList == null) {
-            this.signaturesList = new CopyOnWriteArrayList<>();
+        if(this.signature == null) {
+            this.signature = new byte[0];
         }
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
@@ -172,10 +169,10 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, List<byte[]> signaturesList) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, byte[] signature) {
         Block block = new Block(header);
         block.transactionsList = transactionsList;
-        block.signaturesList = signaturesList;
+        block.signature = signature;
         block.seal();
         return block;
     }
@@ -212,11 +209,7 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        // Parse Signatures
-        RLPList signatures = (RLPList) block.get(2);
-        for (RLPElement rawSignature: signatures) {
-            this.signaturesList.add(rawSignature.getRLPData());
-        }
+        this.signature = block.get(2).getRLPData();
         this.parsed = true;
     }
 
@@ -290,13 +283,6 @@ public class Block {
             parseRLP();
         }
         return this.header.getReceiptsRoot();
-    }
-
-    public byte[] getSignaturesRoot() {
-        if (!parsed) {
-            parseRLP();
-        }
-        return this.header.getSignaturesRoot();
     }
 
     public byte[] getLogBloom() {
@@ -373,19 +359,20 @@ public class Block {
         return this.header.getMinimumGasPrice();
     }
 
-    public List<byte[]> getSignaturesList() {
-        return signaturesList;
+    public byte[] getSignature() {
+        return signature;
     }
 
-    public void setSignaturesList(List<byte[]> signaturesList) {
-        this.signaturesList = signaturesList;
+    public void setSignature(byte[] signature) {
+        this.signature = signature;
     }
 
-    public void addSignature(byte[] signature) {
+    public boolean addSignature(byte[] signature) {
         // Check if signature already exists
-        if(this.signaturesList.contains(signature))
-            return;
-        this.signaturesList.add(signature);
+        if(this.signature.equals(signature))
+            return false;
+        this.signature = signature;
+        return true;
     }
 
     private StringBuffer toStringBuff = new StringBuffer();
@@ -405,15 +392,11 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
-        if(!signaturesList.isEmpty()) {
-            toStringBuff.append("  BpSignatures [\n");
-            for(byte[] b : signaturesList) {
-                toStringBuff.append(Hex.toHexString(b));
-                toStringBuff.append("\n");
-            }
-            toStringBuff.append("]\n");
+        if(signature.length != 0) {
+            toStringBuff.append("  BpSignature=").append(Utils.toHexString(signature));
+            toStringBuff.append("\n");
         } else {
-            toStringBuff.append("  BpSignatures []\n");
+            toStringBuff.append("  BpSignature =\n");
         }
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("  Txs [\n");
@@ -533,13 +516,8 @@ public class Block {
         return RLP.encodeList(transactionsEncoded);
     }
 
-    private byte[] getSignaturesEncoded() {
-        byte[][] signaturesEncoded = new byte[signaturesList.size()][];
-        int i = 0;
-        for (byte[] s : signaturesList) {
-            signaturesEncoded[i] = s;
-        }
-        return RLP.encodeList(signaturesEncoded);
+    private byte[] getSignatureEncoded() {
+        return RLP.encodeList(signature);
     }
 
     public byte[] getEncoded() {
@@ -567,7 +545,7 @@ public class Block {
         }
 
         byte[] transactions = getTransactionsEncoded();
-        byte[] signatures = getSignaturesEncoded();
+        byte[] signatures = getSignatureEncoded();
 
         List<byte[]> body = new ArrayList<>();
         body.add(transactions);

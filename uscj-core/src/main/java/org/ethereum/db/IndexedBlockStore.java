@@ -28,6 +28,7 @@ import org.ethereum.datasource.KeyValueDataSource;
 import org.mapdb.DB;
 import org.mapdb.DataIO;
 import org.mapdb.Serializer;
+import org.postgresql.core.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -190,6 +191,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
             if (blockInfo.isMainChain()) {
 
                 byte[] hash = blockInfo.getHash().getBytes();
+                System.out.println("Block Hash: " + Utils.toHexString(hash));
                 return getBlockByHash(hash);
             }
         }

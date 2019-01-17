@@ -82,9 +82,6 @@ public class BlockHeader {
      * With the exception of the genesis block, this must be 32 bytes or fewer */
     private byte[] extraData;
 
-    /* The SHA3 256-bit hash of signatures of all the BPs */
-    private byte[] signaturesRoot;
-
     /**
      * The mgp for a tx to be included in the block.
      */
@@ -123,19 +120,18 @@ public class BlockHeader {
             this.receiptTrieRoot = EMPTY_TRIE_HASH;
         }
 
-        this.signaturesRoot = rlpHeader.get(5).getRLPData();
-        this.logsBloom = rlpHeader.get(6).getRLPData();
+        this.logsBloom = rlpHeader.get(5).getRLPData();
 
-        this.number = parseBigInteger(rlpHeader.get(7).getRLPData()).longValueExact();
+        this.number = parseBigInteger(rlpHeader.get(6).getRLPData()).longValueExact();
 
-        this.gasLimit = rlpHeader.get(8).getRLPData();
-        this.gasUsed = parseBigInteger(rlpHeader.get(9).getRLPData()).longValueExact();
-        this.timestamp = parseBigInteger(rlpHeader.get(10).getRLPData()).longValueExact();
+        this.gasLimit = rlpHeader.get(7).getRLPData();
+        this.gasUsed = parseBigInteger(rlpHeader.get(8).getRLPData()).longValueExact();
+        this.timestamp = parseBigInteger(rlpHeader.get(9).getRLPData()).longValueExact();
 
-        this.extraData = rlpHeader.get(11).getRLPData();
+        this.extraData = rlpHeader.get(10).getRLPData();
 
-        this.paidFees = RLP.parseCoin(rlpHeader.get(12).getRLPData());
-        this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(13).getRLPData());
+        this.paidFees = RLP.parseCoin(rlpHeader.get(11).getRLPData());
+        this.minimumGasPrice = RLP.parseSignedCoinNonNullZero(rlpHeader.get(12).getRLPData());
 
         this.sealed = sealed;
     }
@@ -343,7 +339,6 @@ public class BlockHeader {
 
         byte[] receiptTrieRoot = RLP.encodeElement(this.receiptTrieRoot);
 
-        byte[] signaturesRoot = RLP.encodeElement(this.signaturesRoot);
         byte[] logsBloom = RLP.encodeElement(this.logsBloom);
         byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.number));
         byte[] gasLimit = RLP.encodeElement(this.gasLimit);
@@ -353,7 +348,7 @@ public class BlockHeader {
         byte[] paidFees = RLP.encodeCoin(this.paidFees);
         byte[] mgp = RLP.encodeSignedCoinNonNullZero(this.minimumGasPrice);
         List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, coinbase,
-                stateRoot, txTrieRoot, receiptTrieRoot, signaturesRoot, logsBloom, number,
+                stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, number,
                 gasLimit, gasUsed, timestamp, extraData, paidFees, mgp);
 
 
@@ -377,7 +372,7 @@ public class BlockHeader {
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
         toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
-        toStringBuff.append("  signaturesRoot=").append(toHexString(stateRoot)).append(suffix);
+        toStringBuff.append("  signature=").append(toHexString(stateRoot)).append(suffix);
 
         return toStringBuff.toString();
     }
@@ -409,11 +404,4 @@ public class BlockHeader {
         return bytes == null ? BigInteger.ZERO : BigIntegers.fromUnsignedByteArray(bytes);
     }
 
-    public void setSignaturesRoot(byte[] signaturesRoot) {
-        this.signaturesRoot = signaturesRoot;
-    }
-
-    public byte[] getSignaturesRoot() {
-        return signaturesRoot;
-    }
 }

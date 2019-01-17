@@ -22,11 +22,9 @@ package org.ethereum.core;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
-import co.usc.ulordj.core.Address;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.core.genesis.InitialAddressState;
 import org.ethereum.util.ByteUtil;
-import org.ethereum.util.RLP;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +64,7 @@ public class Genesis extends Block {
                         minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
-        setSignaturesList(Collections.emptyList());
+        setSignature(new byte[0]);
     }
 
     public static Block getInstance(UscSystemProperties config) {

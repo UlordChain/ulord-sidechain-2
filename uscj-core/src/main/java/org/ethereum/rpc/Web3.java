@@ -23,6 +23,7 @@ import co.usc.rpc.Web3EthModule;
 import co.usc.rpc.Web3MnrModule;
 import co.usc.rpc.Web3TxPoolModule;
 import co.usc.scoring.PeerScoringInformation;
+import org.postgresql.core.Utils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -70,7 +71,7 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
         public String transactionsRoot; // DATA, 32 Bytes - the root of the transaction trie of the block.
         public String stateRoot; // DATA, 32 Bytes - the root of the final state trie of the block.
         public String receiptsRoot; // DATA, 32 Bytes - the root of the receipts trie of the block.
-        public String signaturesRoot; // DATA, 32 Bytes - the root of the signatures of the block.
+        public String signature; // DATA, 32 Bytes - the root of the signatures of the block.
         public String blockProducer; // DATA, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
         public String extraData; // DATA - the "extra data" field of this block
         public String size;//QUANTITY - integer the size of this block in bytes.
@@ -78,7 +79,6 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
         public String gasUsed; // QUANTITY - the total used gas by all transactions in this block.
         public String timestamp; //: QUANTITY - the unix timestamp for when the block was collated.
         public Object[] transactions; //: Array - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-        public String[] signatures; //: Array - Array of uncle hashes.
         public String minimumGasPrice;
 
         @Override
@@ -91,7 +91,7 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
                     ", transactionsRoot='" + transactionsRoot + '\'' +
                     ", stateRoot='" + stateRoot + '\'' +
                     ", receiptsRoot='" + receiptsRoot + '\'' +
-                    ", signaturesRoot='" + signaturesRoot + '\'' +
+                    ", signature='" + signature + '\'' +
                     ", blockProducer='" + blockProducer + '\'' +
                     ", extraData='" + extraData + '\'' +
                     ", size='" + size + '\'' +
@@ -100,7 +100,7 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
                     ", gasUsed='" + gasUsed + '\'' +
                     ", timestamp='" + timestamp + '\'' +
                     ", transactions=" + Arrays.toString(transactions) +
-                    ", signatures=" + Arrays.toString(signatures) +
+                    ", signatures=" + signature +
                     '}';
         }
     }
