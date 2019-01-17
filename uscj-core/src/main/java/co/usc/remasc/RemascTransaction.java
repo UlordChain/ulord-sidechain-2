@@ -72,7 +72,7 @@ public class RemascTransaction extends Transaction {
 
     @Override
     public boolean acceptTransactionSignature(byte chainId) {
-        // RemascTransaction is not signed and not signature validation should be done
+        // RemascTransaction is not signed and not bpSignature validation should be done
         return true;
     }
 }

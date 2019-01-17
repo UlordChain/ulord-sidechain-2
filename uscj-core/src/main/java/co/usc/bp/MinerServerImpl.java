@@ -18,6 +18,8 @@
 
 package co.usc.bp;
 
+import co.usc.core.Wallet;
+import co.usc.ulordj.core.Sha256Hash;
 import co.usc.ulordj.core.UldBlock;
 import co.usc.ulordj.core.UldTransaction;
 import co.usc.config.MiningConfig;
@@ -33,8 +35,10 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.rpc.TypeConverter;
@@ -51,6 +55,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 
@@ -76,7 +81,7 @@ public class MinerServerImpl implements MinerServer {
     private final ProofOfWorkRule powRule;
     private final BlockToSignBuilder builder;
     private final BlockchainNetConfig blockchainConfig;
-
+    private Wallet wallet;
     private Timer refreshBlockTimer;
 
     private NewBlockListener blockListener;
@@ -113,7 +118,8 @@ public class MinerServerImpl implements MinerServer {
             BlockProcessor nodeBlockProcessor,
             ProofOfWorkRule powRule,
             BlockToSignBuilder builder,
-            MiningConfig miningConfig) {
+            MiningConfig miningConfig,
+            Wallet wallet) {
         this.config = config;
         this.ethereum = ethereum;
         this.blockchain = blockchain;
@@ -121,6 +127,7 @@ public class MinerServerImpl implements MinerServer {
         this.powRule = powRule;
         this.builder = builder;
         this.blockchainConfig = config.getBlockchainConfig();
+        this.wallet = wallet;
 
         blocksWaitingforSignatures = createNewBlocksWaitingList();
 
@@ -216,10 +223,10 @@ public class MinerServerImpl implements MinerServer {
 
     @Override
     public SubmitBlockResult submitSignature(String signature) {
-        logger.debug("Received signature {} ", signature);
+        logger.debug("Received bpSignature {} ", signature);
 
 //        return processBlock(
-//                signature,
+//                bpSignature,
 //                blockWithHeaderOnly,
 //                coinbase,
 //                (pb) -> pb.buildFromMerkleHashes(blockWithHeaderOnly, merkleHashes, blockTxnCount),
@@ -263,8 +270,33 @@ public class MinerServerImpl implements MinerServer {
     }
 
     private void processBlock1(Block b) {
+        String[] accountAddressesAsHex = wallet.getAccountAddressesAsHex();
+
+        if(accountAddressesAsHex.length == 0)
+            return;
+        // TODO: Add a condition to validate if it is a BP's address, and find a better solution for importing passphrase.
+        wallet.unlockAccount(new UscAddress(accountAddressesAsHex[0]), "abcd1234");
+
+        Account account = wallet.getAccount(new UscAddress(accountAddressesAsHex[0]));
+
+        byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
+        String signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
+
+
+        //System.out.println(TypeConverter.toJsonHex(signature));
+        System.out.println("Signature: " + Hex.toHexString(new BigInteger(signature).toByteArray()));
+
+        b.addSignature(new BigInteger(signature).toByteArray());
+
         b.seal();
         ethereum.addNewMinedBlock(b);
+    }
+
+    private String signBlock(String data, ECKey ecKey) {
+        byte[] dataHash = TypeConverter.stringHexToByteArray(data);
+        ECKey.ECDSASignature signature = ecKey.sign(dataHash);
+
+        return signature.r.toString() + signature.s.toString() + signature.v;
     }
 
     private SubmitBlockResult processBlock(

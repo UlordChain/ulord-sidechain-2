@@ -127,16 +127,16 @@ public class RemascContract extends PrecompiledContracts.PrecompiledContract {
             function = PROCESS_MINERS_FEES;
         } else {
             if (data.length != 4) {
-                logger.warn("Invalid function: signature longer than expected {}.", Hex.toHexString(data));
-                throw new RemascInvalidInvocationException("Invalid function signature");
+                logger.warn("Invalid function: bpSignature longer than expected {}.", Hex.toHexString(data));
+                throw new RemascInvalidInvocationException("Invalid function bpSignature");
             }
 
             byte[] functionSignature = Arrays.copyOfRange(data, 0, 4);
             function = functions.get(new ByteArrayWrapper(functionSignature));
 
             if (function == null) {
-                logger.warn("Invalid function: signature does not match an existing function {}.", Hex.toHexString(functionSignature));
-                throw new RemascInvalidInvocationException("Invalid function signature");
+                logger.warn("Invalid function: bpSignature does not match an existing function {}.", Hex.toHexString(functionSignature));
+                throw new RemascInvalidInvocationException("Invalid function bpSignature");
             }
         }
         return function;

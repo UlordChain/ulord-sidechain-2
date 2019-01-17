@@ -64,7 +64,7 @@ public class Genesis extends Block {
                         minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
-        setSignature(new byte[0]);
+        setBpSignature(new byte[0]);
     }
 
     public static Block getInstance(UscSystemProperties config) {

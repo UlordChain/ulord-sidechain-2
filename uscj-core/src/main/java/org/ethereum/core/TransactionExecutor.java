@@ -203,14 +203,14 @@ public class TransactionExecutor {
         }
 
         if (!tx.acceptTransactionSignature(netConfig.getCommonConstants().getChainId())) {
-            logger.warn("Transaction {} signature not accepted: {}", tx.getHash(), tx.getSignature());
+            logger.warn("Transaction {} bpSignature not accepted: {}", tx.getHash(), tx.getSignature());
             logger.warn("Transaction Data: {}", tx);
             logger.warn("Tx Included in the following block: {}", this.executionBlock);
 
             panicProcessor.panic("invalidsignature",
-                                 String.format("Transaction %s signature not accepted: %s",
+                                 String.format("Transaction %s bpSignature not accepted: %s",
                                                tx.getHash(), tx.getSignature()));
-            execError(String.format("Transaction signature not accepted: %s", tx.getSignature()));
+            execError(String.format("Transaction bpSignature not accepted: %s", tx.getSignature()));
 
             return false;
         }

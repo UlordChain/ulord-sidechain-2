@@ -48,7 +48,7 @@ public abstract class SolidityType {
     }
 
     /**
-     * The canonical type name (used for the method signature creation)
+     * The canonical type name (used for the method bpSignature creation)
      * E.g. 'int' - canonical 'int256'
      */
     @JsonValue

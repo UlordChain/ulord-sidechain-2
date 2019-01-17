@@ -102,7 +102,7 @@ public class Transaction {
     private static final byte LOWER_REAL_V = 27;
     private byte chainId = 0;
 
-    /* the elliptic curve signature
+    /* the elliptic curve bpSignature
      * (including public key recovery bits) */
     private ECDSASignature signature;
 
@@ -123,9 +123,9 @@ public class Transaction {
     }
 
     /* creation contract tx
-     * [ nonce, gasPrice, gasLimit, "", endowment, init, signature(v, r, s) ]
+     * [ nonce, gasPrice, gasLimit, "", endowment, init, bpSignature(v, r, s) ]
      * or simple send tx
-     * [ nonce, gasPrice, gasLimit, receiveAddress, value, data, signature(v, r, s) ]
+     * [ nonce, gasPrice, gasLimit, receiveAddress, value, data, bpSignature(v, r, s) ]
      */
     public Transaction(byte[] nonce, byte[] gasPriceRaw, byte[] gasLimit, byte[] receiveAddress, byte[] value, byte[] data) {
         this(nonce, gasPriceRaw, gasLimit, receiveAddress, value, data, (byte) 0);
@@ -239,7 +239,7 @@ public class Transaction {
         this.receiveAddress = RLP.parseUscAddress(transaction.get(3).getRLPData());
         this.value = RLP.parseCoinNullZero(transaction.get(4).getRLPData());
         this.data = transaction.get(5).getRLPData();
-        // only parse signature in case tx is signed
+        // only parse bpSignature in case tx is signed
         if (transaction.get(6).getRLPData() != null) {
             byte[] vData =  transaction.get(6).getRLPData();
             if (vData.length != 1 ) {
@@ -327,7 +327,7 @@ public class Transaction {
 
     public void setGasLimit(byte[] gasLimit) {
         this.gasLimit = ByteUtils.clone(gasLimit);
-        // Once the tx content has changed, the signature and rlpEncoded should be recalculated
+        // Once the tx content has changed, the bpSignature and rlpEncoded should be recalculated
         this.signature = null;
         this.rlpEncoded = null;
         this.rlpRaw = null;
@@ -420,7 +420,7 @@ public class Transaction {
 
     public ECKey getKey() {
         byte[] rawHash = getRawHash().getBytes();
-        //We clear the 4th bit, the compress bit, in case a signature is using compress in true
+        //We clear the 4th bit, the compress bit, in case a bpSignature is using compress in true
         return ECKey.recoverFromSignature((signature.v - 27) & ~4, signature, rawHash, true);
     }
 
@@ -469,7 +469,7 @@ public class Transaction {
 
     /**
      * For signatures you have to keep also
-     * RLP of the transaction without any signature data
+     * RLP of the transaction without any bpSignature data
      */
     public byte[] getEncodedRaw() {
 

@@ -75,7 +75,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
     public static final CallTransaction.Function RELEASE_ULD = BridgeMethods.RELEASE_ULD.getFunction();
     // Parameters:
     // Federator public key.
-    // Transaction signature array, one for each uld tx input.
+    // Transaction bpSignature array, one for each uld tx input.
     // Usc tx hash of the tx that required the release of funds.
     public static final CallTransaction.Function ADD_SIGNATURE = BridgeMethods.ADD_SIGNATURE.getFunction();
     // Returns a StateForFederator encoded in RLP
@@ -232,7 +232,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
         BridgeParsedData bridgeParsedData = new BridgeParsedData();
 
         if (data != null && (data.length >= 1 && data.length <= 3)) {
-            logger.warn("Invalid function signature {}.", Hex.toHexString(data));
+            logger.warn("Invalid function bpSignature {}.", Hex.toHexString(data));
             return null;
         }
 
@@ -243,7 +243,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
             byte[] functionSignature = Arrays.copyOfRange(data, 0, 4);
             Optional<BridgeMethods> invokedMethod = BridgeMethods.findBySignature(functionSignature);
             if (!invokedMethod.isPresent()) {
-                logger.warn("Invalid function signature {}.", Hex.toHexString(functionSignature));
+                logger.warn("Invalid function bpSignature {}.", Hex.toHexString(functionSignature));
                 return null;
             }
             bridgeParsedData.bridgeMethod = invokedMethod.get();

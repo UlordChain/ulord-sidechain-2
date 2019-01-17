@@ -93,7 +93,7 @@ public class CallTransaction {
         }
 
         /**
-         * The canonical type name (used for the method signature creation)
+         * The canonical type name (used for the method bpSignature creation)
          * E.g. 'int' - canonical 'int256'
          */
         public String getCanonicalName() {return getName();}
@@ -443,7 +443,7 @@ public class CallTransaction {
                     }
                 }
             } else {
-                throw new CallTransactionException("Function signature hash should be 4 or 32 bytes length");
+                throw new CallTransactionException("Function bpSignature hash should be 4 or 32 bytes length");
             }
             return null;
         }
@@ -457,7 +457,7 @@ public class CallTransaction {
             }
             Function function = getBySignatureHash(Arrays.copyOfRange(data, 0, 4));
             if (function == null) {
-                throw new CallTransactionException("Can't find function/event by it signature");
+                throw new CallTransactionException("Can't find function/event by it bpSignature");
             }
             Object[] args = function.decode(data);
             return new Invocation(this, function, args);

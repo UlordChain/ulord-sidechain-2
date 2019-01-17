@@ -64,7 +64,7 @@ public abstract class PeerDiscoveryMessage {
         System.arraycopy(data, 0, payload, 1, data.length);
         byte[] forSig = HashUtil.keccak256(payload);
 
-        /* [2] Crate signature*/
+        /* [2] Crate bpSignature*/
         ECKey.ECDSASignature ecdsaSignature = privKey.sign(forSig);
 
         ecdsaSignature.v -= 27;
@@ -170,7 +170,7 @@ public abstract class PeerDiscoveryMessage {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("mdc", Hex.toHexString(mdc))
-                .append("signature", Hex.toHexString(signature))
+                .append("bpSignature", Hex.toHexString(signature))
                 .append("type", Hex.toHexString(type))
                 .append("data", Hex.toHexString(data)).toString();
     }

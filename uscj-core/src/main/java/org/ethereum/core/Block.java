@@ -70,7 +70,7 @@ public class Block {
     private List<Transaction> transactionsList;
 
     /* Block Producers Signature*/
-    private byte[] signature;
+    private byte[] bpSignature;
 
     /* Private */
     private byte[] rlpEncoded;
@@ -159,8 +159,8 @@ public class Block {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
 
-        if(this.signature == null) {
-            this.signature = new byte[0];
+        if(this.bpSignature == null) {
+            this.bpSignature = new byte[0];
         }
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
@@ -172,7 +172,7 @@ public class Block {
     public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, byte[] signature) {
         Block block = new Block(header);
         block.transactionsList = transactionsList;
-        block.signature = signature;
+        block.bpSignature = signature;
         block.seal();
         return block;
     }
@@ -209,7 +209,7 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        this.signature = block.get(2).getRLPData();
+        this.bpSignature = block.get(2).getRLPData();
         this.parsed = true;
     }
 
@@ -359,19 +359,19 @@ public class Block {
         return this.header.getMinimumGasPrice();
     }
 
-    public byte[] getSignature() {
-        return signature;
+    public byte[] getBpSignature() {
+        return bpSignature;
     }
 
-    public void setSignature(byte[] signature) {
-        this.signature = signature;
+    public void setBpSignature(byte[] bpSignature) {
+        this.bpSignature = bpSignature;
     }
 
     public boolean addSignature(byte[] signature) {
-        // Check if signature already exists
-        if(this.signature.equals(signature))
+        // Check if bpSignature already exists
+        if(this.bpSignature.equals(signature))
             return false;
-        this.signature = signature;
+        this.bpSignature = signature;
         return true;
     }
 
@@ -392,8 +392,8 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
-        if(signature.length != 0) {
-            toStringBuff.append("  BpSignature=").append(Utils.toHexString(signature));
+        if(bpSignature.length != 0) {
+            toStringBuff.append("  BpSignature=").append(Utils.toHexString(bpSignature));
             toStringBuff.append("\n");
         } else {
             toStringBuff.append("  BpSignature =\n");
@@ -517,7 +517,7 @@ public class Block {
     }
 
     private byte[] getSignatureEncoded() {
-        return RLP.encodeList(signature);
+        return RLP.encodeList(bpSignature);
     }
 
     public byte[] getEncoded() {

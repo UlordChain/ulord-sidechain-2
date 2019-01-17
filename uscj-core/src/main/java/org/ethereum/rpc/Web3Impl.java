@@ -582,7 +582,7 @@ public class Web3Impl implements Web3 {
 //        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
         //TODO Remove comment before moving to Production
-        //boolean isPending = (b.getSignature().size() < (21*2/3 + 1)) && !b.isGenesis();
+        //boolean isPending = (b.getBpSignature().size() < (21*2/3 + 1)) && !b.isGenesis();
         boolean isPending = false;
 
         BlockResult br = new BlockResult();
@@ -593,7 +593,7 @@ public class Web3Impl implements Web3 {
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
-        br.signature = isPending ? null : TypeConverter.toJsonHex(b.getSignature());
+        br.bpSignature = isPending ? null : TypeConverter.toJsonHex(b.getBpSignature());
         br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
 

@@ -308,8 +308,10 @@ public class UscFactory {
         logger.info("Local wallet enabled");
         KeyValueDataSource ds = new LevelDbDataSource("wallet", config.databaseDir());
         ds.init();
+        //this.wallet = ;
         return new Wallet(ds);
     }
+
 
     @Bean
     public PersonalModule getPersonalModuleWallet(UscSystemProperties config, Usc usc, Wallet wallet, TransactionPool transactionPool) {

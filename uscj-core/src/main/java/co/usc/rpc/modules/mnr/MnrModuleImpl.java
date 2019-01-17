@@ -100,7 +100,7 @@ public class MnrModuleImpl implements MnrModule /*, Runnable*/ {
     @Override
     public SubmittedBlockInfo submitSignature(String signature) {
 //        synchronized (this) {
-//            submittedQueue.add(signature + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
+//            submittedQueue.add(bpSignature + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
 //        }
 //
 //        logger.debug("Queue Size: " + submittedQueue.size());

@@ -189,9 +189,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
         for (BlockInfo blockInfo : blockInfos) {
 
             if (blockInfo.isMainChain()) {
-
                 byte[] hash = blockInfo.getHash().getBytes();
-                System.out.println("Block Hash: " + Utils.toHexString(hash));
                 return getBlockByHash(hash);
             }
         }

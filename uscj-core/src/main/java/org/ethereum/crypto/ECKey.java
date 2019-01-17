@@ -72,9 +72,9 @@ import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
  * when you already have the public or private parts. If you create a key with only the public part, you can check
  * signatures but not create them.</p>
  *
- * <p>The ECDSA algorithm supports <i>key recovery</i> in which a signature plus a couple of discriminator bits can
+ * <p>The ECDSA algorithm supports <i>key recovery</i> in which a bpSignature plus a couple of discriminator bits can
  * be reversed to find the public key used to calculate it. This can be convenient when you have a message and a
- * signature and want to find out who signed it, rather than requiring the user to provide the expected identity.</p>
+ * bpSignature and want to find out who signed it, rather than requiring the user to provide the expected identity.</p>
  *
  * <p>A key can be <i>compressed</i> or <i>uncompressed</i>. This refers to whether the public key is represented
  * when encoded into bytes as an (x, y) coordinate on the elliptic curve, or whether it's represented as just an X
@@ -99,7 +99,7 @@ public class ECKey implements Serializable {
     public static final ECDomainParameters CURVE;
 
     /**
-     * Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature. If you aren't
+     * Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a bpSignature. If you aren't
      * sure what this is about, you can ignore it.
      */
     public static final BigInteger HALF_CURVE_ORDER;
@@ -389,20 +389,20 @@ public class ECKey implements Serializable {
     }
 
     /**
-     * Groups the two components that make up a signature, and provides a way to encode to Base64 form, which is
+     * Groups the two components that make up a bpSignature, and provides a way to encode to Base64 form, which is
      * how ECDSA signatures are represented when embedded in other data structures in the Ethereum protocol. The raw
      * components can be useful for doing further EC maths on them.
      */
     public static class ECDSASignature {
         /**
-         * The two components of the signature.
+         * The two components of the bpSignature.
          */
         public final BigInteger r;
         public final BigInteger s;
         public byte v;
 
         /**
-         * Constructs a signature with the given components. Does NOT automatically canonicalise the signature.
+         * Constructs a bpSignature with the given components. Does NOT automatically canonicalise the bpSignature.
          *
          * @param r -
          * @param s -
@@ -439,7 +439,7 @@ public class ECKey implements Serializable {
          *
          * @param r -
          * @param s -
-         * @param hash - the hash used to compute this signature
+         * @param hash - the hash used to compute this bpSignature
          * @param pub - public key bytes, used to calculate the recovery byte 'v'
          * @return -
          */
@@ -452,7 +452,7 @@ public class ECKey implements Serializable {
             ECDSASignature sig = ECDSASignature.fromComponents(r, s);
             ECPoint pubPoint = ECKey.fromPublicOnly(pub).pub;
 
-            // Now we have to work backwards to figure out the recId needed to recover the signature.
+            // Now we have to work backwards to figure out the recId needed to recover the bpSignature.
             int recId = -1;
             for (int i = 0; i < 4; i++) {
                 ECKey k = ECKey.recoverFromSignature(i, sig, hash, false);
@@ -500,7 +500,7 @@ public class ECKey implements Serializable {
 
         /**
          * Will automatically adjust the S component to be less than or equal to half the curve order, if necessary.
-         * This is required because for every signature (r,s) the signature (r, -s (mod N)) is a valid signature of
+         * This is required because for every bpSignature (r,s) the bpSignature (r, -s (mod N)) is a valid bpSignature of
          * the same message. However, we dislike the ability to modify the bits of a Ethereum transaction after it's
          * been signed, as that violates various assumed invariants. Thus in future only one of those forms will be
          * considered legal and the other will be banned.
@@ -568,7 +568,7 @@ public class ECKey implements Serializable {
      * and put them in ECDSASignature
      *
      * @param input to sign
-     * @return ECDSASignature signature that contains the R and S components
+     * @return ECDSASignature bpSignature that contains the R and S components
      */
     public ECDSASignature doSign(byte[] input) {
         // No decryption of private key required.
@@ -584,7 +584,7 @@ public class ECKey implements Serializable {
 
 
     /**
-     * Takes the sha3 hash (32 bytes) of data and returns the ECDSA signature
+     * Takes the sha3 hash (32 bytes) of data and returns the ECDSA bpSignature
      *
      * @param messageHash -
      * @return -
@@ -595,7 +595,7 @@ public class ECKey implements Serializable {
             throw new MissingPrivateKeyException();
         }
         ECDSASignature sig = doSign(messageHash);
-        // Now we have to work backwards to figure out the recId needed to recover the signature.
+        // Now we have to work backwards to figure out the recId needed to recover the bpSignature.
         int recId = -1;
         for (int i = 0; i < 4; i++) {
             ECKey k = ECKey.recoverFromSignature(i, sig, messageHash, false);
@@ -613,15 +613,15 @@ public class ECKey implements Serializable {
 
 
     /**
-     * Given a piece of text and a message signature encoded in base64, returns an ECKey
+     * Given a piece of text and a message bpSignature encoded in base64, returns an ECKey
      * containing the public key that was used to sign it. This can then be compared to the expected public key to
-     * determine if the signature was correct.
+     * determine if the bpSignature was correct.
      *
      * @param messageHash a piece of human readable text that was signed
-     * @param signatureBase64 The Ethereum-format message signature in base64
+     * @param signatureBase64 The Ethereum-format message bpSignature in base64
      *
      * @return -
-     * @throws SignatureException If the public key could not be recovered or if there was a signature format error.
+     * @throws SignatureException If the public key could not be recovered or if there was a bpSignature format error.
      */
     public static ECKey signatureToKey(byte[] messageHash, String signatureBase64) throws SignatureException {
         byte[] signatureEncoded;
@@ -631,7 +631,7 @@ public class ECKey implements Serializable {
             // This is what you get back from Bouncy Castle if base64 doesn't decode :(
             throw new SignatureException("Could not decode base64", e);
         }
-        // Parse the signature bytes into r/s and the selector value.
+        // Parse the bpSignature bytes into r/s and the selector value.
         if (signatureEncoded.length < 65) {
             throw new SignatureException("Signature truncated, expected 65 bytes and got " + signatureEncoded.length);
         }
@@ -652,7 +652,7 @@ public class ECKey implements Serializable {
         int recId = header - 27;
         ECKey key = ECKey.recoverFromSignature(recId, sig, messageHash, compressed);
         if (key == null) {
-            throw new SignatureException("Could not recover public key from signature");
+            throw new SignatureException("Could not recover public key from bpSignature");
         }
         return key;
     }
@@ -703,13 +703,13 @@ public class ECKey implements Serializable {
 
 
     /**
-     * <p>Verifies the given ECDSA signature against the message bytes using the public key bytes.</p>
+     * <p>Verifies the given ECDSA bpSignature against the message bytes using the public key bytes.</p>
      *
      * <p>When using native ECDSA verification, data must be 32 bytes, and no element may be
      * larger than 520 bytes.</p>
      *
      * @param data Hash of the data to verify.
-     * @param signature signature.
+     * @param signature bpSignature.
      * @param pub The public key bytes to use.
      *
      * @return -
@@ -729,7 +729,7 @@ public class ECKey implements Serializable {
     }
 
     /**
-     * Verifies the given R/S pair (signature) against a hash using the public key.
+     * Verifies the given R/S pair (bpSignature) against a hash using the public key.
      *
      * @param sigHash -
      * @param signature -
@@ -772,12 +772,12 @@ public class ECKey implements Serializable {
     }
 
     /**
-     * <p>Given the components of a signature and a selector value, recover and return the public key
-     * that generated the signature according to the algorithm in SEC1v2 section 4.1.6.</p>
+     * <p>Given the components of a bpSignature and a selector value, recover and return the public key
+     * that generated the bpSignature according to the algorithm in SEC1v2 section 4.1.6.</p>
      *
      * <p>The recId is an index from 0 to 3 which indicates which of the 4 possible keys is the correct one. Because
      * the key recovery operation yields multiple potential keys, the correct key must either be stored alongside the
-     * signature, or you must be willing to try each recId in turn until you find one that outputs the key you are
+     * bpSignature, or you must be willing to try each recId in turn until you find one that outputs the key you are
      * expecting.</p>
      *
      * <p>If this method returns null it means recovery was not possible and recId should be iterated.</p>
@@ -786,7 +786,7 @@ public class ECKey implements Serializable {
      * output is null OR a key that is not the one you expect, you try again with the next recId.</p>
      *
      * @param recId Which possible key to recover.
-     * @param sig the R and S components of the signature, wrapped.
+     * @param sig the R and S components of the bpSignature, wrapped.
      * @param messageHash Hash of the data that was signed.
      * @param compressed Whether or not the original pubkey was compressed.
      * @return An ECKey containing only the public part, or null if recovery wasn't possible.
@@ -822,7 +822,7 @@ public class ECKey implements Serializable {
         if (!r.multiply(n).isInfinity()) {
             return null;
         }
-        //   1.5. Compute e from M using Steps 2 and 3 of ECDSA signature verification.
+        //   1.5. Compute e from M using Steps 2 and 3 of ECDSA bpSignature verification.
         BigInteger e = new BigInteger(1, messageHash);
         //   1.6. For k from 1 to 2 do the following.   (loop is outside this function via iterating recId)
         //   1.6.1. Compute a candidate public key as:

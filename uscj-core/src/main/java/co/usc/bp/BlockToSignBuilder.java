@@ -46,7 +46,7 @@ import java.util.*;
  */
 @Component
 public class BlockToSignBuilder {
-    private static final Logger logger = LoggerFactory.getLogger("blocktominebuilder");
+    private static final Logger logger = LoggerFactory.getLogger("blocktosignbuilder");
 
     private final MiningConfig miningConfig;
     private final Repository repository;

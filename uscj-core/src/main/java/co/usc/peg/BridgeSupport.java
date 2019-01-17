@@ -856,12 +856,12 @@ public class BridgeSupport {
     }
 
     /**
-     * Adds a federator signature to a uld release tx.
-     * The hash for the signature must be calculated with Transaction.SigHash.ALL and anyoneCanPay=false. The signature must be canonical.
+     * Adds a federator bpSignature to a uld release tx.
+     * The hash for the bpSignature must be calculated with Transaction.SigHash.ALL and anyoneCanPay=false. The bpSignature must be canonical.
      * If enough signatures were added, ask federators to broadcast the uld release tx.
      *
      * @param federatorPublicKey   Federator who is signing
-     * @param signatures           1 signature per uld tx input
+     * @param signatures           1 bpSignature per uld tx input
      * @param uscTxHash            The id of the usc tx
      */
     public void addSignature(UldECKey federatorPublicKey, List<byte[]> signatures, byte[] uscTxHash) throws Exception {
@@ -873,7 +873,7 @@ public class BridgeSupport {
         }
         UldTransaction uldTx = provider.getUscTxsWaitingForSignatures().get(new Keccak256(uscTxHash));
         if (uldTx == null) {
-            logger.warn("No tx waiting for signature for hash {}. Probably fully signed already.", new Keccak256(uscTxHash));
+            logger.warn("No tx waiting for bpSignature for hash {}. Probably fully signed already.", new Keccak256(uscTxHash));
             return;
         }
         if (uldTx.getInputs().size() != signatures.size()) {
@@ -905,7 +905,7 @@ public class BridgeSupport {
             try {
                 sig = UldECKey.ECDSASignature.decodeFromDER(signatures.get(i));
             } catch (RuntimeException e) {
-                logger.warn("Malformed signature for input {} of tx {}: {}", i, new Keccak256(uscTxHash), Hex.toHexString(signatures.get(i)));
+                logger.warn("Malformed bpSignature for input {} of tx {}: {}", i, new Keccak256(uscTxHash), Hex.toHexString(signatures.get(i)));
                 return;
             }
 
@@ -1000,7 +1000,7 @@ public class BridgeSupport {
      * @return True if was signed by the required number of federators, false otherwise
      */
     private boolean hasEnoughSignatures(UldTransaction uldTx) {
-        // When the tx is constructed OP_0 are placed where signature should go.
+        // When the tx is constructed OP_0 are placed where bpSignature should go.
         // Check all OP_0 have been replaced with actual signatures in all inputs
         Context.propagate(uldContext);
         for (TransactionInput input : uldTx.getInputs()) {
@@ -1490,7 +1490,7 @@ public class BridgeSupport {
 
         AddressBasedAuthorizer authorizer = bridgeConstants.getFederationChangeAuthorizer();
 
-        // Must be authorized to vote (checking for signature)
+        // Must be authorized to vote (checking for bpSignature)
         if (!authorizer.isAuthorized(tx)) {
             return FEDERATION_CHANGE_GENERIC_ERROR_CODE;
         }
