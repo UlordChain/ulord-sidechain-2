@@ -96,9 +96,9 @@ public class BlockHeader {
 
     public BlockHeader(RLPList rlpHeader, boolean sealed) {
         // TODO fix old tests that have other sizes
-        if (rlpHeader.size() != 14) {
+        if (rlpHeader.size() != 13) {
             throw new IllegalArgumentException(String.format(
-                    "A block header must have 14 elements but it had %d",
+                    "A block header must have 13 elements but it had %d",
                     rlpHeader.size()
             ));
         }
