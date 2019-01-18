@@ -217,29 +217,7 @@ public class Block {
 
         RLPList vsr = (RLPList) block.get(2);
         this.signature = parseVRS(vsr);
-//        byte[] vData = block.get(2).getRLPData();
-////        if(vData.length != 1) {
-////            throw new BlockException("Signature V is invalid");
-////        }
-//        byte v = vData[0];
-//        byte[] r = block.get(3).getRLPData();
-//        byte[] s = block.get(4).getRLPData();
-//        this.signature = ECDSASignature.fromComponents(r,s, getRealV(v));
         this.parsed = true;
-    }
-
-
-
-    private byte getRealV(byte v) {
-        if (v == LOWER_REAL_V || v == (LOWER_REAL_V + 1)) {
-            return v;
-        }
-        byte realV = LOWER_REAL_V;
-        int inc = 0;
-        if ((int) v % 2 == 0) {
-            inc = 1;
-        }
-        return (byte) (realV + inc);
     }
 
     // TODO(mc) remove this method and create a new ExecutedBlock class or similar
