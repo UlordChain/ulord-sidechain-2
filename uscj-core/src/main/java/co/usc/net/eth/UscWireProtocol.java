@@ -134,14 +134,6 @@ public class UscWireProtocol extends EthHandler {
                         loggerNet.trace("USC Status Message: Block {} {} from {}", ((StatusMessage)message).getStatus().getBestBlockNumber(), Hex.toHexString(((StatusMessage)message).getStatus().getBestBlockHash()).substring(0, 10), this.messageSender.getPeerNodeID());
                         syncStats.addStatus();
                         break;
-                    case BLOCK_SIGN_REQUEST_MESSAGE:
-                        //This is a broadcast message sent from current BP creating block to other BP's
-                        //TODO Blocks received here needs BP's sign. This sign will be sent back to sender BP.
-                        break;
-                    case BLOCK_SIGN_RESPONSE_MESSAGE:
-                        //This is where current BP creating block receives sign from other BP's
-                        //TODO Signs from all BP's to be included in the block.
-                        break;
                 }
 
                 if (this.messageHandler != null) {

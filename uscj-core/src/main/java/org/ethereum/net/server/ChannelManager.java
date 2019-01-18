@@ -84,11 +84,4 @@ public interface ChannelManager {
     boolean sendMessageTo(NodeID nodeID, MessageWithId message);
 
     boolean isAddressBlockAvailable(InetAddress address);
-
-    //Broadcast block for signing to other BP's
-    @Nonnull
-    Set<NodeID> broadcastBlockForSigning(@Nonnull final Block block);
-
-    @Nonnull
-    public Set<NodeID> sendSignForBlock(@Nonnull String sign);
 }
