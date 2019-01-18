@@ -27,7 +27,6 @@ import co.usc.remasc.RemascTransaction;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
-import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.rpc.TypeConverter;
@@ -35,7 +34,6 @@ import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.ethereum.vm.PrecompiledContracts;
-import org.postgresql.core.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.Arrays;
@@ -217,16 +215,20 @@ public class Block {
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
 
-        byte[] vData = block.get(2).getRLPData();
-        if(vData.length != 1) {
-            throw new BlockException("Signature V is invalid");
-        }
-        byte v = vData[0];
-        byte[] r = block.get(3).getRLPData();
-        byte[] s = block.get(4).getRLPData();
-        this.signature = ECDSASignature.fromComponents(r,s, getRealV(v));
+        RLPList vsr = (RLPList) block.get(2);
+        this.signature = parseVRS(vsr);
+//        byte[] vData = block.get(2).getRLPData();
+////        if(vData.length != 1) {
+////            throw new BlockException("Signature V is invalid");
+////        }
+//        byte v = vData[0];
+//        byte[] r = block.get(3).getRLPData();
+//        byte[] s = block.get(4).getRLPData();
+//        this.signature = ECDSASignature.fromComponents(r,s, getRealV(v));
         this.parsed = true;
     }
+
+
 
     private byte getRealV(byte v) {
         if (v == LOWER_REAL_V || v == (LOWER_REAL_V + 1)) {
@@ -475,6 +477,11 @@ public class Block {
         }
 
         return Collections.unmodifiableList(parsedTxs);
+    }
+
+    private ECDSASignature parseVRS(RLPList vrs) {
+        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), vrs.get(0).getRLPData()[0]
+        );
     }
 
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
