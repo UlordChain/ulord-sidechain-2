@@ -201,7 +201,6 @@ public class MinerServerImpl implements MinerServer {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.SECOND, 6);
             Date bpTime = cal.getTime();
-            System.out.println("Later: " + bpTime);
             refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
             // ----------------------------------
         }
@@ -282,12 +281,6 @@ public class MinerServerImpl implements MinerServer {
 
         byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
         ECDSASignature signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
-
-
-        //System.out.println(TypeConverter.toJsonHex(signature));
-        System.out.println("v: " + String.format("0x%02X", signature.v));
-        System.out.println("r: " + TypeConverter.toJsonHex(signature.r));
-        System.out.println("s: " + TypeConverter.toJsonHex(signature.s));
 
         b.addSignature(signature);
 
@@ -551,7 +544,6 @@ public class MinerServerImpl implements MinerServer {
                 cal.add(Calendar.SECOND, 6);
                 Date bpTime = cal.getTime();
                 refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
-                System.out.println("Next block at: " + bpTime.toString());
                 // ----------------------------------
 
             } catch (Throwable th) {
