@@ -26,6 +26,7 @@ import co.usc.panic.PanicProcessor;
 import co.usc.remasc.RemascTransaction;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.crypto.Keccak256Helper;
@@ -48,6 +49,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -78,6 +81,8 @@ public class Block {
     /* Private */
     private byte[] rlpEncoded;
     private boolean parsed = false;
+
+    private static final byte LOWER_REAL_V = 27;
 
     /* Indicates if this block can or cannot be changed */
     private volatile boolean sealed;
@@ -162,9 +167,8 @@ public class Block {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
 
-        if(this.bpSignature == null) {
-            this.bpSignature = new byte[0];
-        }
+//        this.signature = null;
+
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
                 timestamp, extraData, minimumGasPrice);
@@ -172,10 +176,10 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, byte[] signature) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, ECDSASignature signature) {
         Block block = new Block(header);
         block.transactionsList = transactionsList;
-        block.bpSignature = signature;
+        block.signature = signature;
         block.seal();
         return block;
     }
@@ -212,8 +216,28 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        this.bpSignature = block.get(2).getRLPData();
+
+        byte[] vData = block.get(2).getRLPData();
+        if(vData.length != 1) {
+            throw new BlockException("Signature V is invalid");
+        }
+        byte v = vData[0];
+        byte[] r = block.get(3).getRLPData();
+        byte[] s = block.get(4).getRLPData();
+        this.signature = ECDSASignature.fromComponents(r,s, getRealV(v));
         this.parsed = true;
+    }
+
+    private byte getRealV(byte v) {
+        if (v == LOWER_REAL_V || v == (LOWER_REAL_V + 1)) {
+            return v;
+        }
+        byte realV = LOWER_REAL_V;
+        int inc = 0;
+        if ((int) v % 2 == 0) {
+            inc = 1;
+        }
+        return (byte) (realV + inc);
     }
 
     // TODO(mc) remove this method and create a new ExecutedBlock class or similar
@@ -362,19 +386,17 @@ public class Block {
         return this.header.getMinimumGasPrice();
     }
 
-    public byte[] getBpSignature() {
-        return bpSignature;
+    public ECDSASignature getSignature() {
+        return signature;
     }
 
-    public void setBpSignature(byte[] bpSignature) {
-        this.bpSignature = bpSignature;
+    public void setSignature(ECDSASignature signature) {
+        this.signature = signature;
     }
 
-    public boolean addSignature(byte[] signature) {
+    public boolean addSignature(ECDSASignature signature) {
         // Check if bpSignature already exists
-        if(this.bpSignature.equals(signature))
-            return false;
-        this.bpSignature = signature;
+        this.signature = signature;
         return true;
     }
 
@@ -395,9 +417,12 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
-        if(bpSignature.length != 0) {
-            toStringBuff.append("  BpSignature=").append(Utils.toHexString(bpSignature));
-            toStringBuff.append("\n");
+        if(signature != null) {
+            toStringBuff.append("  BpSignature [\n");
+            toStringBuff.append("    v: ").append(signature.v).append("\n");
+            toStringBuff.append("    r: ").append(ByteUtils.toHexString(BigIntegers.asUnsignedByteArray(signature.r))).append("\n");
+            toStringBuff.append("    s: ").append(ByteUtils.toHexString(BigIntegers.asUnsignedByteArray(signature.s))).append("\n");
+            toStringBuff.append("  ]\n");
         } else {
             toStringBuff.append("  BpSignature =\n");
         }
@@ -520,7 +545,21 @@ public class Block {
     }
 
     private byte[] getSignatureEncoded() {
-        return RLP.encodeList(bpSignature);
+
+        byte[] v;
+        byte[] r;
+        byte[] s;
+        if(signature != null) {
+            v = RLP.encodeByte(signature.v);
+            r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
+            s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
+        } else {
+            v = RLP.encodeElement(EMPTY_BYTE_ARRAY);
+            r = RLP.encodeElement(EMPTY_BYTE_ARRAY);
+            s = RLP.encodeElement(EMPTY_BYTE_ARRAY);
+        }
+
+        return RLP.encodeList(v, r, s);
     }
 
     public byte[] getEncoded() {

@@ -88,7 +88,7 @@ public class DownloadingBodiesSyncState  extends BaseSyncState {
         BlockHeader header = pendingBodyResponses.remove(message.getId()).header;
         //Block block = Block.fromValidData(header, message.getTransactions(), message.getUncles());
         //TODO change this to accept bpSignature list
-        Block block = Block.fromValidData(header, message.getTransactions(), new byte[0]);
+        Block block = Block.fromValidData(header, message.getTransactions(), null);
         if (!blockValidationRules.isValid(block)) {
             handleInvalidMessage(peerId, header);
             return;

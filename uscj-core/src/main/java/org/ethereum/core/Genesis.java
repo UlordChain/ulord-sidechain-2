@@ -24,12 +24,15 @@ import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.core.genesis.InitialAddressState;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 /**
  * The genesis block is the first block in the chain and has fixed values according to
@@ -64,7 +67,7 @@ public class Genesis extends Block {
                         minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
-        setBpSignature(new byte[0]);
+        setSignature(ECKey.ECDSASignature.fromComponents(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, (byte)0));
     }
 
     public static Block getInstance(UscSystemProperties config) {

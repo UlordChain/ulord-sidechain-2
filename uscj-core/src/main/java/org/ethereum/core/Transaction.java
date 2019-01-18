@@ -469,7 +469,7 @@ public class Transaction {
 
     /**
      * For signatures you have to keep also
-     * RLP of the transaction without any bpSignature data
+     * RLP of the transaction without any signature data
      */
     public byte[] getEncodedRaw() {
 

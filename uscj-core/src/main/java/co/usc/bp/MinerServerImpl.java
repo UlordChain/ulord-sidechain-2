@@ -39,6 +39,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.rpc.TypeConverter;
@@ -168,7 +169,7 @@ public class MinerServerImpl implements MinerServer {
         synchronized (lock) {
             started = false;
             ethereum.removeListener(blockListener);
-            refreshBlockTimer.cancel();
+
             refreshBlockTimer = null;
         }
     }
@@ -280,23 +281,25 @@ public class MinerServerImpl implements MinerServer {
         Account account = wallet.getAccount(new UscAddress(accountAddressesAsHex[0]));
 
         byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
-        String signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
+        ECDSASignature signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
 
 
         //System.out.println(TypeConverter.toJsonHex(signature));
-        System.out.println("Signature: " + Hex.toHexString(new BigInteger(signature).toByteArray()));
+        System.out.println("v: " + String.format("0x%02X", signature.v));
+        System.out.println("r: " + TypeConverter.toJsonHex(signature.r));
+        System.out.println("s: " + TypeConverter.toJsonHex(signature.s));
 
-        b.addSignature(new BigInteger(signature).toByteArray());
+        b.addSignature(signature);
 
         b.seal();
         ethereum.addNewMinedBlock(b);
     }
 
-    private String signBlock(String data, ECKey ecKey) {
+    private ECDSASignature signBlock(String data, ECKey ecKey) {
         byte[] dataHash = TypeConverter.stringHexToByteArray(data);
-        ECKey.ECDSASignature signature = ecKey.sign(dataHash);
+        ECDSASignature signature = ecKey.sign(dataHash);
 
-        return signature.r.toString() + signature.s.toString() + signature.v;
+        return signature;
     }
 
     private SubmitBlockResult processBlock(

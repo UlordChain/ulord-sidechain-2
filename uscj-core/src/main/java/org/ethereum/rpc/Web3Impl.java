@@ -38,6 +38,7 @@ import co.usc.scoring.InvalidInetAddressException;
 import co.usc.scoring.PeerScoringInformation;
 import co.usc.scoring.PeerScoringManager;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockInformation;
 import org.ethereum.db.BlockStore;
@@ -582,7 +583,7 @@ public class Web3Impl implements Web3 {
 //        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
         //TODO Remove comment before moving to Production
-        //boolean isPending = (b.getBpSignature().size() < (21*2/3 + 1)) && !b.isGenesis();
+        //boolean isPending = (b.getSignature().size() < (21*2/3 + 1)) && !b.isGenesis();
         boolean isPending = false;
 
         BlockResult br = new BlockResult();
@@ -593,7 +594,12 @@ public class Web3Impl implements Web3 {
         br.transactionsRoot = TypeConverter.toJsonHex(b.getTxTrieRoot());
         br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
-        br.bpSignature = isPending ? null : TypeConverter.toJsonHex(b.getBpSignature());
+
+        ECKey.ECDSASignature signature = b.getSignature();
+        br.v = isPending ? null : String.format("0x%02X", signature.v);
+        br.r = isPending ? null : TypeConverter.toJsonHex(signature.r);
+        br.s = isPending ? null : TypeConverter.toJsonHex(signature.s);
+
         br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
 

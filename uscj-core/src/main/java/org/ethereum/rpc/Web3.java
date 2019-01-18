@@ -70,7 +70,9 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
         public String transactionsRoot; // DATA, 32 Bytes - the root of the transaction trie of the block.
         public String stateRoot; // DATA, 32 Bytes - the root of the final state trie of the block.
         public String receiptsRoot; // DATA, 32 Bytes - the root of the receipts trie of the block.
-        public String bpSignature; // DATA, 32 Bytes - the root of the signatures of the block.
+        public String v; // DATA, 32 Bytes - the root of the signatures of the block.
+        public String r; // DATA, 32 Bytes - the root of the signatures of the block.
+        public String s; // DATA, 32 Bytes - the root of the signatures of the block.
         public String blockProducer; // DATA, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
         public String extraData; // DATA - the "extra data" field of this block
         public String size;//QUANTITY - integer the size of this block in bytes.
@@ -90,7 +92,9 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
                     ", transactionsRoot='" + transactionsRoot + '\'' +
                     ", stateRoot='" + stateRoot + '\'' +
                     ", receiptsRoot='" + receiptsRoot + '\'' +
-                    ", bpSignature='" + bpSignature + '\'' +
+                    ", v='" + v + '\'' +
+                    ", r='" + r + '\'' +
+                    ", s='" + s + '\'' +
                     ", blockProducer='" + blockProducer + '\'' +
                     ", extraData='" + extraData + '\'' +
                     ", size='" + size + '\'' +
