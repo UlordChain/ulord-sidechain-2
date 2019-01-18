@@ -71,6 +71,7 @@ public class GenesisLoader {
             return genesis;
         } catch (Exception e) {
             System.err.println("Genesis block configuration is corrupted or not found ./resources/genesis/...\n" + e);
+            e.printStackTrace();
             logger.error("Genesis block configuration is corrupted or not found ./resources/genesis/...", e);
             System.exit(-1);
             return null;
