@@ -26,6 +26,8 @@ import co.usc.panic.PanicProcessor;
 import co.usc.remasc.RemascTransaction;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
+import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.rpc.TypeConverter;
 import org.ethereum.util.RLP;
@@ -70,7 +72,8 @@ public class Block {
     private List<Transaction> transactionsList;
 
     /* Block Producers Signature*/
-    private byte[] bpSignature;
+    private ECDSASignature signature;
+    //private byte[] bpSignature;
 
     /* Private */
     private byte[] rlpEncoded;

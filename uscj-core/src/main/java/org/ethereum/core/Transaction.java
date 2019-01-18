@@ -102,7 +102,7 @@ public class Transaction {
     private static final byte LOWER_REAL_V = 27;
     private byte chainId = 0;
 
-    /* the elliptic curve bpSignature
+    /* the elliptic curve Signature
      * (including public key recovery bits) */
     private ECDSASignature signature;
 
