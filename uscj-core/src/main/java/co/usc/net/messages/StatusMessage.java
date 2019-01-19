@@ -48,7 +48,6 @@ public class StatusMessage extends Message {
         }
 
         byte[] parentHash = RLP.encodeElement(status.getBestBlockParentHash());
-//        byte[] totalDifficulty = RLP.encodeBlockDifficulty(status.getTotalDifficulty());
 
         return RLP.encodeList(number, hash, parentHash);
     }

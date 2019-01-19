@@ -19,9 +19,7 @@
 package co.usc.bp;
 
 import co.usc.core.Wallet;
-import co.usc.ulordj.core.Sha256Hash;
-import co.usc.ulordj.core.UldBlock;
-import co.usc.ulordj.core.UldTransaction;
+import co.usc.ulordj.core.*;
 import co.usc.config.MiningConfig;
 import co.usc.config.UscMiningConstants;
 import co.usc.config.UscSystemProperties;
@@ -30,19 +28,21 @@ import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
+import co.usc.ulordj.params.MainNetParams;
+import co.usc.ulordj.params.TestNet3Params;
 import co.usc.validators.ProofOfWorkRule;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
-import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.rpc.TypeConverter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.security.SignatureException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -71,7 +71,6 @@ import co.usc.rpc.uos.UOSRpcChannel;
 @Component("MinerServer")
 public class MinerServerImpl implements MinerServer {
 
-    private static long bpTime;
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
@@ -81,14 +80,14 @@ public class MinerServerImpl implements MinerServer {
     private final Blockchain blockchain;
     private final ProofOfWorkRule powRule;
     private final BlockToSignBuilder builder;
-    private final BlockchainNetConfig blockchainConfig;
     private Wallet wallet;
     private Timer refreshBlockTimer;
 
     private NewBlockListener blockListener;
 
     private boolean started;
-
+    private boolean isBP;
+    private boolean isTest = true;
     private byte[] extraData;
 
     @GuardedBy("lock")
@@ -127,14 +126,14 @@ public class MinerServerImpl implements MinerServer {
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.powRule = powRule;
         this.builder = builder;
-        this.blockchainConfig = config.getBlockchainConfig();
         this.wallet = wallet;
+        this.isBP = false;
 
         blocksWaitingforSignatures = createNewBlocksWaitingList();
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
-        coinbaseAddress = miningConfig.getCoinbaseAddress();
+        coinbaseAddress = new UscAddress(config.getMyKey().getAddress());
         minFeesNotifyInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
         gasUnitInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
 
@@ -184,7 +183,6 @@ public class MinerServerImpl implements MinerServer {
             started = true;
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
-            buildBlockToSign(blockchain.getBestBlock(), false);
 
             if (refreshBlockTimer != null) {
                 refreshBlockTimer.cancel();
@@ -192,18 +190,56 @@ public class MinerServerImpl implements MinerServer {
 
             refreshBlockTimer = new Timer("Refresh block for signing");
 
-            //Date bpDateTime = new Date(bpTime);
-            //refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
-
-
-            // ----------------------------------
-            // TODO: REMOVE THIS IN PRODUCTION
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.SECOND, 6);
-            Date bpTime = cal.getTime();
-            refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
-            // ----------------------------------
+            scheduleRefreshBlockTimer(isTest);
         }
+    }
+
+    private void scheduleRefreshBlockTimer(boolean test) {
+
+        if(test) {
+            refreshBlockTimer.schedule(new RefreshBlock(), new Date(System.currentTimeMillis() + (6 * 1000)));
+        } else {
+            refreshBlockTimer.schedule(new RefreshBlock(), getMySchedule());
+        }
+    }
+
+    private Date getMySchedule() {
+        isBP = false;
+        JSONArray bpList = getBPList();
+        int nBP = bpList.length();
+
+        String myUlordAddr = "";
+        for(int i = 0; i < nBP; ++i) {
+            String bpAddr = bpList.getJSONObject(i).getString("ulord_addr");
+
+            // Check Ulord's network Mainnet/Testnet/Regtest
+            if(myUlordAddr .equals("")) {
+                NetworkParameters params;
+                if (bpAddr.startsWith("U"))
+                    params = MainNetParams.get();
+                else
+                    params = TestNet3Params.get();
+
+                myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
+            }
+
+            if(myUlordAddr.equals(bpAddr)) {
+                isBP = true;
+                long bpValidTime = bpList.getJSONObject(i).getLong("bp_valid_time");
+                long mySystemTime = System.currentTimeMillis() / 1000;
+                if(mySystemTime < bpValidTime) {
+                    return new Date(mySystemTime * 1000);
+                } else {
+                    // Find next recent time for this BP
+                    while (bpValidTime <= (System.currentTimeMillis() / 1000)) {
+                        bpValidTime += nBP * 6;
+                    }
+                    logger.info("BP Scheduled Time: " + bpValidTime + ", CurrentTime: " + System.currentTimeMillis()/1000);
+                    return new Date(bpValidTime * 1000);
+                }
+            }
+        }
+        return new Date(System.currentTimeMillis() + (5 * 1000));
     }
 
     @Nullable
@@ -286,6 +322,18 @@ public class MinerServerImpl implements MinerServer {
 
         b.seal();
         ethereum.addNewMinedBlock(b);
+    }
+
+    private boolean validateSignature(ECDSASignature signature, byte[] message) {
+
+        try {
+            ECKey ecKey = ECKey.signatureToKey(message, signature.toBase64());
+            //System.out.println(Hex.toHexString(ecKey.getPubKey()));
+            return ECKey.verify(message, signature, ecKey.getPubKey());
+        } catch (SignatureException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private ECDSASignature signBlock(String data, ECKey ecKey) {
@@ -437,12 +485,6 @@ public class MinerServerImpl implements MinerServer {
     @Override
     public void buildBlockToSign(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
 
-        //TODO this will be taken from config file of BP's and validated.
-        //TODO Instead of name it will be address/IP and it should also contain timestamp validation.
-//        if (!currentBP().equals("dragonexsafe")){
-//            return;
-//        }
-
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
             // Just for testing, bp on top of bestblock's parent
@@ -533,19 +575,13 @@ public class MinerServerImpl implements MinerServer {
         public void run() {
             Block bestBlock = blockchain.getBestBlock();
             try {
-                buildBlockToSign(bestBlock, false);
-                // Set next schedule to refresh block.
-//                Date bpDateTime = new Date(bpTime);
-//                refreshBlockTimer.schedule(new RefreshBlock(), bpDateTime);
+                // Build block only if it is a BP
+                if(isBP || isTest) {
+                    logger.info("Building block to sign");
+                    buildBlockToSign(bestBlock, false);
+                }
 
-                // ----------------------------------
-                // TODO: REMOVE THIS IN PRODUCTION
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.SECOND, 6);
-                Date bpTime = cal.getTime();
-                refreshBlockTimer.schedule(new RefreshBlock(), bpTime);
-                // ----------------------------------
-
+                scheduleRefreshBlockTimer(isTest);
             } catch (Throwable th) {
                 logger.error("Unexpected error: {}", th);
                 panicProcessor.panic("mserror", th.getMessage());
@@ -553,13 +589,10 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
-    public String currentBP(){
+    private JSONArray getBPList() {
         String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
         String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
-
         String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
-
-        JSONObject bpListJson = new JSONObject(bpList);
-        return bpListJson.getJSONArray("rows").getJSONObject(0).getString("bpname");
+        return new JSONObject(bpList).getJSONArray("rows");
     }
 }

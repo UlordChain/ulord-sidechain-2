@@ -20,6 +20,10 @@
 package org.ethereum.config;
 
 import co.usc.config.ConfigLoader;
+import co.usc.ulordj.core.NetworkParameters;
+import co.usc.ulordj.params.MainNetParams;
+import co.usc.ulordj.params.RegTestParams;
+import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.*;
 import org.ethereum.config.blockchain.HardForkActivationConfig;
@@ -106,6 +110,7 @@ public abstract class SystemProperties {
     public static final String REGTEST = "regtest";
     public static final String DEVNET  = "devnet";
 
+    private NetworkParameters params;
 
     /**
      * Marks config accessor methods which need to be called (for value validation)
@@ -184,6 +189,10 @@ public abstract class SystemProperties {
         }
     }
 
+    public NetworkParameters getParams() {
+        return params;
+    }
+
     @ValidateMe
     public synchronized BlockchainNetConfig getBlockchainConfig() {
         if (blockchainConfig == null) {
@@ -207,15 +216,19 @@ public abstract class SystemProperties {
             switch(netName) {
                 case MAINNET:
                     blockchainConfig = new MainNetConfig();
+                    params = MainNetParams.get();
                     break;
                 case TESTNET:
                     blockchainConfig = new TestNetConfig();
+                    params = TestNet3Params.get();
                     break;
                 case DEVNET:
                     blockchainConfig = DevNetConfig.getFromConfig(getHardForkActivationConfig());
+                    params = TestNet3Params.get();
                     break;
                 case REGTEST:
                     blockchainConfig = RegTestConfig.getFromConfig(getHardForkActivationConfig());
+                    params = RegTestParams.get();
                     break;
                 default:
                     throw new RuntimeException(String.format(

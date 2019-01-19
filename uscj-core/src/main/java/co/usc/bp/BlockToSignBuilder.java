@@ -184,7 +184,7 @@ public class BlockToSignBuilder {
 
         final BlockHeader newHeader = new BlockHeader(
                 newBlockParent.getHash().getBytes(),
-                miningConfig.getCoinbaseAddress().getBytes(),
+                config.getMyKey().getAddress(),
                 new Bloom().getData(),
                 newBlockParent.getNumber() + 1,
                 gasLimit.toByteArray(),
