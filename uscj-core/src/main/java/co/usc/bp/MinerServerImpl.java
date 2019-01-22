@@ -209,20 +209,22 @@ public class MinerServerImpl implements MinerServer {
         int nBP = bpList.length();
 
         String myUlordAddr = "";
+
+        String bpAddr = bpList.getJSONObject(0).getString("ulord_addr");
+
+        // Check Ulord's network Mainnet/Testnet/Regtest
+        if(myUlordAddr .equals("")) {
+            NetworkParameters params;
+            if (bpAddr.startsWith("U"))
+                params = MainNetParams.get();
+            else
+                params = TestNet3Params.get();
+
+            myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
+        }
+
         for(int i = 0; i < nBP; ++i) {
-            String bpAddr = bpList.getJSONObject(i).getString("ulord_addr");
-
-            // Check Ulord's network Mainnet/Testnet/Regtest
-            if(myUlordAddr .equals("")) {
-                NetworkParameters params;
-                if (bpAddr.startsWith("U"))
-                    params = MainNetParams.get();
-                else
-                    params = TestNet3Params.get();
-
-                myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
-            }
-
+            bpAddr = bpList.getJSONObject(i).getString("ulord_addr");
             if(myUlordAddr.equals(bpAddr)) {
                 isBP = true;
                 long bpValidTime = bpList.getJSONObject(i).getLong("bp_valid_time");
@@ -239,6 +241,7 @@ public class MinerServerImpl implements MinerServer {
                 }
             }
         }
+
         return new Date(System.currentTimeMillis() + (5 * 1000));
     }
 
