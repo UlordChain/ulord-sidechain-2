@@ -273,65 +273,37 @@ public class BlockChainImpl implements Blockchain {
         //TODO this need refactor to add the new block
         // It is the new best block
 
-            if (bestBlock != null && !bestBlock.isParentOf(block)) {
-                logger.trace("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
-                        bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber());
-                BlockFork fork = new BlockFork();
-                fork.calculate(bestBlock, block, blockStore);
-                Metrics.rebranch(bestBlock, block, fork.getNewBlocks().size() + fork.getOldBlocks().size());
-                blockStore.reBranch(block);
-            }
-
-            logger.trace("Start switchToBlockChain");
-            //TODO this function handles fork
-            switchToBlockChain(block);
-            logger.trace("Start saveReceipts");
-            saveReceipts(block, result);
-            logger.trace("Start processBest");
-            processBest(block);
-            logger.trace("Start onBestBlock");
-            onBestBlock(block, result);
-            logger.trace("Start onBlock");
-            onBlock(block, result);
-            logger.trace("Start flushData");
-            flushData();
-
-            logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
-
-            logger.debug("block added to the blockChain: index: [{}]", block.getNumber());
-            if (block.getNumber() % 100 == 0) {
-                logger.info("*** Last block added [ #{} ]", block.getNumber());
-            }
-
-            return ImportResult.IMPORTED_BEST;
-        //}
-        // It is not the new best block
-        /*
-        else {
-            if (bestBlock != null && !bestBlock.isParentOf(block)) {
-                logger.trace("No rebranch: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
-                        bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber(),
-                        status.getTotalDifficulty().toString(), totalDifficulty.toString());
-            }
-
-            logger.trace("Start extendAlternativeBlockChain");
-            extendAlternativeBlockChain(block, totalDifficulty);
-            logger.trace("Start saveReceipts");
-            saveReceipts(block, result);
-            logger.trace("Start onBlock");
-            onBlock(block, result);
-            logger.trace("Start flushData");
-            flushData();
-
-            if (bestBlock != null && block.getNumber() > bestBlock.getNumber()) {
-                logger.warn("Strange block number state");
-            }
-
-            logger.trace("Block not imported {} {}", block.getNumber(), block.getShortHash());
-
-            return ImportResult.IMPORTED_NOT_BEST;
+        if (bestBlock != null && !bestBlock.isParentOf(block)) {
+            logger.trace("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
+                    bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber());
+            BlockFork fork = new BlockFork();
+            fork.calculate(bestBlock, block, blockStore);
+            Metrics.rebranch(bestBlock, block, fork.getNewBlocks().size() + fork.getOldBlocks().size());
+            blockStore.reBranch(block);
         }
-        */
+
+        logger.trace("Start switchToBlockChain");
+        //TODO this function handles fork
+        switchToBlockChain(block);
+        logger.trace("Start saveReceipts");
+        saveReceipts(block, result);
+        logger.trace("Start processBest");
+        processBest(block);
+        logger.trace("Start onBestBlock");
+        onBestBlock(block, result);
+        logger.trace("Start onBlock");
+        onBlock(block, result);
+        logger.trace("Start flushData");
+        flushData();
+
+        logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
+
+        logger.debug("block added to the blockChain: index: [{}]", block.getNumber());
+        if (block.getNumber() % 100 == 0) {
+            logger.info("*** Last block added [ #{} ]", block.getNumber());
+        }
+
+        return ImportResult.IMPORTED_BEST;
     }
 
     @Override
@@ -339,17 +311,16 @@ public class BlockChainImpl implements Blockchain {
         return status;
     }
 
-//    /**
-//     * Change the blockchain status, to a new best block with difficulty
-//     *
-//     * @param block        The new best block
-//     * @param totalDifficulty   The total difficulty of the new blockchain
-//     */
+    /**
+     * Change the blockchain status, to a new best block with difficulty
+     *
+     * @param block        The new best block
+     */
     @Override
-    public void setStatus(Block block /*, BlockDifficulty totalDifficulty*/) {
+    public void setStatus(Block block) {
         synchronized (accessLock) {
-            status = new BlockChainStatus(block /*, totalDifficulty*/);
-            blockStore.saveBlock(block, /*totalDifficulty,*/ true);
+            status = new BlockChainStatus(block);
+            blockStore.saveBlock(block,true);
             repository.syncToRoot(block.getStateRoot());
         }
     }
@@ -468,16 +439,6 @@ public class BlockChainImpl implements Blockchain {
 
     }
 
-//    @Override
-//    public BlockDifficulty getTotalDifficulty() {
-//        return status.getTotalDifficulty();
-//    }
-//
-//    @Override
-//    public void setTotalDifficulty(BlockDifficulty totalDifficulty) {
-//        setStatus(status.getBestBlock(), totalDifficulty);
-//    }
-
     @Override @VisibleForTesting
     public byte[] getBestBlockHash() {
         return getBestBlock().getHash().getBytes();
@@ -496,11 +457,7 @@ public class BlockChainImpl implements Blockchain {
             repository.syncToRoot(block.getStateRoot());
         }
     }
-//
-//    private void extendAlternativeBlockChain(Block block, BlockDifficulty totalDifficulty) {
-//        storeBlock(block, totalDifficulty, false);
-//    }
-//
+
     private void storeBlock(Block block, boolean inBlockChain) {
         blockStore.saveBlock(block, inBlockChain);
         logger.trace("Block saved: number: {}, hash: {}, TD: {}",
