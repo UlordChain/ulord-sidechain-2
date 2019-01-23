@@ -496,15 +496,9 @@ public class MinerServerImpl implements MinerServer {
         final Block newBlock = builder.build(newBlockParent, extraData);
 
         synchronized (lock) {
-            Keccak256 parentHash = newBlockParent.getHash();
 
-            latestParentHash = parentHash;
+            latestParentHash = newBlockParent.getHash();
             latestBlock = newBlock;
-
-            //Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
-
-            //TODO DPOS: Possible broadcast area for block.
-            //blocksWaitingforSignatures.put(latestBlockHashWaitingForPoW, latestBlock);
 
             // process
             processBlock1(newBlock);
