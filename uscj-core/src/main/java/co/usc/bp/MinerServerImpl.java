@@ -208,20 +208,17 @@ public class MinerServerImpl implements MinerServer {
         JSONArray bpList = getBPList();
         int nBP = bpList.length();
 
-        String myUlordAddr = "";
-
         String bpAddr = bpList.getJSONObject(0).getString("ulord_addr");
 
         // Check Ulord's network Mainnet/Testnet/Regtest
-        if(myUlordAddr .equals("")) {
-            NetworkParameters params;
-            if (bpAddr.startsWith("U"))
-                params = MainNetParams.get();
-            else
-                params = TestNet3Params.get();
+        NetworkParameters params;
+        if (bpAddr.startsWith("U"))
+            params = MainNetParams.get();
+        else
+            params = TestNet3Params.get();
 
-            myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
-        }
+        // TODO: Change params to config.getParams();
+        String myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
 
         for(int i = 0; i < nBP; ++i) {
             bpAddr = bpList.getJSONObject(i).getString("ulord_addr");
