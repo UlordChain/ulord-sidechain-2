@@ -241,8 +241,6 @@ public class TransactionPoolImpl implements TransactionPool {
         Keccak256 hash = tx.getHash();
         logger.trace("add transaction {} {}", toBI(tx.getNonce()), tx.getHash());
 
-        Long bnumber = Long.valueOf(getCurrentBestBlockNumber());
-
         if (pendingTransactions.hasTransaction(tx)) {
             return false;
         }
@@ -255,9 +253,9 @@ public class TransactionPoolImpl implements TransactionPool {
             return false;
         }
 
+        Long bnumber = getCurrentBestBlockNumber();
         transactionBlocks.put(hash, bnumber);
-        final long timestampSeconds = this.getCurrentTimeInSeconds();
-        transactionTimes.put(hash, timestampSeconds);
+        transactionTimes.put(hash, this.getCurrentTimeInSeconds());
 
         BigInteger currentNonce = getPendingState().getNonce(tx.getSender());
         BigInteger txNonce = tx.getNonceAsInteger();

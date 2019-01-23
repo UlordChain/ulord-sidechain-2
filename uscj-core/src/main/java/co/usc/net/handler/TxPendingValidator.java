@@ -47,10 +47,10 @@ public class TxPendingValidator {
         this.config = config;
 
         validatorSteps.add(new TxNotNullValidator());
-        validatorSteps.add(new TxValidatorNotRemascTxValidator());
+        //validatorSteps.add(new TxValidatorNotRemascTxValidator());
         validatorSteps.add(new TxValidatorGasLimitValidator());
         validatorSteps.add(new TxValidatorAccountStateValidator());
-        validatorSteps.add(new TxValidatorNonceRangeValidator());
+        //validatorSteps.add(new TxValidatorNonceRangeValidator());
         validatorSteps.add(new TxValidatorAccountBalanceValidator());
         validatorSteps.add(new TxValidatorMinimuGasPriceValidator());
         validatorSteps.add(new TxValidatorIntrinsicGasLimitValidator(config));
