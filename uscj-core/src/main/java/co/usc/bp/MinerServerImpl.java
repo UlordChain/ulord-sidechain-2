@@ -477,13 +477,13 @@ public class MinerServerImpl implements MinerServer {
     }
 
     /**
-     * buildBlockToSign creates a block to sign based on the given block as parent.
+     * buildAndProcessBlock creates a block to sign based on the given block as parent.
      *
      * @param newBlockParent         the new block parent.
      * @param createCompetitiveBlock used for testing.
      */
     @Override
-    public void buildBlockToSign(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
+    public void buildAndProcessBlock(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
 
         // See BlockChainImpl.calclBloom() if blocks has txs
         if (createCompetitiveBlock) {
@@ -548,7 +548,7 @@ public class MinerServerImpl implements MinerServer {
 
 //            if (!work.getParentBlockHash().equals(bestBlockHash)) {
 //                //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
-//                buildBlockToSign(bestBlock, false);
+//                buildAndProcessBlock(bestBlock, false);
 //            } else {
 //                //logger.debug("New block arrived but there is no need to build a new block to bp: {}", block.getShortHashForMergedMining());
 //            }
@@ -572,7 +572,7 @@ public class MinerServerImpl implements MinerServer {
                 // Build block only if it is a BP
                 if(isBP || isTest) {
                     logger.info("Building block to sign");
-                    buildBlockToSign(bestBlock, false);
+                    buildAndProcessBlock(bestBlock, false);
                 }
 
                 scheduleRefreshBlockTimer(isTest);

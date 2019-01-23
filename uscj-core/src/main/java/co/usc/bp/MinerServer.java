@@ -49,7 +49,7 @@ public interface MinerServer {
 
     MinerWork getWork();
 
-    void buildBlockToSign(@Nonnull Block newParent, boolean createCompetitiveBlock);
+    void buildAndProcessBlock(@Nonnull Block newParent, boolean createCompetitiveBlock);
 
     void setExtraData(byte[] extraData);
 
