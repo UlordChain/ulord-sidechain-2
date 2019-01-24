@@ -61,13 +61,13 @@ public class Genesis extends Block {
     public Genesis(byte[] parentHash, byte[] coinbase, byte[] logsBloom,
                    long number, long gasLimit,
                    long gasUsed, long timestamp,
-                   byte[] extraData, byte[] minimumGasPrice){
+                   byte[] extraData, byte[] minimumGasPrice, byte[] r, byte []s, byte v){
         super(new BlockHeader(parentHash, coinbase, logsBloom, number,
                         ByteUtil.longToBytesNoLeadZeroes(gasLimit), gasUsed, timestamp, extraData,
                         minimumGasPrice));
 
         setTransactionsList(Collections.emptyList());
-        setSignature(ECKey.ECDSASignature.fromComponents(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, (byte)0));
+        setSignature(ECKey.ECDSASignature.fromComponents(r, s, v));
     }
 
     public static Block getInstance(UscSystemProperties config) {

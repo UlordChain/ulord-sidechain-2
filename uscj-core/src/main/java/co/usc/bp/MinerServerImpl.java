@@ -331,37 +331,6 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
-    public static byte[] compressCoinbase(byte[] ulordMergedMiningCoinbaseTransactionSerialized) {
-        return compressCoinbase(ulordMergedMiningCoinbaseTransactionSerialized, true);
-    }
-
-    public static byte[] compressCoinbase(byte[] ulordMergedMiningCoinbaseTransactionSerialized, boolean lastOccurrence) {
-        List<Byte> coinBaseTransactionSerializedAsList = java.util.Arrays.asList(ArrayUtils.toObject(ulordMergedMiningCoinbaseTransactionSerialized));
-        List<Byte> tagAsList = java.util.Arrays.asList(ArrayUtils.toObject(UscMiningConstants.USC_TAG));
-
-        int uscTagPosition;
-        if (lastOccurrence) {
-            uscTagPosition = Collections.lastIndexOfSubList(coinBaseTransactionSerializedAsList, tagAsList);
-        } else {
-            uscTagPosition = Collections.indexOfSubList(coinBaseTransactionSerializedAsList, tagAsList);
-        }
-
-        int remainingByteCount = ulordMergedMiningCoinbaseTransactionSerialized.length - uscTagPosition - UscMiningConstants.USC_TAG.length - UscMiningConstants.BLOCK_HEADER_HASH_SIZE;
-        if (remainingByteCount > UscMiningConstants.MAX_BYTES_AFTER_MERGED_MINING_HASH) {
-            throw new IllegalArgumentException("More than 128 bytes after USC tag");
-        }
-        int sha256Blocks = uscTagPosition / 64;
-        int bytesToHash = sha256Blocks * 64;
-        SHA256Digest digest = new SHA256Digest();
-        digest.update(ulordMergedMiningCoinbaseTransactionSerialized, 0, bytesToHash);
-        byte[] hashedContent = digest.getEncodedState();
-        byte[] trimmedHashedContent = new byte[UscMiningConstants.MIDSTATE_SIZE_TRIMMED];
-        System.arraycopy(hashedContent, 8, trimmedHashedContent, 0, UscMiningConstants.MIDSTATE_SIZE_TRIMMED);
-        byte[] unHashedContent = new byte[ulordMergedMiningCoinbaseTransactionSerialized.length - bytesToHash];
-        System.arraycopy(ulordMergedMiningCoinbaseTransactionSerialized, bytesToHash, unHashedContent, 0, unHashedContent.length);
-        return Arrays.concatenate(trimmedHashedContent, unHashedContent);
-    }
-
     @Override
     public UscAddress getCoinbaseAddress() {
         return coinbaseAddress;

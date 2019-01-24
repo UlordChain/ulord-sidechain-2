@@ -49,8 +49,15 @@ public class GenesisMapper {
             minGasPrice = Utils.parseData(json.getMinimumGasPrice());
         }
 
+        //r, s, v
+        byte[] r = Utils.parseData(json.getR());
+
+        byte[] s = Utils.parseData(json.getS());
+
+        byte v = Utils.parseByte(json.getV());
+
         return new Genesis(parentHash, coinbase, Genesis.getZeroHash(),
                 0, gasLimit, 0, timestamp, extraData,
-                minGasPrice);
+                minGasPrice, r, s, v);
     }
 }
