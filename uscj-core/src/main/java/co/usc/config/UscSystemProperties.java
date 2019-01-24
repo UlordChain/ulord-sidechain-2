@@ -65,7 +65,7 @@ public class UscSystemProperties extends SystemProperties {
     private static final int CHUNK_SIZE = 192;
 
     //TODO: REMOVE THIS WHEN THE LocalBLockTests starts working with REMASC
-    private boolean remascEnabled = true;
+    private boolean remascEnabled = false;
 
     private MessageRecorder messageRecorder;
 

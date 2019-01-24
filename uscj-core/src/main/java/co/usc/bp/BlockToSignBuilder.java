@@ -142,8 +142,8 @@ public class BlockToSignBuilder {
         List<Transaction> txs = minerUtils.getAllTransactions(transactionPool);
         logger.debug("{} transaction(s) collected from pending state", txs.size());
 
-        Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
-        txs.add(remascTx);
+        //Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
+        //txs.add(remascTx);
 
         Map<UscAddress, BigInteger> accountNonces = new HashMap<>();
 
