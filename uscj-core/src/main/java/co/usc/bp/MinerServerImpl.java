@@ -250,7 +250,6 @@ public class MinerServerImpl implements MinerServer {
 
         byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
         ECDSASignature signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
-
         b.addSignature(signature);
 
         b.seal();
