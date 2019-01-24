@@ -39,9 +39,9 @@ public interface Web3MnrModule {
 //        return getMnrModule().submitUlordBlockTransactions(blockHashHex, blockHeaderHex, coinbaseHex, txnHashesHex);
 //    }
 
-    default SubmittedBlockInfo bp_submitSignature(String signature) {
-        return getMnrModule().submitSignature(signature);
-    }
+//    default SubmittedBlockInfo bp_submitSignature(String signature) {
+//        return getMnrModule().submitSignature(signature);
+//    }
 
     MnrModule getMnrModule();
 }

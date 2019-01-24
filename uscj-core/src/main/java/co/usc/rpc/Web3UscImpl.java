@@ -62,7 +62,6 @@ public class Web3UscImpl extends Web3Impl {
                        Blockchain blockchain,
                        TransactionPool transactionPool,
                        UscSystemProperties properties,
-                       MinerClient minerClient,
                        MinerServer minerServer,
                        PersonalModule personalModule,
                        EthModule ethModule,
@@ -79,7 +78,7 @@ public class Web3UscImpl extends Web3Impl {
                        BlockProcessor nodeBlockProcessor,
                        //HashRateCalculator hashRateCalculator,
                        ConfigCapabilities configCapabilities) {
-        super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, minerClient, minerServer,
+        super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, minerServer,
               personalModule, ethModule, txPoolModule, mnrModule, debugModule,
               channelManager, repository, peerScoringManager, peerServer, nodeBlockProcessor,
               /*hashRateCalculator,*/ configCapabilities);

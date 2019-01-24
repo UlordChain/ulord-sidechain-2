@@ -91,8 +91,6 @@ public class MinerServerImpl implements MinerServer {
     private byte[] extraData;
 
     @GuardedBy("lock")
-    private LinkedHashMap<Keccak256, Block> blocksWaitingforSignatures;
-    @GuardedBy("lock")
     private Keccak256 latestParentHash;
     @GuardedBy("lock")
     private Block latestBlock;
@@ -129,29 +127,12 @@ public class MinerServerImpl implements MinerServer {
         this.wallet = wallet;
         this.isBP = false;
 
-        blocksWaitingforSignatures = createNewBlocksWaitingList();
-
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
         coinbaseAddress = new UscAddress(config.getMyKey().getAddress());
         minFeesNotifyInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
         gasUnitInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
 
-    }
-
-    private LinkedHashMap<Keccak256, Block> createNewBlocksWaitingList() {
-        return new LinkedHashMap<Keccak256, Block>(CACHE_SIZE) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<Keccak256, Block> eldest) {
-                return size() > CACHE_SIZE;
-            }
-        };
-
-    }
-
-    @VisibleForTesting
-    public Map<Keccak256, Block> getBlocksWaitingforSignatures() {
-        return blocksWaitingforSignatures;
     }
 
     @Override
@@ -197,7 +178,7 @@ public class MinerServerImpl implements MinerServer {
     private void scheduleRefreshBlockTimer(boolean test) {
 
         if(test) {
-            refreshBlockTimer.schedule(new RefreshBlock(), new Date(System.currentTimeMillis() + (6 * 1000)));
+            refreshBlockTimer.schedule(new RefreshBlock(), new Date(System.currentTimeMillis() + (1 * 1000)));
         } else {
             refreshBlockTimer.schedule(new RefreshBlock(), getMySchedule());
         }
@@ -257,54 +238,6 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
-    @Override
-    public SubmitBlockResult submitSignature(String signature) {
-        logger.debug("Received bpSignature {} ", signature);
-
-//        return processBlock(
-//                bpSignature,
-//                blockWithHeaderOnly,
-//                coinbase,
-//                (pb) -> pb.buildFromMerkleHashes(blockWithHeaderOnly, merkleHashes, blockTxnCount),
-//                true
-//        );
-        return new SubmitBlockResult("OK", "OK");
-    }
-
-//    @Override
-//    public SubmitBlockResult submitUlordBlockTransactions(
-//            String blockHashForMergedMining,
-//            UldBlock blockWithHeaderOnly,
-//            UldTransaction coinbase,
-//            List<String> txHashes) {
-//        logger.debug("Received tx solution with hash {} for merged mining", blockHashForMergedMining);
-//
-//        return processBlock(
-//                blockHashForMergedMining,
-//                blockWithHeaderOnly,
-//                coinbase,
-//                (pb) -> pb.buildFromTxHashes(blockWithHeaderOnly, txHashes),
-//                true
-//        );
-//    }
-
-    @Override
-    public SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock) {
-        return submitUlordBlock(blockHashForMergedMining, ulordMergedMiningBlock, true);
-    }
-
-    SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock, boolean lastTag) {
-        logger.debug("Received block with hash {} for merged mining", blockHashForMergedMining);
-
-        return processBlock(
-                blockHashForMergedMining,
-                ulordMergedMiningBlock,
-                ulordMergedMiningBlock.getTransactions().get(0),
-                (pb) -> pb.buildFromBlock(ulordMergedMiningBlock),
-                lastTag
-        );
-    }
-
     private void processBlock1(Block b) {
         String[] accountAddressesAsHex = wallet.getAccountAddressesAsHex();
 
@@ -343,52 +276,52 @@ public class MinerServerImpl implements MinerServer {
         return signature;
     }
 
-    private SubmitBlockResult processBlock(
-            String blockHashForMergedMining,
-            UldBlock blockWithHeaderOnly,
-            UldTransaction coinbase,
-            Function<MerkleProofBuilder, byte[]> proofBuilderFunction,
-            boolean lastTag) {
-        Block newBlock;
-        Keccak256 key = new Keccak256(TypeConverter.removeZeroX(blockHashForMergedMining));
-
-        synchronized (lock) {
-            Block workingBlock = blocksWaitingforSignatures.get(key);
-
-            if (workingBlock == null) {
-                String message = "Cannot publish block, could not find hash " + blockHashForMergedMining + " in the cache";
-                logger.warn(message);
-
-                return new SubmitBlockResult("ERROR", message);
-            }
-
-            // clone the block
-            newBlock = workingBlock.cloneBlock();
-
-            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
-        }
-
-        logger.info("Received block {} {}", newBlock.getNumber(), newBlock.getHash());
-
-        newBlock.seal();
-
-        if (!isValid(newBlock)) {
-
-            String message = "Invalid block supplied by blockProducer: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
-            logger.error(message);
-
-            return new SubmitBlockResult("ERROR", message);
-
-        } else {
-            ImportResult importResult = ethereum.addNewMinedBlock(newBlock);
-
-            /*
-            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());*/
-            SubmittedBlockInfo blockInfo = new SubmittedBlockInfo(importResult, newBlock.getHash().getBytes(), newBlock.getNumber());
-
-            return new SubmitBlockResult("OK", "OK", blockInfo);
-        }
-    }
+//    private SubmitBlockResult processBlock(
+//            String blockHashForMergedMining,
+//            UldBlock blockWithHeaderOnly,
+//            UldTransaction coinbase,
+//            Function<MerkleProofBuilder, byte[]> proofBuilderFunction,
+//            boolean lastTag) {
+//        Block newBlock;
+//        Keccak256 key = new Keccak256(TypeConverter.removeZeroX(blockHashForMergedMining));
+//
+//        synchronized (lock) {
+//            Block workingBlock = blocksWaitingforSignatures.get(key);
+//
+//            if (workingBlock == null) {
+//                String message = "Cannot publish block, could not find hash " + blockHashForMergedMining + " in the cache";
+//                logger.warn(message);
+//
+//                return new SubmitBlockResult("ERROR", message);
+//            }
+//
+//            // clone the block
+//            newBlock = workingBlock.cloneBlock();
+//
+//            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
+//        }
+//
+//        logger.info("Received block {} {}", newBlock.getNumber(), newBlock.getHash());
+//
+//        newBlock.seal();
+//
+//        if (!isValid(newBlock)) {
+//
+//            String message = "Invalid block supplied by blockProducer: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
+//            logger.error(message);
+//
+//            return new SubmitBlockResult("ERROR", message);
+//
+//        } else {
+//            ImportResult importResult = ethereum.addNewMinedBlock(newBlock);
+//
+//            /*
+//            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());*/
+//            SubmittedBlockInfo blockInfo = new SubmittedBlockInfo(importResult, newBlock.getHash().getBytes(), newBlock.getNumber());
+//
+//            return new SubmitBlockResult("OK", "OK", blockInfo);
+//        }
+//    }
 
     private boolean isValid(Block block) {
         try {
@@ -435,43 +368,6 @@ public class MinerServerImpl implements MinerServer {
         return coinbaseAddress;
     }
 
-    /**
-     * getWork returns the latest MinerWork for miners. Subsequent calls to this function with no new work will return
-     * currentWork with the notify flag turned off. (they will be different objects too).
-     *
-     * This method must be called with MinerServer started. That and the fact that work is never set to null
-     * will ensure that currentWork is not null.
-     *
-     * @return the latest MinerWork available.
-     */
-    @Override
-    public MinerWork getWork() {
-        MinerWork work = currentWork;
-
-        if (work.getNotify()) {
-            /**
-             * Set currentWork.notify to false for the next time this function is called.
-             * By doing it this way, we avoid taking the lock every time, we just take it once per MinerWork.
-             * We have to take the lock to reassign currentWork, but it might have happened that
-             * the currentWork got updated when we acquired the lock. In that case, we should just return the new
-             * currentWork, regardless of what it is.
-             */
-            synchronized (lock) {
-                if (currentWork != work) {
-                    return currentWork;
-                }
-                currentWork = new MinerWork(currentWork.getBlockHashForMergedMining(), currentWork.getTarget(),
-                        currentWork.getFeesPaidToMiner(), false, currentWork.getParentBlockHash());
-            }
-        }
-        return work;
-    }
-
-    @VisibleForTesting
-    public void setWork(MinerWork work) {
-        this.currentWork = work;
-    }
-
     public void setExtraData(byte[] extraData) {
         this.extraData = extraData;
     }
@@ -502,10 +398,7 @@ public class MinerServerImpl implements MinerServer {
 
             // process
             processBlock1(newBlock);
-            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
         }
-
-        //logger.debug("Built block {}. Parent {}", newBlock.getShortHashForMergedMining(), newBlockParent.getShortHashForMergedMining());
     }
 
     @Override
@@ -562,7 +455,7 @@ public class MinerServerImpl implements MinerServer {
     }
 
     /**
-     * RefreshBlocks rebuilds the block to sign.
+     * RefreshBlocks rebuilds and reprocess the block.
      */
     private class RefreshBlock extends TimerTask {
         @Override

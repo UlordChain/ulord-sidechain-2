@@ -34,20 +34,9 @@ public interface MinerServer {
 
     boolean isRunning();
 
-    SubmitBlockResult submitSignature(String signature);
-
-//    SubmitBlockResult submitUlordBlockTransactions(
-//            String blockHashForMergedMining,
-//            UldBlock blockWithOnlyHeader,
-//            UldTransaction coinbase,
-//            List<String> txHashes
-//    );
-
-    SubmitBlockResult submitUlordBlock(String blockHashForMergedMining, UldBlock ulordMergedMiningBlock);
+//    SubmitBlockResult submitSignature(String signature);
 
     UscAddress getCoinbaseAddress();
-
-    MinerWork getWork();
 
     void buildAndProcessBlock(@Nonnull Block newParent, boolean createCompetitiveBlock);
 

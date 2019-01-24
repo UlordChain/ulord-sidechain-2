@@ -157,10 +157,6 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
     String evm_snapshot();
     boolean evm_revert(String snapshotId);
     void evm_reset();
-    void evm_mine();
-
-    void evm_startMining();
-    void evm_stopMining();
 
     String evm_increaseTime(String seconds);
 

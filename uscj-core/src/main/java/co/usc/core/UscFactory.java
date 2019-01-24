@@ -21,7 +21,6 @@ package co.usc.core;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.bc.BlockChainImpl;
 import co.usc.core.bc.TransactionPoolImpl;
-import co.usc.bp.MinerClient;
 import co.usc.bp.MinerServer;
 import co.usc.net.*;
 import co.usc.net.eth.UscWireProtocol;
@@ -142,7 +141,6 @@ public class UscFactory {
                         Blockchain blockchain,
                         TransactionPool transactionPool,
                         UscSystemProperties config,
-                        MinerClient minerClient,
                         MinerServer minerServer,
                         MnrModule mnrModule,
                         PersonalModule personalModule,
@@ -164,7 +162,6 @@ public class UscFactory {
                 blockchain,
                 transactionPool,
                 config,
-                minerClient,
                 minerServer,
                 personalModule,
                 ethModule,

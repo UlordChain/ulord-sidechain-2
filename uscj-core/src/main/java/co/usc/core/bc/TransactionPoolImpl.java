@@ -238,7 +238,6 @@ public class TransactionPoolImpl implements TransactionPool {
             return false;
         }
 
-        Keccak256 hash = tx.getHash();
         logger.trace("add transaction {} {}", toBI(tx.getNonce()), tx.getHash());
 
         if (pendingTransactions.hasTransaction(tx)) {
@@ -253,8 +252,8 @@ public class TransactionPoolImpl implements TransactionPool {
             return false;
         }
 
-        Long bnumber = getCurrentBestBlockNumber();
-        transactionBlocks.put(hash, bnumber);
+        Keccak256 hash = tx.getHash();
+        transactionBlocks.put(hash, getCurrentBestBlockNumber());
         transactionTimes.put(hash, this.getCurrentTimeInSeconds());
 
         BigInteger currentNonce = getPendingState().getNonce(tx.getSender());
@@ -294,9 +293,7 @@ public class TransactionPoolImpl implements TransactionPool {
                     .multiply(BigInteger.valueOf(config.getGasPriceBump() + 100L))
                     .divide(BigInteger.valueOf(100));
 
-            if (oldGasPrice.compareTo(tx.getGasPrice()) >= 0 || gasPriceBumped.compareTo(tx.getGasPrice()) > 0) {
-                return false;
-            }
+            return oldGasPrice.compareTo(tx.getGasPrice()) < 0 && gasPriceBumped.compareTo(tx.getGasPrice()) <= 0;
         }
         return true;
     }

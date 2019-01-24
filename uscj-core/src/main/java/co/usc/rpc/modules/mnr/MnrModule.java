@@ -33,6 +33,6 @@ public interface MnrModule {
 //            String txnHashesHex
 //    );
 
-    SubmittedBlockInfo submitSignature(String signature);
+//    SubmittedBlockInfo submitSignature(String signature);
 
 }

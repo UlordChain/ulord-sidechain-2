@@ -97,21 +97,21 @@ public class MnrModuleImpl implements MnrModule /*, Runnable*/ {
 //        return parseResultAndReturn(result);
 //    }
 
-    @Override
-    public SubmittedBlockInfo submitSignature(String signature) {
-//        synchronized (this) {
-//            submittedQueue.add(bpSignature + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
-//        }
+//    @Override
+//    public SubmittedBlockInfo submitSignature(String signature) {
+////        synchronized (this) {
+////            submittedQueue.add(bpSignature + ":" + blockHeaderHex + ":" + coinbaseHex + ":" + merkleHashesHex + ":" + blockTxnCountHex);
+////        }
+////
+////        logger.debug("Queue Size: " + submittedQueue.size());
+////        if(processUlordBlockPartialMerkleThread == null) {
+////            processUlordBlockPartialMerkleThread = new Thread(this);
+////            processUlordBlockPartialMerkleThread.setName("processUlordBlockPartialMerkle");
+////            processUlordBlockPartialMerkleThread.start();
+////        }
 //
-//        logger.debug("Queue Size: " + submittedQueue.size());
-//        if(processUlordBlockPartialMerkleThread == null) {
-//            processUlordBlockPartialMerkleThread = new Thread(this);
-//            processUlordBlockPartialMerkleThread.setName("processUlordBlockPartialMerkle");
-//            processUlordBlockPartialMerkleThread.start();
-//        }
-
-        return parseResultAndReturn(minerServer.submitSignature(signature));
-    }
+//        return parseResultAndReturn(minerServer.submitSignature(signature));
+//    }
 
     private UldBlock getUldBlock(String blockHeaderHex, NetworkParameters params) {
         byte[] ulordBlockByteArray = Hex.decode(blockHeaderHex);

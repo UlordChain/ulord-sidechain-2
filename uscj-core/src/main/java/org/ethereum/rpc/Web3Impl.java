@@ -24,8 +24,6 @@ import co.usc.core.UscAddress;
 import co.usc.core.SnapshotManager;
 import co.usc.core.bc.AccountInformationProvider;
 import co.usc.crypto.Keccak256;
-import co.usc.bp.MinerClient;
-import co.usc.bp.MinerManager;
 import co.usc.bp.MinerServer;
 import co.usc.net.BlockProcessor;
 import co.usc.rpc.ModuleDescription;
@@ -70,8 +68,6 @@ import static org.ethereum.rpc.TypeConverter.*;
 public class Web3Impl implements Web3 {
     private static final Logger logger = LoggerFactory.getLogger("web3");
 
-    private final MinerManager minerManager = new MinerManager();
-
     public org.ethereum.core.Repository repository;
 
     public Ethereum eth;
@@ -80,7 +76,6 @@ public class Web3Impl implements Web3 {
 
     private long initialBlockNumber;
 
-    private final MinerClient minerClient;
     protected MinerServer minerServer;
     private final ChannelManager channelManager;
     private final PeerScoringManager peerScoringManager;
@@ -110,7 +105,6 @@ public class Web3Impl implements Web3 {
             BlockStore blockStore,
             ReceiptStore receiptStore,
             UscSystemProperties config,
-            MinerClient minerClient,
             MinerServer minerServer,
             PersonalModule personalModule,
             EthModule ethModule,
@@ -129,7 +123,6 @@ public class Web3Impl implements Web3 {
         this.receiptStore = receiptStore;
         this.repository = repository;
         this.transactionPool = transactionPool;
-        this.minerClient = minerClient;
         this.minerServer = minerServer;
         this.personalModule = personalModule;
         this.ethModule = ethModule;
@@ -291,38 +284,6 @@ public class Web3Impl implements Web3 {
         }
     }
 
-
-    @Override
-    public boolean eth_mining() {
-        Boolean s = null;
-        try {
-            return s = minerClient.isMining();
-        } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("eth_mining(): {}", s);
-            }
-        }
-    }
-
-//    @Override
-//    public BigInteger eth_hashrate() {
-//        BigInteger hashesPerHour = hashRateCalculator.calculateNodeHashRate(Duration.ofHours(1));
-//        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-//
-//        logger.debug("eth_hashrate(): {}", hashesPerSecond);
-//
-//        return hashesPerSecond;
-//    }
-//
-//    @Override
-//    public BigInteger eth_netHashrate() {
-//        BigInteger hashesPerHour = hashRateCalculator.calculateNetHashRate(Duration.ofHours(1));
-//        BigInteger hashesPerSecond = hashesPerHour.divide(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-//
-//        logger.debug("eth_netHashrate(): {}", hashesPerSecond);
-//
-//        return hashesPerSecond;
-//    }
 
     @Override
     public String[] net_peerList() {
@@ -1129,30 +1090,6 @@ public class Web3Impl implements Web3 {
         snapshotManager.resetSnapshots();
         if (logger.isDebugEnabled()) {
             logger.debug("evm_reset()");
-        }
-    }
-
-    @Override
-    public void evm_mine() {
-        minerManager.mineBlock(this.blockchain, minerClient, minerServer);
-        if (logger.isDebugEnabled()) {
-            logger.debug("evm_mine()");
-        }
-    }
-
-    @Override
-    public void evm_startMining() {
-        minerServer.start();
-        if (logger.isDebugEnabled()) {
-            logger.debug("evm_startMining()");
-        }
-    }
-
-    @Override
-    public void evm_stopMining() {
-        minerServer.stop();
-        if (logger.isDebugEnabled()) {
-            logger.debug("evm_stopMining()");
         }
     }
 
