@@ -21,6 +21,7 @@ package co.usc.net.messages;
 import co.usc.net.Status;
 import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
@@ -202,7 +203,6 @@ public enum MessageType {
             byte[] rlpId = list.get(0).getRLPData();
             long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
             RLPList rlpTransactions = (RLPList)RLP.decode2(message.get(0).getRLPData()).get(0);
-            //RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
 
             List<Transaction> transactions = new ArrayList<>();
             for (int k = 0; k < rlpTransactions.size(); k++) {
@@ -216,7 +216,9 @@ public enum MessageType {
                 transactions.add(tx);
             }
 
-            return new BodyResponseMessage(id, transactions);
+            // TODO: Get Signature from message and set on BodyResponseMessage class
+            RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
+            return new BodyResponseMessage(id, transactions, null);
         }
     },
     SKELETON_REQUEST_MESSAGE(16) {

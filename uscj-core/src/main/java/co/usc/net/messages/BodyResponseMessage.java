@@ -2,6 +2,7 @@ package co.usc.net.messages;
 
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.util.RLP;
 
 import java.util.List;
@@ -12,7 +13,10 @@ import java.util.List;
 public class BodyResponseMessage extends MessageWithId {
     private long id;
     private List<Transaction> transactions;
-    public BodyResponseMessage(long id, List<Transaction> transactions) {
+    private ECKey.ECDSASignature signature;
+
+    public BodyResponseMessage(long id, List<Transaction> transactions, ECKey.ECDSASignature signature) {
+        this.signature = signature;
         this.id = id;
         this.transactions = transactions;
     }
@@ -35,4 +39,8 @@ public class BodyResponseMessage extends MessageWithId {
 
     @Override
     public MessageType getMessageType() { return MessageType.BODY_RESPONSE_MESSAGE; }
+
+    public ECKey.ECDSASignature getSignature() {
+        return signature;
+    }
 }

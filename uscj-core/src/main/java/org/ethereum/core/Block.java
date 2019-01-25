@@ -174,8 +174,9 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, ECDSASignature signature) {
         Block block = new Block(header);
+        block.setSignature(signature);
         block.transactionsList = transactionsList;
         block.seal();
         return block;
@@ -400,6 +401,16 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
+        if(signature != null) {
+            toStringBuff.append("  signature [\n");
+            toStringBuff.append("    r = ").append(signature.r.toString(16)).append("\n");
+            toStringBuff.append("    s = ").append(signature.s.toString(16)).append("\n");
+            toStringBuff.append("    v = ").append(TypeConverter.toJsonHex(signature.v)).append("\n");
+            toStringBuff.append("  ] \n");
+        } else {
+            toStringBuff.append("  signature []\n");
+        }
+
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("  Txs [\n");
             for (Transaction tx : getTransactionsList()) {
@@ -454,7 +465,7 @@ public class Block {
     private ECDSASignature parseVRS(RLPList vrs) {
         byte[] v = vrs.get(0).getRLPData();
         if(v == null) {
-            return null;
+            return ECDSASignature.fromComponents(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, (byte)0);
         }
         return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), v[0]);
     }
@@ -534,7 +545,7 @@ public class Block {
             return RLP.encodeList(v, r, s);
         } catch (NullPointerException e) {
             logger.error("Signature not found while encoding. " + e);
-            return null;
+            return EMPTY_BYTE_ARRAY;
         }
     }
 
