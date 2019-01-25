@@ -174,10 +174,9 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, ECDSASignature signature) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList) {
         Block block = new Block(header);
         block.transactionsList = transactionsList;
-        block.signature = signature;
         block.seal();
         return block;
     }
@@ -214,9 +213,10 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-
-        RLPList vsr = (RLPList) block.get(2);
-        this.signature = parseVRS(vsr);
+        if(signature == null) {
+            RLPList vsr = (RLPList) block.get(2);
+            this.signature = parseVRS(vsr);
+        }
         this.parsed = true;
     }
 
@@ -367,6 +367,9 @@ public class Block {
     }
 
     public ECDSASignature getSignature() {
+        if (!parsed) {
+            parseRLP();
+        }
         return signature;
     }
 
@@ -397,15 +400,6 @@ public class Block {
         toStringBuff.append("hash=").append(this.getHash()).append("\n");
         toStringBuff.append(header.toString());
 
-        if(signature != null) {
-            toStringBuff.append("  BpSignature [\n");
-            toStringBuff.append("    v: ").append(signature.v).append("\n");
-            toStringBuff.append("    r: ").append(ByteUtils.toHexString(BigIntegers.asUnsignedByteArray(signature.r))).append("\n");
-            toStringBuff.append("    s: ").append(ByteUtils.toHexString(BigIntegers.asUnsignedByteArray(signature.s))).append("\n");
-            toStringBuff.append("  ]\n");
-        } else {
-            toStringBuff.append("  BpSignature =\n");
-        }
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("  Txs [\n");
             for (Transaction tx : getTransactionsList()) {
@@ -533,21 +527,15 @@ public class Block {
     }
 
     private byte[] getSignatureEncoded() {
-
-        byte[] v;
-        byte[] r;
-        byte[] s;
-        if(signature != null) {
-            v = RLP.encodeByte(signature.v);
-            r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
-            s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
-        } else {
-            v = RLP.encodeElement(EMPTY_BYTE_ARRAY);
-            r = RLP.encodeElement(EMPTY_BYTE_ARRAY);
-            s = RLP.encodeElement(EMPTY_BYTE_ARRAY);
+        try {
+            byte[] v = RLP.encodeByte(signature.v);
+            byte[] r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
+            byte[] s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
+            return RLP.encodeList(v, r, s);
+        } catch (NullPointerException e) {
+            logger.error("Signature not found while encoding. " + e);
+            return null;
         }
-
-        return RLP.encodeList(v, r, s);
     }
 
     public byte[] getEncoded() {

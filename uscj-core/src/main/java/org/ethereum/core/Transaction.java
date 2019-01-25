@@ -327,7 +327,7 @@ public class Transaction {
 
     public void setGasLimit(byte[] gasLimit) {
         this.gasLimit = ByteUtils.clone(gasLimit);
-        // Once the tx content has changed, the bpSignature and rlpEncoded should be recalculated
+        // Once the tx content has changed, the signature and rlpEncoded should be recalculated
         this.signature = null;
         this.rlpEncoded = null;
         this.rlpRaw = null;

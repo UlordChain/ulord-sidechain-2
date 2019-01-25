@@ -12,7 +12,6 @@ import java.util.List;
 public class BodyResponseMessage extends MessageWithId {
     private long id;
     private List<Transaction> transactions;
-
     public BodyResponseMessage(long id, List<Transaction> transactions) {
         this.id = id;
         this.transactions = transactions;

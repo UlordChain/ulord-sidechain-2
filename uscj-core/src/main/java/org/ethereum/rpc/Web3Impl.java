@@ -557,9 +557,11 @@ public class Web3Impl implements Web3 {
         br.receiptsRoot = TypeConverter.toJsonHex(b.getReceiptsRoot());
 
         ECKey.ECDSASignature signature = b.getSignature();
-        br.v = isPending ? null : String.format("0x%02X", signature.v);
-        br.r = isPending ? null : TypeConverter.toJsonHex(signature.r);
-        br.s = isPending ? null : TypeConverter.toJsonHex(signature.s);
+        if(signature != null) {
+            br.v = isPending ? null : String.format("0x%02X", signature.v);
+            br.r = isPending ? null : TypeConverter.toJsonHex(signature.r);
+            br.s = isPending ? null : TypeConverter.toJsonHex(signature.s);
+        }
 
         br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());

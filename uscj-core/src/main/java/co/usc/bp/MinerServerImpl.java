@@ -270,9 +270,7 @@ public class MinerServerImpl implements MinerServer {
 
     private ECDSASignature signBlock(String data, ECKey ecKey) {
         byte[] dataHash = TypeConverter.stringHexToByteArray(data);
-        ECDSASignature signature = ecKey.sign(dataHash);
-
-        return signature;
+        return ecKey.sign(dataHash);
     }
 
 //    private SubmitBlockResult processBlock(
