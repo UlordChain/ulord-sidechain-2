@@ -80,14 +80,13 @@ public class MinerServerImpl implements MinerServer {
     private final Blockchain blockchain;
     private final ProofOfWorkRule powRule;
     private final BlockToSignBuilder builder;
-    private Wallet wallet;
     private Timer refreshBlockTimer;
 
     private NewBlockListener blockListener;
 
     private boolean started;
     private boolean isBP;
-    private boolean isTest = true;
+    private boolean isTest = false;
     private byte[] extraData;
 
     @GuardedBy("lock")
@@ -116,15 +115,13 @@ public class MinerServerImpl implements MinerServer {
             BlockProcessor nodeBlockProcessor,
             ProofOfWorkRule powRule,
             BlockToSignBuilder builder,
-            MiningConfig miningConfig,
-            Wallet wallet) {
+            MiningConfig miningConfig) {
         this.config = config;
         this.ethereum = ethereum;
         this.blockchain = blockchain;
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.powRule = powRule;
         this.builder = builder;
-        this.wallet = wallet;
         this.isBP = false;
 
         latestPaidFeesWithNotify = Coin.ZERO;
@@ -239,19 +236,10 @@ public class MinerServerImpl implements MinerServer {
     }
 
     private void processBlock1(Block b) {
-        String[] accountAddressesAsHex = wallet.getAccountAddressesAsHex();
-
-        if(accountAddressesAsHex.length == 0)
-            return;
-        // TODO: Add a condition to validate if it is a BP's address, and find a better solution for importing passphrase.
-        wallet.unlockAccount(new UscAddress(accountAddressesAsHex[0]), "abcd1234");
-
-        Account account = wallet.getAccount(new UscAddress(accountAddressesAsHex[0]));
-
+        ECKey bpKey = config.getMyKey();
         byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
-        ECDSASignature signature = signBlock(Hex.toHexString(headerHash), account.getEcKey());
+        ECDSASignature signature = signBlock(Hex.toHexString(headerHash), bpKey);
         b.addSignature(signature);
-
         b.seal();
         ethereum.addNewMinedBlock(b);
     }
