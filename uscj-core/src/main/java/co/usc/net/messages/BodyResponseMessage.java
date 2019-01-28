@@ -13,14 +13,10 @@ import java.util.List;
 public class BodyResponseMessage extends MessageWithId {
     private long id;
     private List<Transaction> transactions;
-    private byte v;
-    private byte[] r;
-    private byte[] s;
+    private ECKey.ECDSASignature signature;
 
-    public BodyResponseMessage(long id, List<Transaction> transactions, byte[] r, byte[] s, byte v) {
-        this.r = r;
-        this.s = s;
-        this.v = v;
+    public BodyResponseMessage(long id, List<Transaction> transactions, ECKey.ECDSASignature signature) {
+        this.signature = signature;
         this.id = id;
         this.transactions = transactions;
     }
@@ -44,15 +40,7 @@ public class BodyResponseMessage extends MessageWithId {
     @Override
     public MessageType getMessageType() { return MessageType.BODY_RESPONSE_MESSAGE; }
 
-    public byte getV() {
-        return v;
-    }
-
-    public byte[] getR() {
-        return r;
-    }
-
-    public byte[] getS() {
-        return s;
+    public ECKey.ECDSASignature getSignature() {
+        return signature;
     }
 }

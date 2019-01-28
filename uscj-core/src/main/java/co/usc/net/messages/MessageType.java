@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.byteArrayToInt;
 
 /**
@@ -218,8 +217,8 @@ public enum MessageType {
             }
 
             // TODO: Get Signature from message and set on BodyResponseMessage class
-            //RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
-            return new BodyResponseMessage(id, transactions, EMPTY_BYTE_ARRAY,EMPTY_BYTE_ARRAY,(byte)0);
+            RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
+            return new BodyResponseMessage(id, transactions, null);
         }
     },
     SKELETON_REQUEST_MESSAGE(16) {

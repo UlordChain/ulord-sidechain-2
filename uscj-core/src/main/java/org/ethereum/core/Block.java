@@ -174,9 +174,8 @@ public class Block {
         this.parsed = true;
     }
 
-    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, byte[] r, byte[]s, byte v) {
+    public static Block fromValidData(BlockHeader header, List<Transaction> transactionsList, ECDSASignature signature) {
         Block block = new Block(header);
-        ECDSASignature signature = ECDSASignature.fromComponents(r,s,v);
         block.setSignature(signature);
         block.transactionsList = transactionsList;
         block.seal();
