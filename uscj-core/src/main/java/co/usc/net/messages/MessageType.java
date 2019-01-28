@@ -217,7 +217,7 @@ public enum MessageType {
             }
 
             // TODO: Get Signature from message and set on BodyResponseMessage class
-            RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
+            //RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
             return new BodyResponseMessage(id, transactions, null);
         }
     },
