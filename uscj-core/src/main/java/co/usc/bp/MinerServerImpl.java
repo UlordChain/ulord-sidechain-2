@@ -181,10 +181,21 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
+    private int getUniqueBpCount(JSONArray bpList) {
+        List<String> addrArray = new ArrayList<>();
+        for(int i = 0; i < bpList.length(); ++i) {
+            String addr = bpList.getJSONObject(i).getString("ulord_addr");
+            if(!addrArray.contains(addr)) {
+                addrArray.add(addr);
+            }
+        }
+        return addrArray.size();
+    }
+
     private Date getMySchedule() {
         isBP = false;
         JSONArray bpList = getBPList();
-        int nBP = bpList.length();
+        int nBP = getUniqueBpCount(bpList);
 
         String bpAddr = bpList.getJSONObject(0).getString("ulord_addr");
 
@@ -209,7 +220,7 @@ public class MinerServerImpl implements MinerServer {
                 } else {
                     // Find next recent time for this BP
                     while (bpValidTime <= (System.currentTimeMillis() / 1000)) {
-                        bpValidTime += nBP * 6;
+                        bpValidTime += nBP;
                     }
                     logger.info("BP Scheduled Time: " + bpValidTime + ", CurrentTime: " + System.currentTimeMillis()/1000);
                     return new Date(bpValidTime * 1000);
