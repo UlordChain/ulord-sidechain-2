@@ -214,9 +214,6 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        //RLPList vsr = (RLPList) block.get(2);
-        //this.signature = parseVRS(vsr);
-
         RLPList sig = (RLPList)block.get(2);
         byte v = sig.get(0).getRLPData()[0];
         byte[] r = sig.get(1).getRLPData();
@@ -466,10 +463,6 @@ public class Block {
         return Collections.unmodifiableList(parsedTxs);
     }
 
-    private ECDSASignature parseVRS(RLPList vrs) {
-        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), vrs.get(0).getRLPData()[0]);
-    }
-
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
 
         return isLastTx(txPosition, txsSize) && checkRemascAddress(tx) && checkRemascTxZeroValues(tx);
@@ -543,8 +536,6 @@ public class Block {
             byte[] v = RLP.encodeByte(signature.v);
             byte[] r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
             byte[] s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
-
-            System.out.println("R:" + signature.r.toByteArray().length + ", S:" + signature.s.toByteArray().length + ", V:" + v.length);
 
             return RLP.encodeList(v, r, s);
         } catch (NullPointerException e) {
