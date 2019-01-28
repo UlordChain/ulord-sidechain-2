@@ -214,10 +214,8 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        if(signature == null) {
-            RLPList vsr = (RLPList) block.get(2);
-            this.signature = parseVRS(vsr);
-        }
+        RLPList vsr = (RLPList) block.get(2);
+        this.signature = parseVRS(vsr);
         this.parsed = true;
     }
 
@@ -463,11 +461,7 @@ public class Block {
     }
 
     private ECDSASignature parseVRS(RLPList vrs) {
-        byte[] v = vrs.get(0).getRLPData();
-        if(v == null) {
-            return ECDSASignature.fromComponents(EMPTY_BYTE_ARRAY, EMPTY_BYTE_ARRAY, (byte)0);
-        }
-        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), v[0]);
+        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), (byte)0);
     }
 
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
@@ -539,10 +533,15 @@ public class Block {
 
     private byte[] getSignatureEncoded() {
         try {
-            byte[] v = RLP.encodeByte(signature.v);
-            byte[] r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
-            byte[] s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
-            return RLP.encodeList(v, r, s);
+            byte[] v = new byte[1];
+            v[0] = signature.v;
+
+            byte[][] sig = new byte[3][];
+            sig[0] = v;
+            sig[1] = signature.r.toByteArray();
+            sig[2] = signature.s.toByteArray();
+
+            return RLP.encodeList(sig);
         } catch (NullPointerException e) {
             logger.error("Signature not found while encoding. " + e);
             return EMPTY_BYTE_ARRAY;
