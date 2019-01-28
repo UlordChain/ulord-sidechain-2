@@ -461,7 +461,7 @@ public class Block {
     }
 
     private ECDSASignature parseVRS(RLPList vrs) {
-        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), (byte)0);
+        return ECDSASignature.fromComponents(vrs.get(1).getRLPData(), vrs.get(2).getRLPData(), vrs.get(0).getRLPData()[0]);
     }
 
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
