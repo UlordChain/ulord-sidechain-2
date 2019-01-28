@@ -214,8 +214,14 @@ public class Block {
         byte[] calculatedRoot = getTxTrie(this.transactionsList).getHash().getBytes();
         this.checkExpectedRoot(this.header.getTxTrieRoot(), calculatedRoot);
 
-        RLPList vsr = (RLPList) block.get(2);
-        this.signature = parseVRS(vsr);
+        //RLPList vsr = (RLPList) block.get(2);
+        //this.signature = parseVRS(vsr);
+
+        RLPList sig = (RLPList)block.get(2);
+        byte v = sig.get(0).getRLPData()[0];
+        byte[] r = sig.get(1).getRLPData();
+        byte[] s = sig.get(2).getRLPData();
+        this.signature = ECDSASignature.fromComponents(r, s, v);
         this.parsed = true;
     }
 
@@ -533,15 +539,14 @@ public class Block {
 
     private byte[] getSignatureEncoded() {
         try {
-            byte[] v = new byte[1];
-            v[0] = signature.v;
 
-            byte[][] sig = new byte[3][];
-            sig[0] = v;
-            sig[1] = signature.r.toByteArray();
-            sig[2] = signature.s.toByteArray();
+            byte[] v = RLP.encodeByte(signature.v);
+            byte[] r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
+            byte[] s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
 
-            return RLP.encodeList(sig);
+            System.out.println("R:" + signature.r.toByteArray().length + ", S:" + signature.s.toByteArray().length + ", V:" + v.length);
+
+            return RLP.encodeList(v, r, s);
         } catch (NullPointerException e) {
             logger.error("Signature not found while encoding. " + e);
             return EMPTY_BYTE_ARRAY;
