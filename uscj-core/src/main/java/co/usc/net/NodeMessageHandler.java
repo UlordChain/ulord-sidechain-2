@@ -98,7 +98,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
         logger.trace("Process message type: {}", message.getMessageType());
 
         MessageType mType = message.getMessageType();
-
+        System.out.println(mType.toString());
         if (mType == MessageType.GET_BLOCK_MESSAGE) {
             this.processGetBlockMessage(sender, (GetBlockMessage) message);
         } else if (mType == MessageType.BLOCK_MESSAGE) {
