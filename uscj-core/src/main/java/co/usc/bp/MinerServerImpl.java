@@ -255,18 +255,6 @@ public class MinerServerImpl implements MinerServer {
         ethereum.addNewMinedBlock(b);
     }
 
-    private boolean validateSignature(ECDSASignature signature, byte[] message) {
-
-        try {
-            ECKey ecKey = ECKey.signatureToKey(message, signature.toBase64());
-            //System.out.println(Hex.toHexString(ecKey.getPubKey()));
-            return ECKey.verify(message, signature, ecKey.getPubKey());
-        } catch (SignatureException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private ECDSASignature signBlock(String data, ECKey ecKey) {
         byte[] dataHash = TypeConverter.stringHexToByteArray(data);
         return ecKey.sign(dataHash);

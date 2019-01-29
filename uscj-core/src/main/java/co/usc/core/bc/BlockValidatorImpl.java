@@ -53,8 +53,9 @@ public class BlockValidatorImpl implements BlockValidator {
      * The validation includes
      * - Validate the header data relative to parent block
      * - Validate the transaction root hash to transaction list
-     * - Validate signatures
      * - Validate transactions
+     * - Validate signature
+     * - Validate BP and Time if not syncing
      *
      * @param block        Block to validate
      * @return true if the block is valid, false if the block is invalid
