@@ -39,7 +39,7 @@ public class Constants {
     public static final int DURATION_LIMIT = 8;
     private static final int MAX_ADDRESS_BYTE_LENGTH = 20;
     private int maximumExtraDataSize = 32;
-    private int minGasLimit = 3000000;
+    private int minGasLimit = 150000000;
     private int gasLimitBoundDivisor = 1024;
 
     //private static long blockPerDay = 24*3600 / 14;

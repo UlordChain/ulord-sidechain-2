@@ -329,7 +329,7 @@ public class UscSystemProperties extends SystemProperties {
     }
 
     public long getTargetGasLimit() {
-        return getLong("targetgaslimit",6_800_000L);
+        return getLong("targetgaslimit",150_000_000L);
     }
 
     public boolean getForceTargetGasLimit() {
