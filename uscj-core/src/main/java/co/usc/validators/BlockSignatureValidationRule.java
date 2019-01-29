@@ -17,7 +17,6 @@ public class BlockSignatureValidationRule implements BlockValidationRule{
     private boolean validateSignature(ECKey.ECDSASignature signature, byte[] message) {
         try {
             ECKey ecKey = ECKey.signatureToKey(message, signature.toBase64());
-            //System.out.println(Hex.toHexString(ecKey.getPubKey()));
             return ECKey.verify(message, signature, ecKey.getPubKey());
         } catch (SignatureException e) {
             e.printStackTrace();
