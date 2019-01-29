@@ -23,10 +23,14 @@ import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockExecutor;
 import co.usc.remasc.RemascTransaction;
+import co.usc.ulordj.core.Sha256Hash;
 import co.usc.validators.BlockValidationRule;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
+import org.ethereum.rpc.TypeConverter;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.slf4j.Logger;
@@ -163,7 +167,17 @@ public class BlockToSignBuilder {
 
         final BlockHeader newHeader = createHeader(newBlockParent, txs, minimumGasPrice);
         final Block newBlock = new Block(newHeader, txs);
-        return validationRules.isValid(newBlock) ? newBlock : new Block(newHeader, txs);
+        ECKey bpKey = config.getMyKey();
+        byte[] headerHash = Sha256Hash.hash(newBlock.getHeader().getEncoded());
+        ECKey.ECDSASignature signature = signBlock(Hex.toHexString(headerHash), bpKey);
+        newBlock.addSignature(signature);
+
+        return validationRules.isValid(newBlock) ? newBlock : null;
+    }
+
+    private ECKey.ECDSASignature signBlock(String data, ECKey ecKey) {
+        byte[] dataHash = TypeConverter.stringHexToByteArray(data);
+        return ecKey.sign(dataHash);
     }
 
     private BlockHeader createHeader(

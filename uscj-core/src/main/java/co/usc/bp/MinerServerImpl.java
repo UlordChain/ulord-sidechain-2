@@ -247,17 +247,8 @@ public class MinerServerImpl implements MinerServer {
     }
 
     private void processBlock1(Block b) {
-        ECKey bpKey = config.getMyKey();
-        byte[] headerHash = Sha256Hash.hash(b.getHeader().getEncoded());
-        ECDSASignature signature = signBlock(Hex.toHexString(headerHash), bpKey);
-        b.addSignature(signature);
         b.seal();
         ethereum.addNewMinedBlock(b);
-    }
-
-    private ECDSASignature signBlock(String data, ECKey ecKey) {
-        byte[] dataHash = TypeConverter.stringHexToByteArray(data);
-        return ecKey.sign(dataHash);
     }
 
 //    private SubmitBlockResult processBlock(
