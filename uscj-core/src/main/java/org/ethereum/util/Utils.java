@@ -19,6 +19,9 @@
 
 package org.ethereum.util;
 
+import co.usc.ulordj.core.Base58;
+import co.usc.ulordj.core.NetworkParameters;
+import co.usc.ulordj.core.UldECKey;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -258,5 +261,17 @@ public class Utils {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid hexadecimal number: %s", s), e);
         }
+    }
+
+    public static String UosPubKeyToUlord(String uosPubKey) {
+        if(uosPubKey.startsWith("UOS")) {
+            uosPubKey = uosPubKey.substring(3);
+        }
+        uosPubKey = Hex.toHexString(Base58.decode(uosPubKey));
+        return uosPubKey.substring(0, uosPubKey.length() - 8);
+    }
+
+    public static String UosPubKeyToUlordAddr(String uosPubKey, NetworkParameters params) {
+        return UldECKey.fromPublicOnly(Hex.decode(UosPubKeyToUlord(uosPubKey))).toAddress(params).toBase58();
     }
 }
