@@ -18,10 +18,8 @@
 
 package co.usc.bp;
 
-import co.usc.core.Wallet;
 import co.usc.ulordj.core.*;
 import co.usc.config.MiningConfig;
-import co.usc.config.UscMiningConstants;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -30,18 +28,10 @@ import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
 import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.TestNet3Params;
-import co.usc.validators.ProofOfWorkRule;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
-import org.ethereum.crypto.ECKey;
-import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
-import org.ethereum.rpc.TypeConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -56,9 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.security.SignatureException;
 import java.util.*;
-import java.util.function.Function;
 
 import co.usc.rpc.uos.UOSRpcChannel;
 /**
@@ -78,7 +66,6 @@ public class MinerServerImpl implements MinerServer {
 
     private final Ethereum ethereum;
     private final Blockchain blockchain;
-    private final ProofOfWorkRule powRule;
     private final BlockToSignBuilder builder;
     private Timer refreshBlockTimer;
 
@@ -113,14 +100,12 @@ public class MinerServerImpl implements MinerServer {
             Ethereum ethereum,
             Blockchain blockchain,
             BlockProcessor nodeBlockProcessor,
-            ProofOfWorkRule powRule,
             BlockToSignBuilder builder,
             MiningConfig miningConfig) {
         this.config = config;
         this.ethereum = ethereum;
         this.blockchain = blockchain;
         this.nodeBlockProcessor = nodeBlockProcessor;
-        this.powRule = powRule;
         this.builder = builder;
         this.isBP = false;
 
@@ -298,14 +283,14 @@ public class MinerServerImpl implements MinerServer {
 //        }
 //    }
 
-    private boolean isValid(Block block) {
-        try {
-            return powRule.isValid(block);
-        } catch (Exception e) {
-            logger.error("Failed to validate PoW from block {}: {}", block.getShortHash(), e);
-            return false;
-        }
-    }
+//    private boolean isValid(Block block) {
+//        try {
+//            return powRule.isValid(block);
+//        } catch (Exception e) {
+//            logger.error("Failed to validate PoW from block {}: {}", block.getShortHash(), e);
+//            return false;
+//        }
+//    }
 
     @Override
     public UscAddress getCoinbaseAddress() {

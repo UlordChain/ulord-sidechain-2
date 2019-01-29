@@ -37,7 +37,6 @@ import co.usc.rpc.netty.*;
 import co.usc.scoring.PeerScoring;
 import co.usc.scoring.PeerScoringManager;
 import co.usc.scoring.PunishmentParameters;
-import co.usc.validators.ProofOfWorkRule;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.Blockchain;
 import org.ethereum.core.Repository;
@@ -110,13 +109,11 @@ public class UscFactory {
                                           BlockSyncService blockSyncService,
                                           PeerScoringManager peerScoringManager,
                                           ChannelManager channelManager,
-                                          SyncConfiguration syncConfiguration,
-                                          //DifficultyCalculator difficultyCalculator,
-                                          ProofOfWorkRule proofOfWorkRule) {
+                                          SyncConfiguration syncConfiguration) {
 
         // TODO(lsebrie): add new BlockCompositeRule(new ProofOfWorkRule(), blockTimeStampValidationRule, new ValidGasUsedRule());
         return new SyncProcessor(blockchain, blockSyncService, peerScoringManager, channelManager,
-                syncConfiguration, proofOfWorkRule/*, difficultyCalculator*/);
+                syncConfiguration);
     }
 
     @Bean

@@ -4,7 +4,6 @@ import co.usc.net.messages.*;
 import co.usc.net.sync.*;
 import co.usc.scoring.EventType;
 import co.usc.scoring.PeerScoringManager;
-import co.usc.validators.BlockHeaderValidationRule;
 import com.google.common.annotations.VisibleForTesting;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
@@ -12,7 +11,6 @@ import org.ethereum.core.BlockIdentifier;
 import org.ethereum.core.Blockchain;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.server.ChannelManager;
-import org.ethereum.validator.DependentBlockHeaderRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +47,13 @@ public class SyncProcessor implements SyncEventsHandler {
                          BlockSyncService blockSyncService,
                          PeerScoringManager peerScoringManager,
                          ChannelManager channelManager,
-                         SyncConfiguration syncConfiguration,
-                         BlockHeaderValidationRule blockHeaderValidationRule/*,
-                         DifficultyCalculator difficultyCalculator*/) {
+                         SyncConfiguration syncConfiguration) {
         this.blockchain = blockchain;
         this.blockSyncService = blockSyncService;
         this.peerScoringManager = peerScoringManager;
         this.channelManager = channelManager;
         this.syncConfiguration = syncConfiguration;
-        this.syncInformation = new SyncInformationImpl(blockHeaderValidationRule/*, difficultyCalculator*/);
+        this.syncInformation = new SyncInformationImpl();
         this.peerStatuses = new PeersInformation(syncInformation, channelManager, syncConfiguration);
         this.pendingMessages = new LinkedHashMap<Long, MessageType>() {
             @Override
@@ -360,14 +356,7 @@ public class SyncProcessor implements SyncEventsHandler {
 
     private class SyncInformationImpl implements SyncInformation {
 
-        //TODO this rule need to be changed according to PBFT
-        //private final DependentBlockHeaderRule blockParentValidationRule;
-        private final BlockHeaderValidationRule blockHeaderValidationRule;
-
-        public SyncInformationImpl(BlockHeaderValidationRule blockHeaderValidationRule/*, DifficultyCalculator difficultyCalculator*/) {
-            this.blockHeaderValidationRule = blockHeaderValidationRule;
-            //TODO this rule need to be changed according to PBFT
-            //this.blockParentValidationRule = new DifficultyRule(difficultyCalculator);
+        public SyncInformationImpl() {
         }
 
         public boolean isKnownBlock(byte[] hash) {
@@ -394,15 +383,10 @@ public class SyncProcessor implements SyncEventsHandler {
             return blockSyncService.processBlock(block, channel, true);
         }
 
-        @Override
-        public boolean blockHeaderIsValid(@Nonnull BlockHeader header) {
-            return blockHeaderValidationRule.isValid(header);
-        }
-
         //TODO this function need to be changed according to PBFT
         @Override
         public boolean blockHeaderIsValid(@Nonnull BlockHeader header, @Nonnull BlockHeader parentHeader) {
-            /*
+
             if (!parentHeader.getHash().equals(header.getParentHash())) {
                 return false;
             }
@@ -411,12 +395,11 @@ public class SyncProcessor implements SyncEventsHandler {
                 return false;
             }
 
-            if (!blockHeaderIsValid(header)) {
-                return false;
-            }
+//            if (!blockHeaderIsValid(header)) {
+//                return false;
+//            }
 
-            return blockParentValidationRule.validate(header, parentHeader);
-            */
+//            return blockParentValidationRule.validate(header, parentHeader);
             return true;
         }
 

@@ -142,26 +142,17 @@ public class DefaultConfig {
 
     @Bean(name = "blockValidationRule")
     public BlockValidationRule blockValidationRule(
-            BlockStore blockStore,
-            UscSystemProperties config,
-            ProofOfWorkRule proofOfWorkRule) {
+            UscSystemProperties config) {
         Constants commonConstants = config.getBlockchainConfig().getCommonConstants();
-        //int uncleListLimit = commonConstants.getUncleListLimit();
-        //int uncleGenLimit = commonConstants.getUncleGenerationLimit();
         int validPeriod = commonConstants.getNewBlockMaxSecondsInTheFuture();
         BlockTimeStampValidationRule blockTimeStampValidationRule = new BlockTimeStampValidationRule(validPeriod);
 
-        //BlockParentGasLimitRule parentGasLimitRule = new BlockParentGasLimitRule(commonConstants.getGasLimitBoundDivisor());
-        //BlockParentCompositeRule unclesBlockParentHeaderValidator = new BlockParentCompositeRule(new PrevMinGasPriceRule(), new BlockParentNumberRule(), blockTimeStampValidationRule, new BlockDifficultyRule(difficultyCalculator), parentGasLimitRule);
-
-        //BlockCompositeRule unclesBlockHeaderValidator = new BlockCompositeRule(proofOfWorkRule, blockTimeStampValidationRule, new ValidGasUsedRule());
-
-        //BlockUnclesValidationRule blockUnclesValidationRule = new BlockUnclesValidationRule(config, blockStore, uncleListLimit, uncleGenLimit, unclesBlockHeaderValidator, unclesBlockParentHeaderValidator);
+        BlockCompositeRule blockCompositeRule = new BlockCompositeRule(blockTimeStampValidationRule, new ValidGasUsedRule());
 
         int minGasLimit = commonConstants.getMinGasLimit();
         int maxExtraDataSize = commonConstants.getMaximumExtraDataSize();
 
-        return new BlockCompositeRule(new TxsMinGasPriceRule(), new BlockRootValidationRule(), /*new RemascValidationRule(),*/
+        return new BlockCompositeRule(new TxsMinGasPriceRule(), blockCompositeRule, new BlockRootValidationRule(),
                 blockTimeStampValidationRule, new GasLimitRule(minGasLimit), new ExtraDataRule(maxExtraDataSize));
     }
 
