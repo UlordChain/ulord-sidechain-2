@@ -73,7 +73,7 @@ public class MinerServerImpl implements MinerServer {
 
     private boolean started;
     private boolean isBP;
-    private boolean isTest = false;
+    private boolean isTest = true;
     private byte[] extraData;
 
     @GuardedBy("lock")

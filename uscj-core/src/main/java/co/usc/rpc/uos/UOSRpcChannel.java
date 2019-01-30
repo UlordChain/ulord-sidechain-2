@@ -58,7 +58,6 @@ public class UOSRpcChannel {
         String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
         String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
 
-        //JSONObject json = new JSONObject(jsonString);
         JSONArray arr = new JSONObject(bpList).getJSONArray("rows");
 
         String key = "";
@@ -78,7 +77,6 @@ public class UOSRpcChannel {
             rounds.put(key,rows);
         }
 
-        //finalList.append("");
         return rounds;
     }
 
