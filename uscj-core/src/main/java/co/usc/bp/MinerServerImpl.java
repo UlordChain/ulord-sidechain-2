@@ -29,6 +29,8 @@ import co.usc.panic.PanicProcessor;
 import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.EvictingQueue;
+import javafx.util.Pair;
 import org.ethereum.core.*;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
@@ -47,6 +49,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import co.usc.rpc.uos.UOSRpcChannel;
 /**
@@ -58,6 +61,7 @@ import co.usc.rpc.uos.UOSRpcChannel;
 
 @Component("MinerServer")
 public class MinerServerImpl implements MinerServer {
+    private static final long DELAY_BETWEEN_REFRESH_BP_LIST_MS = TimeUnit.MILLISECONDS.toMillis(500);
 
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
@@ -68,6 +72,7 @@ public class MinerServerImpl implements MinerServer {
     private final Blockchain blockchain;
     private final BlockToSignBuilder builder;
     private Timer refreshBlockTimer;
+    private Timer refreshBPListTimer;
 
     private NewBlockListener blockListener;
 
@@ -94,6 +99,8 @@ public class MinerServerImpl implements MinerServer {
 
     private final UscSystemProperties config;
 
+    private Pair<String, Long> bpSchedules;
+
     @Autowired
     public MinerServerImpl(
             UscSystemProperties config,
@@ -108,6 +115,8 @@ public class MinerServerImpl implements MinerServer {
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.builder = builder;
         this.isBP = false;
+
+        this.bpSchedules = new Pair<>("", 0L);
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
@@ -133,6 +142,7 @@ public class MinerServerImpl implements MinerServer {
             ethereum.removeListener(blockListener);
 
             refreshBlockTimer = null;
+            refreshBPListTimer = null;
         }
     }
 
@@ -147,12 +157,18 @@ public class MinerServerImpl implements MinerServer {
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
 
+//            if(refreshBPListTimer != null) {
+//                refreshBPListTimer.cancel();
+//            }
+
+//            refreshBPListTimer = new Timer("BP List Scheduler");
+//            refreshBPListTimer.schedule(new RefreshBPList(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
+
             if (refreshBlockTimer != null) {
                 refreshBlockTimer.cancel();
             }
 
             refreshBlockTimer = new Timer("Refresh block for signing");
-
             scheduleRefreshBlockTimer(isTest);
         }
     }
@@ -404,6 +420,24 @@ public class MinerServerImpl implements MinerServer {
             }
         }
     }
+
+    /**
+     * RefreshBPList updates the BP List.
+     */
+    private class RefreshBPList extends TimerTask {
+        @Override
+        public void run() {
+            try {
+                JSONArray bpList = getBPList();
+
+            } catch (Throwable th) {
+                logger.error("Unexpected error: {}", th);
+                panicProcessor.panic("mserror", th.getMessage());
+            }
+        }
+    }
+
+
 
     private JSONArray getBPList() {
         String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
