@@ -95,7 +95,6 @@ public class BridgeStorageProvider {
     private Coin feePerKb;
     private ABICallElection feePerKbElection;
 
-    private UldTxProcess uldTxProcess;
     private ABICallElection uldTxProcessElection;
 
 
@@ -410,35 +409,8 @@ public class BridgeStorageProvider {
         return feePerKbElection;
     }
 
-
-    public UldTxProcess getUldTxProcess() {
-        if (uldTxProcess != null) {
-            return uldTxProcess;
-        }
-
-        uldTxProcess = safeGetFromRepository(ULD_TX_PROCESS_KEY,
-                data -> data == null
-                        ? null :
-                        BridgeSerializationUtils.deserializeUldTxHashProcess(data)
-        );
-        return uldTxProcess;
-    }
-
-    public void setUldTxProcess(UldTxProcess uldTxProcess) {
-        this.uldTxProcess = uldTxProcess;
-    }
-
     /**
-     * Save the pending federation
-     */
-    public void saveUldTxProcess() {
-        if (null != uldTxProcess) {
-            safeSaveToRepository(ULD_TX_PROCESS_KEY, uldTxProcess, BridgeSerializationUtils::serializeUldTxHashProcess);
-        }
-    }
-
-    /**
-     * Save the federation election
+     * Save the uld tx process election
      */
     public void saveUldTxProcessElection() {
         if (uldTxProcessElection == null) {
@@ -480,7 +452,6 @@ public class BridgeStorageProvider {
         saveFeePerKb();
         saveFeePerKbElection();
 
-        saveUldTxProcess();
         saveUldTxProcessElection();
     }
 

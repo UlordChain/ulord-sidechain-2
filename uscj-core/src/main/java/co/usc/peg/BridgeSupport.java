@@ -543,7 +543,7 @@ public class BridgeSupport {
 
         Sha256Hash uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(uldTxSerialized);
 
-        // Check the tx was not already processed  TODO: delete?
+        // Check the tx was not already processed
         if (provider.getUldTxHashesAlreadyProcessed().keySet().contains(uldTxHash)) {
             logger.warn("Supplied tx was already processed");
             return;
@@ -572,6 +572,7 @@ public class BridgeSupport {
             // vote for release sut
             ABICallSpec winnerSpec = voteReleaseSut(uscTx, uldTxSerialized);
             byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
+            uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(winnerUldTxSerialized);
             uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
 
             Optional<Script> winnerScriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
@@ -664,7 +665,7 @@ public class BridgeSupport {
             return;
         }
 
-        // Mark tx as processed on this block TODO: delete ?
+        // Mark tx as processed on this block
         provider.getUldTxHashesAlreadyProcessed().put(uldTxHash, uscExecutionBlock.getNumber());
 
         // Save UTXOs from the federation(s) only if we actually
@@ -680,25 +681,10 @@ public class BridgeSupport {
      *
      * @throws IOException
      */
-    public ABICallSpec voteReleaseSut(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
+    private ABICallSpec voteReleaseSut(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
         // Must be authorized to vote (checking for signature)
         AddressBasedAuthorizer authorizer = bridgeConstants.getFederationChangeAuthorizer();
         if (!authorizer.isAuthorized(uscTx)) {
-            return null;
-        }
-
-        // Try to do a dry-run and only register the vote if the
-        // call would be successful
-        ABICallVoteResult result;
-        try {
-            Integer executionResult = addUldTxToProcess(uldTxSerialized);
-            result = new ABICallVoteResult(executionResult == 1, executionResult);
-        } catch (BridgeIllegalArgumentException e) {
-            result = new ABICallVoteResult(false, ULD_TX_PROCESS_GENERIC_ERROR_CODE);
-        }
-
-        // Return if the dry run failed or we are on a reversible execution
-        if (!result.wasSuccessful()) {
             return null;
         }
 
@@ -720,47 +706,6 @@ public class BridgeSupport {
         }
 
         return null;
-    }
-
-
-    /**
-     * Adds the given key to the current pending federation
-     * @param uldTxSerialized the public key to add
-     * @return 1 upon success, -1 if the key was already in the pending federation
-     */
-    private Integer addUldTxToProcess(byte[] uldTxSerialized) throws IOException {
-        UldTxProcess uldTxProcess = provider.getUldTxProcess();
-
-        if (uldTxProcess == null) {
-            uldTxProcess = createUldTxProcessor();
-        }
-
-        if (uldTxProcess.getUldTxHashes().contains(uldTxSerialized)) {
-            return -1;
-        }
-
-        uldTxProcess = uldTxProcess.addUldTx(uldTxSerialized);
-
-        provider.setUldTxProcess(uldTxProcess);
-
-        return 1;
-    }
-
-    /**
-     * Creates a new pending federation
-     * If there's currently no pending federation and no funds remain
-     * to be moved from a previous federation, a new one is created.
-     * @return uldTxHashProcess upon success, -1 when a pending federation is present,
-     */
-    private UldTxProcess createUldTxProcessor() throws IOException {
-        UldTxProcess uldTxProcess = new UldTxProcess(Collections.emptyList());
-
-        provider.setUldTxProcess(uldTxProcess);
-
-        // Clear votes on election
-        provider.getUldTxProcessElection(bridgeConstants.getFederationChangeAuthorizer()).clear();
-
-        return uldTxProcess;
     }
 
     /**
