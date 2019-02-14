@@ -71,6 +71,7 @@ public class BridgeSupport {
     public static final Integer LOCK_WHITELIST_UNKNOWN_ERROR_CODE = 0;
     public static final Integer LOCK_WHITELIST_SUCCESS_CODE = 1;
     public static final Integer FEE_PER_KB_GENERIC_ERROR_CODE = -10;
+    public static final Integer ULD_TX_PROCESS_GENERIC_ERROR_CODE = -10;
 
     private static final Logger logger = LoggerFactory.getLogger("BridgeSupport");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
@@ -532,6 +533,234 @@ public class BridgeSupport {
                 getRetiringFederationUldUTXOs().add(utxo);
             }
         }
+    }
+
+
+    public void registerUldTransactionByVote(Transaction uscTx, byte[] uldTxSerialized, int height)
+            throws IOException, BlockStoreException {
+
+        Context.propagate(uldContext);
+
+        Sha256Hash uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(uldTxSerialized);
+
+        // Check the tx was not already processed  TODO: delete?
+        if (provider.getUldTxHashesAlreadyProcessed().keySet().contains(uldTxHash)) {
+            logger.warn("Supplied tx was already processed");
+            return;
+        }
+
+        UldTransaction uldTx = new UldTransaction(bridgeConstants.getUldParams(), uldTxSerialized);
+        uldTx.verify();
+
+        boolean locked = true;
+
+        Federation activeFederation = getActiveFederation();
+
+        // Specific code for lock/release/none txs
+        if (BridgeUtils.isLockTx(uldTx, getLiveFederations(), uldContext, bridgeConstants)) {
+            logger.debug("This is a lock tx {}", uldTx);
+            Optional<Script> scriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
+            if (!scriptSig.isPresent()) {
+                logger.warn(
+                        "[uldtx:{}] First input does not spend a Pay-to-PubkeyHash {}",
+                        uldTx.getHash(),
+                        uldTx.getInput(0)
+                );
+                return;
+            }
+
+            // vote for release sut
+            ABICallSpec winnerSpec = voteReleaseSut(uscTx, uldTxSerialized);
+            byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
+            uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
+
+            Optional<Script> winnerScriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
+
+            // Compute the total amount sent. Value could have been sent both to the
+            // currently active federation as well as to the currently retiring federation.
+            // Add both amounts up in that case.
+            Coin amountToActive = uldTx.getValueSentToMe(getActiveFederationWallet());
+            Coin amountToRetiring = Coin.ZERO;
+            Wallet retiringFederationWallet = getRetiringFederationWallet();
+            if (retiringFederationWallet != null) {
+                amountToRetiring = uldTx.getValueSentToMe(retiringFederationWallet);
+            }
+            Coin totalAmount = amountToActive.add(amountToRetiring);
+
+            // Get the sender public key
+            byte[] data = winnerScriptSig.get().getChunks().get(1).data;
+
+            // Tx is a lock tx, check whether the sender is whitelisted
+            UldECKey senderUldKey = UldECKey.fromPublicOnly(data);
+            Address senderUldAddress = new Address(uldContext.getParams(), senderUldKey.getPubKeyHash());
+
+            // If the address is not whitelisted, then return the funds
+            // using the exact same utxos sent to us.
+            // That is, build a release transaction and get it in the release transaction set.
+            // Otherwise, transfer SULD to the sender of the ULD
+            // The USC account to update is the one that matches the pubkey "spent" on the first ulord tx input
+            LockWhitelist lockWhitelist = provider.getLockWhitelist();
+            if (!lockWhitelist.isWhitelistedFor(senderUldAddress, totalAmount, height)) {
+                locked = false;
+                // Build the list of UTXOs in the ULD transaction sent to either the active
+                // or retiring federation
+                UldTransaction finalUldTx = uldTx;
+                List<UTXO> utxosToUs = uldTx.getWalletOutputs(getNoSpendWalletForLiveFederations()).stream()
+                        .map(output ->
+                            new UTXO (
+                                finalUldTx.getHash(),
+                                output.getIndex(),
+                                output.getValue(),
+                                0,
+                                finalUldTx.isCoinBase(),
+                                output.getScriptPubKey()
+                            )
+                        ).collect(Collectors.toList());
+                // Use the list of UTXOs to build a transaction builder
+                // for the return uld transaction generation
+                ReleaseTransactionBuilder txBuilder = new ReleaseTransactionBuilder(
+                        uldContext.getParams(),
+                        getUTXOBasedWalletForLiveFederations(utxosToUs),
+                        senderUldAddress,
+                        getFeePerKb()
+                );
+                Optional<ReleaseTransactionBuilder.BuildResult> buildReturnResult = txBuilder.buildEmptyWalletTo(senderUldAddress);
+                if (buildReturnResult.isPresent()) {
+                    provider.getReleaseTransactionSet().add(buildReturnResult.get().getUldTx(), uscExecutionBlock.getNumber());
+                    logger.info("whitelist money return tx build successful to {}. Tx {}. Value {}.", senderUldAddress, uscTx, totalAmount);
+                } else {
+                    logger.warn("whitelist money return tx build for uld tx {} error. Return was to {}. Tx {}. Value {}", uldTx.getHash(), senderUldAddress, uscTx, totalAmount);
+                    panicProcessor.panic("whitelist-return-funds", String.format("whitelist money return tx build for uld tx {} error. Return was to {}. Tx {}. Value {}", uldTx.getHash(), senderUldAddress, uscTx, totalAmount));
+                }
+            } else {
+                org.ethereum.crypto.ECKey key = org.ethereum.crypto.ECKey.fromPublicOnly(data);
+                UscAddress sender = new UscAddress(key.getAddress());
+
+                uscRepository.transfer(
+                        PrecompiledContracts.BRIDGE_ADDR,
+                        sender,
+                        co.usc.core.Coin.fromUlord(totalAmount)
+                );
+                // Consume this whitelisted address
+                lockWhitelist.consume(senderUldAddress);
+            }
+        } else if (BridgeUtils.isReleaseTx(uldTx, getLiveFederations())) {
+            logger.debug("This is a release tx {}", uldTx);
+            // do-nothing
+            // We could call removeUsedUTXOs(uldTx) here, but we decided to not do that.
+            // Used utxos should had been removed when we created the release tx.
+            // Invoking removeUsedUTXOs() here would make "some" sense in theses scenarios:
+            // a) In testnet, devnet or local: we restart the USC blockchain whithout changing the federation address. We don't want to have utxos that were already spent.
+            // Open problem: TxA spends TxB. registerUldTransaction() for TxB is called, it spends a utxo the bridge is not yet aware of,
+            // so nothing is removed. Then registerUldTransaction() for TxA and the "already spent" utxo is added as it was not spent.
+            // When is not guaranteed to be called in the chronological order, so a Federator can inform
+            // b) In prod: Federator created a tx manually or the federation was compromised and some utxos were spent. Better not try to spend them.
+            // Open problem: For performance removeUsedUTXOs() just removes 1 utxo
+        } else if (BridgeUtils.isMigrationTx(uldTx, activeFederation, getRetiringFederation(), uldContext, bridgeConstants)) {
+            logger.debug("This is a migration tx {}", uldTx);
+        } else {
+            logger.warn("This is not a lock, a release nor a migration tx {}", uldTx);
+            panicProcessor.panic("uldlock", "This is not a lock, a release nor a migration tx " + uldTx);
+            return;
+        }
+
+        // Mark tx as processed on this block TODO: delete ?
+        provider.getUldTxHashesAlreadyProcessed().put(uldTxHash, uscExecutionBlock.getNumber());
+
+        // Save UTXOs from the federation(s) only if we actually
+        // locked the funds.
+        if (locked) {
+            saveNewUTXOs(uldTx);
+        }
+
+        logger.info("ULD Tx {} processed in USC", uldTxHash);
+    }
+
+    /**
+     *
+     * @throws IOException
+     */
+    public ABICallSpec voteReleaseSut(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
+        // Must be authorized to vote (checking for signature)
+        AddressBasedAuthorizer authorizer = bridgeConstants.getFederationChangeAuthorizer();
+        if (!authorizer.isAuthorized(uscTx)) {
+            return null;
+        }
+
+        // Try to do a dry-run and only register the vote if the
+        // call would be successful
+        ABICallVoteResult result;
+        try {
+            Integer executionResult = addUldTxToProcess(uldTxSerialized);
+            result = new ABICallVoteResult(executionResult == 1, executionResult);
+        } catch (BridgeIllegalArgumentException e) {
+            result = new ABICallVoteResult(false, ULD_TX_PROCESS_GENERIC_ERROR_CODE);
+        }
+
+        // Return if the dry run failed or we are on a reversible execution
+        if (!result.wasSuccessful()) {
+            return null;
+        }
+
+        ABICallSpec callSpec = new ABICallSpec("add", new byte[][]{uldTxSerialized});
+
+        ABICallElection election = provider.getUldTxProcessElection(authorizer);
+        // Register the vote. It is expected to succeed, since all previous checks succeeded
+        if (!election.vote(callSpec, uscTx.getSender())) {
+            logger.warn("Unexpected federation change vote failure");
+            return null;
+        }
+
+        // If enough votes have been reached, then actually execute the function
+        ABICallSpec winnerSpec = election.getWinner();
+        if (winnerSpec != null) {
+            // Clear the winner so that we don't repeat ourselves
+            election.clearWinners();
+            return winnerSpec;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Adds the given key to the current pending federation
+     * @param uldTxSerialized the public key to add
+     * @return 1 upon success, -1 if the key was already in the pending federation
+     */
+    private Integer addUldTxToProcess(byte[] uldTxSerialized) throws IOException {
+        UldTxProcess uldTxProcess = provider.getUldTxProcess();
+
+        if (uldTxProcess == null) {
+            uldTxProcess = createUldTxProcessor();
+        }
+
+        if (uldTxProcess.getUldTxHashes().contains(uldTxSerialized)) {
+            return -1;
+        }
+
+        uldTxProcess = uldTxProcess.addUldTx(uldTxSerialized);
+
+        provider.setUldTxProcess(uldTxProcess);
+
+        return 1;
+    }
+
+    /**
+     * Creates a new pending federation
+     * If there's currently no pending federation and no funds remain
+     * to be moved from a previous federation, a new one is created.
+     * @return uldTxHashProcess upon success, -1 when a pending federation is present,
+     */
+    private UldTxProcess createUldTxProcessor() throws IOException {
+        UldTxProcess uldTxProcess = new UldTxProcess(Collections.emptyList());
+
+        provider.setUldTxProcess(uldTxProcess);
+
+        // Clear votes on election
+        provider.getUldTxProcessElection(bridgeConstants.getFederationChangeAuthorizer()).clear();
+
+        return uldTxProcess;
     }
 
     /**

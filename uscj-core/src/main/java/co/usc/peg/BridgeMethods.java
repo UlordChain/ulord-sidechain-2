@@ -408,6 +408,16 @@ public enum BridgeMethods {
             Bridge.activeAndRetiringFederationOnly((BridgeMethodExecutorVoid) Bridge::registerUldTransaction, "registerUldTransaction"),
             false
     ),
+    RELEASE_SUT(
+            CallTransaction.Function.fromSignature(
+                    "registerUldTransactionByVote",
+                    new String[]{"bytes", "int"},
+                    new String[]{}
+            ),
+            22000L,
+            Bridge.activeAndRetiringFederationOnly((BridgeMethodExecutorVoid) Bridge::registerUldTransactionByVote, "registerUldTransactionByVote"),
+            false
+    ),
     RELEASE_ULD(
             CallTransaction.Function.fromSignature(
                     "releaseUld",

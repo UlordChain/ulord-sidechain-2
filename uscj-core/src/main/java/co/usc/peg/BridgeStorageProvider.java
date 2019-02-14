@@ -58,6 +58,9 @@ public class BridgeStorageProvider {
     private static final DataWord FEE_PER_KB_KEY = DataWord.fromString("feePerKb");
     private static final DataWord FEE_PER_KB_ELECTION_KEY = DataWord.fromString("feePerKbElection");
 
+    private static final DataWord ULD_TX_PROCESS_KEY = DataWord.fromString("uldTxProcess");
+    private static final DataWord ULD_TX_PROCESS_ELECTION_KEY = DataWord.fromString("uldTxProcessElection");
+
     private final Repository repository;
     private final UscAddress contractAddress;
     private final NetworkParameters networkParameters;
@@ -91,6 +94,10 @@ public class BridgeStorageProvider {
 
     private Coin feePerKb;
     private ABICallElection feePerKbElection;
+
+    private UldTxProcess uldTxProcess;
+    private ABICallElection uldTxProcessElection;
+
 
     public BridgeStorageProvider(Repository repository, UscAddress contractAddress, BridgeConstants bridgeConstants, BridgeStorageConfiguration bridgeStorageConfiguration) {
         this.repository = repository;
@@ -403,6 +410,54 @@ public class BridgeStorageProvider {
         return feePerKbElection;
     }
 
+
+    public UldTxProcess getUldTxProcess() {
+        if (uldTxProcess != null) {
+            return uldTxProcess;
+        }
+
+        uldTxProcess = safeGetFromRepository(ULD_TX_PROCESS_KEY,
+                data -> data == null
+                        ? null :
+                        BridgeSerializationUtils.deserializeUldTxHashProcess(data)
+        );
+        return uldTxProcess;
+    }
+
+    public void setUldTxProcess(UldTxProcess uldTxProcess) {
+        this.uldTxProcess = uldTxProcess;
+    }
+
+    /**
+     * Save the pending federation
+     */
+    public void saveUldTxProcess() {
+        if (null != uldTxProcess) {
+            safeSaveToRepository(ULD_TX_PROCESS_KEY, uldTxProcess, BridgeSerializationUtils::serializeUldTxHashProcess);
+        }
+    }
+
+    /**
+     * Save the federation election
+     */
+    public void saveUldTxProcessElection() {
+        if (uldTxProcessElection == null) {
+            return;
+        }
+
+        safeSaveToRepository(ULD_TX_PROCESS_ELECTION_KEY, uldTxProcessElection, BridgeSerializationUtils::serializeElection);
+    }
+
+    public ABICallElection getUldTxProcessElection(AddressBasedAuthorizer authorizer) {
+        if (uldTxProcessElection != null) {
+            return uldTxProcessElection;
+        }
+
+        uldTxProcessElection = safeGetFromRepository(ULD_TX_PROCESS_ELECTION_KEY,
+                data -> (data == null)? new ABICallElection(authorizer) : BridgeSerializationUtils.deserializeElection(data, authorizer));
+        return uldTxProcessElection;
+    }
+
     public void save() throws IOException {
         saveUldTxHashesAlreadyProcessed();
 
@@ -424,6 +479,9 @@ public class BridgeStorageProvider {
 
         saveFeePerKb();
         saveFeePerKbElection();
+
+        saveUldTxProcess();
+        saveUldTxProcessElection();
     }
 
     private <T> T safeGetFromRepository(DataWord keyAddress, RepositoryDeserializer<T> deserializer) {

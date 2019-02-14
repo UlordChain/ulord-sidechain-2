@@ -555,4 +555,37 @@ public class BridgeSerializationUtils {
                 .map(pubKeyBytes -> new UscAddress(pubKeyBytes.getRLPData()))
                 .collect(Collectors.toList());
     }
+
+    // A pending federation is serialized as the
+    // public keys conforming it.
+    // See BridgeSerializationUtils::serializePublicKeys
+    public static byte[] serializeUldTxHashProcess(UldTxProcess uldTxHashProcess) {
+        return serializeUldTxHashes(uldTxHashProcess.getUldTxHashes());
+    }
+
+    // For the serialization format, see BridgeSerializationUtils::serializePendingFederation
+    // and serializePublicKeys::deserializePublicKeys
+    public static UldTxProcess deserializeUldTxHashProcess(byte[] data) {
+        return new UldTxProcess(deserializeUldTxHashes(data));
+    }
+
+    // A list of uld public keys is serialized as
+    // [pubkey1, pubkey2, ..., pubkeyn], sorted
+    // using the lexicographical order of the public keys
+    // (see UldECKey.PUBKEY_COMPARATOR).
+    private static byte[] serializeUldTxHashes(List<byte[]> uldTxs) {
+        List<byte[]> encodedKeys = uldTxs.stream()
+                .map(uldTx -> RLP.encodeElement(uldTx))
+                .collect(Collectors.toList());
+        return RLP.encodeList(encodedKeys.toArray(new byte[0][]));
+    }
+
+    // For the serialization format, see BridgeSerializationUtils::serializePublicKeys
+    private static List<byte[]> deserializeUldTxHashes(byte[] data) {
+        RLPList rlpList = (RLPList)RLP.decode2(data).get(0);
+
+        return rlpList.stream()
+                .map(uldTx -> uldTx.getRLPData())
+                .collect(Collectors.toList());
+    }
 }
