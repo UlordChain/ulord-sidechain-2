@@ -258,7 +258,7 @@ public class BlockChainImpl implements Blockchain {
 
             logger.trace("execute done");
 
-            boolean isValid = noValidation ? true : blockExecutor.validate(block, result);
+            boolean isValid = noValidation || blockExecutor.validate(block, result);
 
             logger.trace("validate done");
 
@@ -274,7 +274,7 @@ public class BlockChainImpl implements Blockchain {
         // It is the new best block
 
         if (bestBlock != null && !bestBlock.isParentOf(block)) {
-            logger.trace("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
+            logger.trace("Rebranching: {} ~> {} From block {} ~> {}",
                     bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber());
             BlockFork fork = new BlockFork();
             fork.calculate(bestBlock, block, blockStore);

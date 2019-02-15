@@ -60,8 +60,12 @@ public class UscSystemProperties extends SystemProperties {
     private static final int PD_DEFAULT_TIMEOUT_MESSAGE = PD_DEFAULT_CLEAN_PERIOD - 1; //miliseconds
     private static final int PD_DEFAULT_REFRESH_PERIOD = 60000; //miliseconds
 
-    private static final String MINER_REWARD_ADDRESS_CONFIG = "blockProducer.reward.address";
-    private static final String MINER_COINBASE_SECRET_CONFIG = "blockProducer.coinbase.secret";
+    private static final String BP_REWARD_ADDRESS_CONFIG = "blockProducer.reward.address";
+    private static final String BP_COINBASE_SECRET_CONFIG = "blockProducer.coinbase.secret";
+
+    private static final String UOS_IP = "blockProducer.uos.ip";
+    private static final String UOS_PORT = "blockProducer.uos.port";
+
     private static final int CHUNK_SIZE = 192;
 
     //TODO: REMOVE THIS WHEN THE LocalBLockTests starts working with REMASC
@@ -73,6 +77,22 @@ public class UscSystemProperties extends SystemProperties {
 
     public UscSystemProperties(ConfigLoader loader) {
         super(loader);
+    }
+
+    @Nullable
+    public String UosIP() {
+        if (!isMinerServerEnabled()) {
+            return null;
+        }
+        return configFromFiles.getString(UOS_IP);
+    }
+
+    @Nullable
+    public String UosPort() {
+        if (!isMinerServerEnabled()) {
+            return null;
+        }
+        return configFromFiles.getString(UOS_PORT);
     }
 
     @Nullable
@@ -88,9 +108,9 @@ public class UscSystemProperties extends SystemProperties {
             return account.getAddress();
         }
 
-        String coinbaseAddress = configFromFiles.getString(MINER_REWARD_ADDRESS_CONFIG);
+        String coinbaseAddress = configFromFiles.getString(BP_REWARD_ADDRESS_CONFIG);
         if (coinbaseAddress.length() != Constants.getMaxAddressByteLength() * 2) {
-            throw new UscConfigurationException(MINER_REWARD_ADDRESS_CONFIG + " needs to be Hex encoded and 20 byte length");
+            throw new UscConfigurationException(BP_REWARD_ADDRESS_CONFIG + " needs to be Hex encoded and 20 byte length");
         }
 
         return new UscAddress(coinbaseAddress);
@@ -102,22 +122,22 @@ public class UscSystemProperties extends SystemProperties {
             return null;
         }
 
-        if (configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG) &&
-                configFromFiles.hasPath(MINER_REWARD_ADDRESS_CONFIG)) {
-            System.out.println("Secret: " + configFromFiles.getString(MINER_COINBASE_SECRET_CONFIG) + "\nAddress: " + configFromFiles.getString(MINER_REWARD_ADDRESS_CONFIG));
-            throw new UscConfigurationException("It is required to have only one of " + MINER_REWARD_ADDRESS_CONFIG + " or " + MINER_COINBASE_SECRET_CONFIG);
+        if (configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG) &&
+                configFromFiles.hasPath(BP_REWARD_ADDRESS_CONFIG)) {
+            System.out.println("Secret: " + configFromFiles.getString(BP_COINBASE_SECRET_CONFIG) + "\nAddress: " + configFromFiles.getString(BP_REWARD_ADDRESS_CONFIG));
+            throw new UscConfigurationException("It is required to have only one of " + BP_REWARD_ADDRESS_CONFIG + " or " + BP_COINBASE_SECRET_CONFIG);
         }
 
-        if (!configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG) &&
-                !configFromFiles.hasPath(MINER_REWARD_ADDRESS_CONFIG)) {
-            throw new UscConfigurationException("It is required to either have " + MINER_REWARD_ADDRESS_CONFIG + " or " + MINER_COINBASE_SECRET_CONFIG + " to use the blockProducer server");
+        if (!configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG) &&
+                !configFromFiles.hasPath(BP_REWARD_ADDRESS_CONFIG)) {
+            throw new UscConfigurationException("It is required to either have " + BP_REWARD_ADDRESS_CONFIG + " or " + BP_COINBASE_SECRET_CONFIG + " to use the blockProducer server");
         }
 
-        if (!configFromFiles.hasPath(MINER_COINBASE_SECRET_CONFIG)) {
+        if (!configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG)) {
             return null;
         }
 
-        String coinbaseSecret = configFromFiles.getString(MINER_COINBASE_SECRET_CONFIG);
+        String coinbaseSecret = configFromFiles.getString(BP_COINBASE_SECRET_CONFIG);
         return new Account(ECKey.fromPrivate(HashUtil.keccak256(coinbaseSecret.getBytes(StandardCharsets.UTF_8))));
     }
 

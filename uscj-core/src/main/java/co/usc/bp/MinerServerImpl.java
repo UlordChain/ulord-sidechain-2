@@ -29,7 +29,6 @@ import co.usc.panic.PanicProcessor;
 import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.EvictingQueue;
 import javafx.util.Pair;
 import org.ethereum.core.*;
 import org.ethereum.facade.Ethereum;
@@ -157,12 +156,12 @@ public class MinerServerImpl implements MinerServer {
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
 
-//            if(refreshBPListTimer != null) {
-//                refreshBPListTimer.cancel();
-//            }
+            if(refreshBPListTimer != null) {
+                refreshBPListTimer.cancel();
+            }
 
-//            refreshBPListTimer = new Timer("BP List Scheduler");
-//            refreshBPListTimer.schedule(new RefreshBPList(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
+            refreshBPListTimer = new Timer("BP List Scheduler");
+            refreshBPListTimer.schedule(new RefreshBPList(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
 
             if (refreshBlockTimer != null) {
                 refreshBlockTimer.cancel();
@@ -370,7 +369,7 @@ public class MinerServerImpl implements MinerServer {
         /**
          * onBlock checks if we have to build over a new block. (Only if the blockchain's best block changed).
          * This method will be called on every block added to the blockchain, even if it doesn't go to the best chain.
-         * TODO(???): It would be cleaner to just send this when the blockchain's best block changes.
+         * TODO(???): It would be cleaner to just                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                send this when the blockchain's best block changes.
          * **/
         // This event executes in the thread context of the caller.
         // In case of private blockProducer, it's the "Private Mining timer" task
@@ -430,9 +429,8 @@ public class MinerServerImpl implements MinerServer {
             try {
                 JSONArray bpList = getBPList();
 
-            } catch (Throwable th) {
-                logger.error("Unexpected error: {}", th);
-                panicProcessor.panic("mserror", th.getMessage());
+            } catch (Exception ex) {
+                logger.error("Unexpected error: {}", ex);
             }
         }
     }
@@ -440,7 +438,7 @@ public class MinerServerImpl implements MinerServer {
 
 
     private JSONArray getBPList() {
-        String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
+        String rpcUrl = "http://" + config.UosIP() + ":" + config.UosPort() + "/v1/chain/get_table_rows";
         String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
         String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
         return new JSONObject(bpList).getJSONArray("rows");
