@@ -63,8 +63,9 @@ public class UscSystemProperties extends SystemProperties {
     private static final String BP_REWARD_ADDRESS_CONFIG = "blockProducer.reward.address";
     private static final String BP_COINBASE_SECRET_CONFIG = "blockProducer.coinbase.secret";
 
-    private static final String UOS_IP = "blockProducer.uos.ip";
+    private static final String UOS_URL = "blockProducer.uos.url";
     private static final String UOS_PORT = "blockProducer.uos.port";
+    private static final String UOS_PARAM = "blockProducer.uos.param";
 
     private static final int CHUNK_SIZE = 192;
 
@@ -80,11 +81,11 @@ public class UscSystemProperties extends SystemProperties {
     }
 
     @Nullable
-    public String UosIP() {
+    public String UosURL() {
         if (!isMinerServerEnabled()) {
             return null;
         }
-        return configFromFiles.getString(UOS_IP);
+        return configFromFiles.getString(UOS_URL);
     }
 
     @Nullable
@@ -93,6 +94,14 @@ public class UscSystemProperties extends SystemProperties {
             return null;
         }
         return configFromFiles.getString(UOS_PORT);
+    }
+
+    @Nullable
+    public String UosParam() {
+        if (!isMinerServerEnabled()) {
+            return null;
+        }
+        return configFromFiles.getString(UOS_PARAM);
     }
 
     @Nullable

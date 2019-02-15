@@ -2,6 +2,7 @@ package co.usc.rpc.uos;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -13,15 +14,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UOSRpcChannel {
-    public static String requestBPList(String rpcUrl, String urlParameters){
+
+    private String rpcUrl;
+    private String urlParameters;
+
+    public UOSRpcChannel(String url, String port, String urlParameters){
+
+        this.rpcUrl = url + ":" + port + "/v1/chain/get_table_rows";
+        this.urlParameters = urlParameters;
+        //this.urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
+    }
+
+    public String requestBPList(){
         HttpURLConnection connection = null;
 
         try{
             URL url = new URL(rpcUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
+            connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Content-Length",
                     Integer.toString(urlParameters.getBytes().length));
             connection.setRequestProperty("Content-Language", "en-US");
@@ -38,7 +49,7 @@ public class UOSRpcChannel {
             //Get Response
             InputStream is = connection.getInputStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
+            StringBuilder response = new StringBuilder();
             String line;
             while ((line = rd.readLine()) != null) {
                 response.append(line);
@@ -52,11 +63,9 @@ public class UOSRpcChannel {
         }
     }
 
-    public static JSONObject getBPSchedule(){
+    public JSONObject getBPSchedule(){
 
-        String rpcUrl = "http://114.67.37.2:20580/v1/chain/get_table_rows";
-        String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
-        String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
+        String bpList = requestBPList();
 
         JSONArray arr = new JSONObject(bpList).getJSONArray("rows");
 
@@ -67,7 +76,7 @@ public class UOSRpcChannel {
         JSONObject rounds = new JSONObject();
 
         for(int i = 0; i < totalRounds; i++){
-            key = "round" + i;
+            key = "round" + (i + 1);
             JSONObject rows = new JSONObject();
 
             for(int j=i*totalBPs; j< (i*totalBPs) + totalBPs; j++){
@@ -93,7 +102,10 @@ public class UOSRpcChannel {
 
     //TODO remove this function once requestBPList is used in Test/Production
     public static void main(String []args){
-        JSONObject obj = getBPSchedule();
-        System.out.println(obj);
+        String rpcUrl = "https://testrpc1.uosio.org";
+
+        UOSRpcChannel uosRpcChannel = new UOSRpcChannel(rpcUrl, "8250", "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}");
+        JSONObject obj = uosRpcChannel.getBPSchedule();
+        System.out.println(obj.getJSONObject("round1").getJSONArray("rows"));
     }
 }

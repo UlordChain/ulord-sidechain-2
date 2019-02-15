@@ -435,12 +435,9 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
-
-
     private JSONArray getBPList() {
-        String rpcUrl = "http://" + config.UosIP() + ":" + config.UosPort() + "/v1/chain/get_table_rows";
-        String urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
-        String bpList = UOSRpcChannel.requestBPList(rpcUrl, urlParameters);
-        return new JSONObject(bpList).getJSONArray("rows");
+        UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
+        JSONObject bpSchedule = uosRpcChannel.getBPSchedule();
+        return bpSchedule.getJSONObject("round2").getJSONArray("rows");
     }
 }
