@@ -555,4 +555,5 @@ public class BridgeSerializationUtils {
                 .map(pubKeyBytes -> new UscAddress(pubKeyBytes.getRLPData()))
                 .collect(Collectors.toList());
     }
+
 }

@@ -406,6 +406,22 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
         }
     }
 
+    public void registerUldTransactionByVote(Object[] args) {
+        logger.trace("releaseSut");
+
+        byte[] uldTxSerialized = (byte[]) args[0];
+        int height = ((BigInteger)args[1]).intValue();
+        try {
+            bridgeSupport.registerUldTransactionByVote(uscTx, uldTxSerialized, height);
+        } catch (Program.OutOfGasException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.warn("Exception in releaseUld", e);
+            throw new RuntimeException("Exception in releaseUld", e);
+        }
+
+    }
+
     public void releaseUld(Object[] args)
     {
         logger.trace("releaseUld");
