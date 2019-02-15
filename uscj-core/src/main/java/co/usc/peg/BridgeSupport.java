@@ -571,10 +571,13 @@ public class BridgeSupport {
 
             // vote for release sut
             ABICallSpec winnerSpec = voteReleaseSut(uscTx, uldTxSerialized);
+            if (null == winnerSpec) {
+                return;
+            }
             byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
-            uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(winnerUldTxSerialized);
+            //uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(winnerUldTxSerialized);
             uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
-
+            uldTxHash = uldTx.getHash();
             Optional<Script> winnerScriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
 
             // Compute the total amount sent. Value could have been sent both to the
@@ -683,8 +686,9 @@ public class BridgeSupport {
      */
     private ABICallSpec voteReleaseSut(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
         // Must be authorized to vote (checking for signature)
-        AddressBasedAuthorizer authorizer = bridgeConstants.getFederationChangeAuthorizer();
+        AddressBasedAuthorizer authorizer = federationSupport.getActiveFederationAuthorizer();
         if (!authorizer.isAuthorized(uscTx)) {
+            logger.error("Sender address authorize failed");
             return null;
         }
 

@@ -408,7 +408,7 @@ public enum BridgeMethods {
             Bridge.activeAndRetiringFederationOnly((BridgeMethodExecutorVoid) Bridge::registerUldTransaction, "registerUldTransaction"),
             false
     ),
-    RELEASE_SUT(
+    REGISTER_ULD_TRANSACTION_BY_VOTE(
             CallTransaction.Function.fromSignature(
                     "registerUldTransactionByVote",
                     new String[]{"bytes", "int"},

@@ -71,6 +71,10 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
     // - The ulord block height that contains the tx
     // - A merkle tree that shows the tx is included in that block, serialized with the ulord wire protocol format.
     public static final CallTransaction.Function REGISTER_ULD_TRANSACTION = BridgeMethods.REGISTER_ULD_TRANSACTION.getFunction();
+    // Parameters:
+    // - A ulord tx, serialized with the ulord wire protocol format
+    // - The ulord block height that contains the tx
+    public static final CallTransaction.Function REGISTER_ULD_TRANSACTION_BY_VOTE = BridgeMethods.REGISTER_ULD_TRANSACTION_BY_VOTE.getFunction();
     // No parameters, the current usc tx is used as input.
     public static final CallTransaction.Function RELEASE_ULD = BridgeMethods.RELEASE_ULD.getFunction();
     // Parameters:
@@ -407,7 +411,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
     }
 
     public void registerUldTransactionByVote(Object[] args) {
-        logger.trace("releaseSut");
+        logger.trace("registerUldTransactionByVote");
 
         byte[] uldTxSerialized = (byte[]) args[0];
         int height = ((BigInteger)args[1]).intValue();
@@ -416,8 +420,8 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
         } catch (Program.OutOfGasException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("Exception in releaseUld", e);
-            throw new RuntimeException("Exception in releaseUld", e);
+            logger.warn("Exception in registerUldTransactionByVote", e);
+            throw new RuntimeException("Exception in registerUldTransactionByVote", e);
         }
 
     }
