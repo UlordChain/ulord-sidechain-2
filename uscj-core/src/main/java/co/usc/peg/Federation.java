@@ -73,6 +73,10 @@ public class Federation {
         return publicKeys;
     }
 
+    public List<ECKey> getUscPublicKeys() {
+        return uscPublicKeys;
+    }
+
     public int getNumberOfSignaturesRequired() {
         return publicKeys.size() / 2 + 1;
     }

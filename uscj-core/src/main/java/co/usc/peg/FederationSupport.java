@@ -201,4 +201,24 @@ public class FederationSupport {
         long federationAge = executionBlock.getNumber() - federation.getCreationBlockNumber();
         return federationAge >= bridgeConstants.getFederationActivationAge();
     }
+
+    /**
+     *
+     * @return the currently active federationAuthorizer.
+     */
+    public AddressBasedAuthorizer getActiveFederationAuthorizer() {
+        Federation federation = null;
+        switch (getActiveFederationReference()) {
+            case NEW:
+                federation = provider.getNewFederation();
+            case OLD:
+                federation = provider.getOldFederation();
+            case GENESIS:
+            default:
+                federation = bridgeConstants.getGenesisFederation();
+        }
+
+        return new AddressBasedAuthorizer(federation.getUscPublicKeys(),
+                AddressBasedAuthorizer.MinimumRequiredCalculation.MAJORITY);
+    }
 }
