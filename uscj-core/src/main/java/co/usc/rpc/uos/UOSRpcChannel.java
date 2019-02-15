@@ -22,7 +22,6 @@ public class UOSRpcChannel {
 
         this.rpcUrl = url + ":" + port + "/v1/chain/get_table_rows";
         this.urlParameters = urlParameters;
-        //this.urlParameters = "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}";
     }
 
     public String requestBPList(){
