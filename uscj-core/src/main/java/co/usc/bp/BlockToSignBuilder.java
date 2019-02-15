@@ -18,6 +18,7 @@
 
 package co.usc.bp;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.config.*;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -70,6 +71,8 @@ public class BlockToSignBuilder {
 
     private long timeAdjustment;
     private long minimumAcceptableTime;
+
+    private byte[] bpListData;
 
     @Autowired
     public BlockToSignBuilder(
@@ -149,6 +152,9 @@ public class BlockToSignBuilder {
         //Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
         //txs.add(remascTx);
 
+        Transaction BlmTx = new BlmTransaction(parent.getNumber() + 1, getBpListData());
+        txs.add(BlmTx);
+
         Map<UscAddress, BigInteger> accountNonces = new HashMap<>();
 
         Repository originalRepo = repository.getSnapshotTo(parent.getStateRoot());
@@ -225,5 +231,13 @@ public class BlockToSignBuilder {
 
         timeAdjustment += seconds;
         return timeAdjustment;
+    }
+
+    public byte[] getBpListData() {
+        return bpListData;
+    }
+
+    public void setBpListData(byte[] bpListData) {
+        this.bpListData = bpListData;
     }
 }

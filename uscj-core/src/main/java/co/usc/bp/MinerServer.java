@@ -18,7 +18,6 @@
 
 package co.usc.bp;
 
-import co.usc.ulordj.core.UldBlock;
 import co.usc.core.UscAddress;
 import org.ethereum.core.Block;
 
@@ -38,7 +37,7 @@ public interface MinerServer {
 
     UscAddress getCoinbaseAddress();
 
-    void buildAndProcessBlock(@Nonnull Block newParent, boolean createCompetitiveBlock);
+    void buildAndProcessBlock(@Nonnull Block newParent, byte[] bpListData);
 
     void setExtraData(byte[] extraData);
 

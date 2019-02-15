@@ -77,7 +77,7 @@ public class MinerServerImpl implements MinerServer {
 
     private boolean started;
     private boolean isBP;
-    private boolean isTest = false;
+    private boolean isTest = true;
     private byte[] extraData;
 
     @GuardedBy("lock")
@@ -320,19 +320,14 @@ public class MinerServerImpl implements MinerServer {
      * buildAndProcessBlock creates a block to sign based on the given block as parent.
      *
      * @param newBlockParent         the new block parent.
-     * @param createCompetitiveBlock used for testing.
+     * @param bpListData             BP List to store in BLM Transaction
      */
     @Override
-    public void buildAndProcessBlock(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
-
-        // See BlockChainImpl.calclBloom() if blocks has txs
-        if (createCompetitiveBlock) {
-            // Just for testing, bp on top of bestblock's parent
-            newBlockParent = blockchain.getBlockByHash(newBlockParent.getParentHash().getBytes());
-        }
+    public void buildAndProcessBlock(@Nonnull Block newBlockParent, byte[] bpListData) {
 
         logger.info("Starting block to sign from parent {} {}", newBlockParent.getNumber(), newBlockParent.getHash());
 
+        builder.setBpListData(bpListData);
         final Block newBlock = builder.build(newBlockParent, extraData);
 
         synchronized (lock) {
@@ -409,7 +404,8 @@ public class MinerServerImpl implements MinerServer {
                 // Build block only if it is a BP
                 if(isBP || isTest) {
                     logger.info("Building block to sign");
-                    buildAndProcessBlock(bestBlock, false);
+                    // TODO: Insert BPList in bpListData field.
+                    buildAndProcessBlock(bestBlock, null);
                 }
 
                 scheduleRefreshBlockTimer(isTest);

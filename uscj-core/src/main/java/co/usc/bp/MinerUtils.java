@@ -18,6 +18,7 @@
 
 package co.usc.bp;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.ulordj.core.UldTransaction;
 import co.usc.ulordj.core.NetworkParameters;
 import co.usc.config.UscMiningConstants;
@@ -173,12 +174,19 @@ public class MinerUtils {
                     expectedNonce = originalRepo.getNonce(txSender);
                 }
 
-                if (!(tx instanceof RemascTransaction) && tx.getGasPrice().compareTo(minGasPrice) < 0) {
+                if (!(tx instanceof BlmTransaction) && tx.getGasPrice().compareTo(minGasPrice) < 0) {
                     logger.warn("Rejected tx={} because of low gas account {}, removing tx from pending state.", hash, txSender);
 
                     txsToRemove.add(tx);
                     continue;
                 }
+
+//                if (!(tx instanceof RemascTransaction) && tx.getGasPrice().compareTo(minGasPrice) < 0) {
+//                    logger.warn("Rejected tx={} because of low gas account {}, removing tx from pending state.", hash, txSender);
+//
+//                    txsToRemove.add(tx);
+//                    continue;
+//                }
 
                 if (!expectedNonce.equals(txNonce)) {
                     logger.warn("Invalid nonce, expected {}, found {}, tx={}", expectedNonce, txNonce, hash);

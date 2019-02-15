@@ -18,6 +18,7 @@
 
 package org.ethereum.rpc.dto;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.remasc.RemascTransaction;
@@ -77,7 +78,7 @@ public class TransactionResultDTO {
 
         input = TypeConverter.toJsonHex(tx.getData());
 
-        if (tx instanceof RemascTransaction) {
+        if (tx instanceof BlmTransaction) {
             // Web3.js requires the address to be valid (20 bytes),
             // so we have to serialize the Remasc sender as a valid address.
             from = TypeConverter.toJsonHex(new byte[20]);
