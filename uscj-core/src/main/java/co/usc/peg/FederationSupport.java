@@ -207,18 +207,7 @@ public class FederationSupport {
      * @return the currently active federationAuthorizer.
      */
     public AddressBasedAuthorizer getActiveFederationAuthorizer() {
-        Federation federation = null;
-        switch (getActiveFederationReference()) {
-            case NEW:
-                federation = provider.getNewFederation();
-            case OLD:
-                federation = provider.getOldFederation();
-            case GENESIS:
-            default:
-                federation = bridgeConstants.getGenesisFederation();
-        }
-
-        return new AddressBasedAuthorizer(federation.getUscPublicKeys(),
+        return new AddressBasedAuthorizer(getActiveFederation().getUscPublicKeys(),
                 AddressBasedAuthorizer.MinimumRequiredCalculation.MAJORITY);
     }
 }
