@@ -4,8 +4,9 @@ import co.usc.core.UscAddress;
 import org.ethereum.core.Repository;
 
 import java.util.List;
+import java.util.Map;
 
-public class BmlStorageProvider {
+public class BlmStorageProvider {
 
     //Contract state keys used to store values
     private static final String BP_ADDRESS = "bpAddress";
@@ -14,15 +15,14 @@ public class BmlStorageProvider {
     private Repository repository;
     private UscAddress contractAddress;
 
-    private List<String> bpAddress;
-    private List<String> bpTime;
+    private Map<String, Long> bpList;
 
-    public BmlStorageProvider(Repository repository, UscAddress contractAddress) {
+    public BlmStorageProvider(Repository repository, UscAddress contractAddress) {
         this.repository = repository;
         this.contractAddress = contractAddress;
     }
 
-    public void saveBpList() {
+    public void saveBpList(Map<String, Long> bpList) {
         // TODO: Save the BP List here.
     }
 }
