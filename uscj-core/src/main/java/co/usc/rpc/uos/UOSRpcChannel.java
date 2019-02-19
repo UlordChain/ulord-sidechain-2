@@ -70,19 +70,26 @@ public class UOSRpcChannel {
 
         String key = "";
 
-        int totalRounds = 2;
-        int totalBPs =  getUniqueBpCount(arr);
         JSONObject rounds = new JSONObject();
 
-        for(int i = 0; i < totalRounds; i++){
-            key = "round" + (i + 1);
-            JSONObject rows = new JSONObject();
+        int round = 1;
+        JSONObject rows = new JSONObject();
+        for(int i = 0; i < arr.length(); i++){
 
-            for(int j=i*totalBPs; j< (i*totalBPs) + totalBPs; j++){
+            rows.append("rows", arr.getJSONObject(i));
 
-                rows.append("rows", arr.getJSONObject(j));
+            if((arr.getJSONObject(i+1).getLong("bp_valid_time") - arr.getJSONObject(i).getLong("bp_valid_time")) > 1) {
+                //Calculate round
+                key = "round" + round;
+                rounds.put(key, rows);
+
+                rows = new JSONObject();
+                ++round;
             }
-            rounds.put(key,rows);
+
+            if(round == 3){
+                break;
+            }
         }
 
         return rounds;
@@ -101,10 +108,11 @@ public class UOSRpcChannel {
 
     //TODO remove this function once requestBPList is used in Test/Production
     public static void main(String []args){
-        String rpcUrl = "https://testrpc1.uosio.org";
+        String rpcUrl = "https://rpc1.uosio.org";
 
         UOSRpcChannel uosRpcChannel = new UOSRpcChannel(rpcUrl, "8250", "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}");
         JSONObject obj = uosRpcChannel.getBPSchedule();
+        System.out.println(obj);
         System.out.println(obj.getJSONObject("round1").getJSONArray("rows"));
     }
 }
