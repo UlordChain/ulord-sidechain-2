@@ -470,7 +470,6 @@ public class Block {
     }
 
     public static boolean isBlmTransaction(Transaction tx, int txPosition, int txsSize) {
-        // TODO: add condition to check data field.
         return isLastTx(txPosition, txsSize) && checkBlmAddress(tx) && checkBlmTxZeroValues(tx);
     }
 

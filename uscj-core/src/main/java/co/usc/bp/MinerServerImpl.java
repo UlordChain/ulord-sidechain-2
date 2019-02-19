@@ -405,7 +405,6 @@ public class MinerServerImpl implements MinerServer {
                 // Build block only if it is a BP
                 if (isBP || isTest) {
                     logger.info("Building block to sign");
-                    // TODO: Insert BPList in bpListData field.
                     buildAndProcessBlock(bestBlock, Utils.encodeBpList(bpListMap));
                 }
 

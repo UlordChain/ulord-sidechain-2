@@ -6,18 +6,17 @@ import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
-import org.ethereum.util.Utils;
 import org.ethereum.vm.LogInfo;
 import org.ethereum.vm.PrecompiledContracts;
 
 import java.util.List;
-import java.util.Map;
 
 // BP List Management Contract
 public class BlmContract extends PrecompiledContracts.PrecompiledContract {
+    private static final byte[] ZERO_BYTE_ARRAY = new byte[]{0};
 
     private BlmStorageProvider provider;
-
+    private Transaction executionTx;
     public BlmContract (UscAddress contractAddress) {
         this.contractAddress = contractAddress;
     }
@@ -32,14 +31,26 @@ public class BlmContract extends PrecompiledContracts.PrecompiledContract {
     public void init(Transaction executionTx, Block executionBlock, Repository repository,
                      BlockStore blockStore, ReceiptStore receiptStore, List<LogInfo> logs) {
         this.provider = new BlmStorageProvider(repository, contractAddress);
+        this.executionTx = executionTx;
     }
 
     @Override
     public byte[] execute(byte[] data) {
-        // Execute the contract here
-        // Extract and Update BP list from data.
-        Map<String, Long> bpList = Utils.decodeBpList(data);
-        provider.saveBpList(bpList);
+        UscAddress sender = executionTx.getSender();
+        if(!sender.toString().equals(getSender().toString()) || data == null) {
+            return new byte[0];
+        }
+
+        provider.saveBpList(data);
         return new byte[0];
+    }
+
+    private UscAddress getSender() {
+        return new UscAddress(new byte[20]) {
+            @Override
+            public byte[] getBytes() {
+                return ZERO_BYTE_ARRAY;
+            }
+        };
     }
 }
