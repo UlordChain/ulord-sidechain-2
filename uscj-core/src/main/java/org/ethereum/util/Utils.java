@@ -28,15 +28,14 @@ import org.bouncycastle.util.encoders.Hex;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 
@@ -273,5 +272,91 @@ public class Utils {
 
     public static String UosPubKeyToUlordAddr(String uosPubKey, NetworkParameters params) {
         return UldECKey.fromPublicOnly(Hex.decode(UosPubKeyToUlord(uosPubKey))).toAddress(params).toBase58();
+    }
+
+    /**
+     * encodeBpList encodes BP List in a byte array as
+     * [UlordPublicKey Length] [Time Length] [Actual Ulord PublicKey] [Actual Time]
+     * @param bpListMap input bpList
+     * @return returns encoded byte array of bpList
+     */
+    public static byte[] encodeBpList(Map<String, Long> bpListMap) {
+        if(bpListMap == null)
+            return new byte[0];
+
+        byte[][] list = new byte[bpListMap.size()][];
+
+        int i = 0;
+        int arrayTotalSize = 0;
+        for ( Map.Entry<String, Long> entry : bpListMap.entrySet()) {
+            String ulordPubKey = Utils.UosPubKeyToUlord(entry.getKey());
+            byte[] time = longToBytes(entry.getValue());
+
+            UldECKey publicKey = UldECKey.fromPublicOnly(Hex.decode(ulordPubKey));
+
+            byte[] pubKey = publicKey.getPubKey();
+
+            byte[] pubKeyLen = new byte[1];
+            pubKeyLen[0] = (byte) pubKey.length;
+
+            byte[] timeLen = new byte[1];
+            timeLen [0] = (byte) time.length;
+
+            byte[] encoded = new byte[pubKeyLen.length + timeLen.length + pubKey.length + time.length];
+            System.arraycopy(pubKeyLen, 0, encoded, 0, pubKeyLen.length);
+            System.arraycopy(timeLen, 0, encoded, pubKeyLen.length, timeLen.length);
+            System.arraycopy(pubKey, 0, encoded, pubKeyLen.length + timeLen.length, pubKey.length);
+            System.arraycopy(time, 0, encoded, pubKeyLen.length + timeLen.length + pubKey.length, time.length);
+
+            list[i] = encoded;
+            arrayTotalSize += encoded.length;
+            i++;
+        }
+
+        byte[] encoded = new byte[arrayTotalSize];
+
+        for (int j = 0; j < list.length; ++j) {
+            System.arraycopy(list[j], 0, encoded, list[j].length * j, list[j].length);
+        }
+
+        return encoded;
+    }
+
+    public static byte[] longToBytes(long val) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(val);
+        return buffer.array();
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(bytes);
+        buffer.flip();//need flip
+        return buffer.getLong();
+    }
+
+    public static Map<String, Long> decodeBpList(byte[] data) {
+        if(data == null)
+            return null;
+
+        Map<String, Long> bpList = new LinkedHashMap<>();
+
+        for (int i = 0; i < data.length;) {
+            int pubKeyLen = data[i++];
+            int timeLen = data[i++];
+            byte[] pubKey = new byte[pubKeyLen];
+            for(int j = 0; j < pubKeyLen; ++j) {
+                pubKey[j] = data[i++];
+            }
+            UldECKey key = UldECKey.fromPublicOnly(pubKey);
+
+            byte[] time = new byte[timeLen];
+            for(int j = 0; j < timeLen; ++j) {
+                time[j] = data[i++];
+            }
+
+            bpList.put(key.getPublicKeyAsHex(), bytesToLong(time));
+        }
+        return bpList;
     }
 }

@@ -23,7 +23,6 @@ import co.usc.config.*;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockExecutor;
-import co.usc.remasc.RemascTransaction;
 import co.usc.ulordj.core.Sha256Hash;
 import co.usc.validators.BlockValidationRule;
 import org.bouncycastle.util.encoders.Hex;

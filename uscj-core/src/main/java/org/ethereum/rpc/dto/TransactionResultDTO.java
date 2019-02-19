@@ -21,7 +21,6 @@ package org.ethereum.rpc.dto;
 import co.usc.BpListManager.BlmTransaction;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
-import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.Block;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
@@ -80,7 +79,7 @@ public class TransactionResultDTO {
 
         if (tx instanceof BlmTransaction) {
             // Web3.js requires the address to be valid (20 bytes),
-            // so we have to serialize the Remasc sender as a valid address.
+            // so we have to serialize the Blm sender as a valid address.
             from = TypeConverter.toJsonHex(new byte[20]);
         } else {
             ECKey.ECDSASignature signature = tx.getSignature();

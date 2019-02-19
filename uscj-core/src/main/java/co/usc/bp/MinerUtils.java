@@ -26,7 +26,6 @@ import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.PendingState;
 import co.usc.crypto.Keccak256;
-import co.usc.remasc.RemascTransaction;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.core.TransactionPool;
 import org.ethereum.core.Repository;
