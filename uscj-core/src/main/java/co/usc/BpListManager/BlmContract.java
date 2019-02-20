@@ -6,6 +6,7 @@ import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
+import org.ethereum.util.Utils;
 import org.ethereum.vm.LogInfo;
 import org.ethereum.vm.PrecompiledContracts;
 
@@ -41,8 +42,19 @@ public class BlmContract extends PrecompiledContracts.PrecompiledContract {
             return new byte[0];
         }
 
+        if(!isValid(data)) return new byte[0];
+
         provider.saveBpList(data);
         return new byte[0];
+    }
+
+    private boolean isValid(byte[] data) {
+        try {
+            Utils.decodeBpList(data);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private UscAddress getSender() {
