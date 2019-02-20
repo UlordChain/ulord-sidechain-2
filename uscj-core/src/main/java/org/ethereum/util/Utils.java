@@ -277,7 +277,7 @@ public class Utils {
     /**
      * encodeBpList encodes BP List in a byte array as
      * [UlordPublicKey Length] [Time Length] [Actual Ulord PublicKey] [Actual Time]
-     * @param bpListMap input bpList
+     * @param bpListMap input bpList <UlordPublicKey, Time>
      * @return returns encoded byte array of bpList
      */
     public static byte[] encodeBpList(Map<String, Long> bpListMap) {
@@ -289,7 +289,7 @@ public class Utils {
         int i = 0;
         int arrayTotalSize = 0;
         for ( Map.Entry<String, Long> entry : bpListMap.entrySet()) {
-            String ulordPubKey = Utils.UosPubKeyToUlord(entry.getKey());
+            String ulordPubKey = entry.getKey();
             byte[] time = longToBytes(entry.getValue());
 
             UldECKey publicKey = UldECKey.fromPublicOnly(Hex.decode(ulordPubKey));
