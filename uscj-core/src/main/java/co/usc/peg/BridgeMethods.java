@@ -388,6 +388,16 @@ public enum BridgeMethods {
             (BridgeMethodExecutorTyped) Bridge::isUldTxHashAlreadyProcessed,
             true
     ),
+    GET_PENDING_ULD_TX_FOR_VOTE(
+            CallTransaction.Function.fromSignature(
+                    "getPendingUldTxForVote",
+                    new String[]{},
+                    new String[]{"string"}
+            ),
+            3000L,
+            (BridgeMethodExecutorTyped) Bridge::getPendingUldTxForVote,
+            true
+    ),
     RECEIVE_HEADERS(
             CallTransaction.Function.fromSignature(
                     "receiveHeaders",
