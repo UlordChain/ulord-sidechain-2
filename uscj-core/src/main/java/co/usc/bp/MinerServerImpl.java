@@ -75,6 +75,7 @@ public class MinerServerImpl implements MinerServer {
     private final BlockToSignBuilder builder;
     private Timer refreshBlockTimer;
     private Timer refreshBPListTimer;
+    private Timer scheduleAndBuildTimer;
 
     private NewBlockListener blockListener;
 
@@ -143,6 +144,7 @@ public class MinerServerImpl implements MinerServer {
 
             refreshBlockTimer = null;
             refreshBPListTimer = null;
+            scheduleAndBuildTimer = null;
         }
     }
 
@@ -157,6 +159,14 @@ public class MinerServerImpl implements MinerServer {
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
 
+            if(scheduleAndBuildTimer!= null) {
+                scheduleAndBuildTimer.cancel();
+            }
+
+            scheduleAndBuildTimer = new Timer("BP List Scheduler");
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
+
+            // TODO: remove refreshBPListTimer and refreshBPListTimer after scheduleAndBuildTimer is implemented.
             if(refreshBPListTimer != null) {
                 refreshBPListTimer.cancel();
             }
@@ -400,12 +410,14 @@ public class MinerServerImpl implements MinerServer {
     private class RefreshBlock extends TimerTask {
         @Override
         public void run() {
-            Block bestBlock = blockchain.getBestBlock();
             try {
                 // Build block only if it is a BP
                 if (isBP || isTest) {
+                    Block bestBlock = blockchain.getBestBlock();
+                    byte[] bpListData = Utils.encodeBpList(bpListMap);
+
                     logger.info("Building block to sign");
-                    buildAndProcessBlock(bestBlock, Utils.encodeBpList(bpListMap));
+                    buildAndProcessBlock(bestBlock, bpListData);
                 }
 
                 scheduleRefreshBlockTimer(isTest);
@@ -428,15 +440,79 @@ public class MinerServerImpl implements MinerServer {
                 Map<String, Long> bList = new LinkedHashMap<>();
                 for (int i = 0; i < bpList.length(); ++i) {
                     JSONObject jsonObject = bpList.getJSONObject(i);
-                    System.out.println("bpList: " + Utils.UosPubKeyToUlord(jsonObject.getString("ulord_addr")));
                     bList.put(jsonObject.getString("ulord_addr"), jsonObject.getLong("bp_valid_time"));
                 }
                 bpListMap = bList;
-                System.out.println();
             } catch (Exception ex) {
                 logger.error("Unexpected error: {}", ex);
             }
         }
+    }
+
+    /**
+     * RefreshBPList updates the BP List.
+     */
+    private class ScheduleAndBuild extends TimerTask {
+        @Override
+        public void run() {
+            try {
+
+                JSONArray bpList = getBPList();
+                System.out.println("BP List: " + bpList.toString());
+                Map<String, Long> bpListMap = new LinkedHashMap<>();
+                for (int i = 0; i < bpList.length(); ++i) {
+                    JSONObject jsonObject = bpList.getJSONObject(i);
+                    String uosPubKey = jsonObject.getString("ulord_addr");
+
+                    bpListMap.put(Utils.UosPubKeyToUlord(uosPubKey), jsonObject.getLong("bp_valid_time"));
+                }
+
+                Block bestBlock = blockchain.getBestBlock();
+
+                // If the best block is genesis, build a block with the latest BP List.
+                // This BP List will be for the next round.
+                if(bestBlock.isGenesis()) {
+                    byte[] bpListData = Utils.encodeBpList(bpListMap);
+                    buildAndProcessBlock(bestBlock, bpListData);
+                } else {
+                    // 1. Check if this node is one of the BP's
+                    // 2. If this node is a BP and turn to generate block, Sign new BP List and broadcast.
+                    // 3. On receiving 2/3rd of signatures from other BPs, put the signatures and BP List in BlmTransaction.
+                    // 4. Generate the block and broadcast.
+
+                    if(!isBp(bpListMap)) return;
+
+                    getSchedule(bestBlock);
+
+                    getVotes();
+
+                    validateSignatures();
+
+                    byte[] bpListData = Utils.encodeBpList(bpListMap);
+                    buildAndProcessBlock(bestBlock, bpListData);
+
+                }
+            } catch (Exception ex) {
+                logger.error("Unexpected error: {}", ex);
+            }
+        }
+    }
+
+    private void validateSignatures() {
+        // TODO: Implement
+    }
+
+    private void getVotes() {
+        // TODO: Implement
+    }
+
+    private void getSchedule(Block bestBlock) {
+        // TODO: Implement
+    }
+
+    private boolean isBp(Map<String, Long> bpList) {
+        String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
+        return bpList.containsKey(pubKey);
     }
 
     private JSONArray getBPList() {
