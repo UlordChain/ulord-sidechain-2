@@ -687,10 +687,6 @@ public class BridgeSupport {
     private ABICallSpec voteUldTx(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
         // Must be authorized to vote (checking for signature)
         AddressBasedAuthorizer authorizer = federationSupport.getActiveFederationAuthorizer();
-        if (null == authorizer){
-            logger.error("address authorize is null");
-            return null;
-        }
         if (!authorizer.isAuthorized(uscTx)) {
             logger.error("Sender address authorize failed");
             return null;

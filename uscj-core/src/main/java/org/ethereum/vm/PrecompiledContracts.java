@@ -19,6 +19,7 @@ package org.ethereum.vm;
  */
 
 
+import co.usc.BpListManager.BlmContract;
 import co.usc.config.RemascConfigFactory;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.UscAddress;
@@ -57,11 +58,13 @@ public class PrecompiledContracts {
     public static final String SAMPLE_ADDR_STR = "0000000000000000000000000000000001000005";
     public static final String BRIDGE_ADDR_STR = "0000000000000000000000000000000001000006";
     public static final String REMASC_ADDR_STR = "0000000000000000000000000000000001000008";
+    public static final String BP_LIST_ADDR_STR = "000000000000000000000000000000000100000b";
 
     public static final UscAddress BRIDGE_ADDR = new UscAddress(BRIDGE_ADDR_STR);
     public static final UscAddress IDENTITY_ADDR = new UscAddress(IDENTITY_ADDR_STR);
     public static final UscAddress REMASC_ADDR = new UscAddress(REMASC_ADDR_STR);
     public static final UscAddress SAMPLE_ADDR = new UscAddress(SAMPLE_ADDR_STR);
+    public static final UscAddress BP_LIST_ADDR = new UscAddress(BP_LIST_ADDR_STR);
 
     private static final String USC_NATIVECONTRACT_REQUIREDPREFIX = "000000000000000000000000";
     private static ECRecover ecRecover = new ECRecover();
@@ -106,6 +109,9 @@ public class PrecompiledContracts {
         }
         if (address.isHex(REMASC_ADDR_STR) || address.isHex(USC_NATIVECONTRACT_REQUIREDPREFIX + REMASC_ADDR_STR)) {
             return new RemascContract(config, new RemascConfigFactory(RemascContract.REMASC_CONFIG).createRemascConfig(config.netName()), REMASC_ADDR);
+        }
+        if (address.isHex(BP_LIST_ADDR_STR) || address.isHex(USC_NATIVECONTRACT_REQUIREDPREFIX + BP_LIST_ADDR_STR)) {
+            return  new BlmContract(BP_LIST_ADDR);
         }
 
         return null;

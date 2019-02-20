@@ -18,6 +18,7 @@
 
 package co.usc.net.messages;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.net.Status;
 import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.*;
@@ -208,6 +209,10 @@ public enum MessageType {
             for (int k = 0; k < rlpTransactions.size(); k++) {
                 byte[] txdata = rlpTransactions.get(k).getRLPData();
                 Transaction tx = new ImmutableTransaction(txdata);
+
+                if (Block.isBlmTransaction(tx, k, rlpTransactions.size())) {
+                    tx = new BlmTransaction(txdata);
+                }
 
                 if (Block.isRemascTransaction(tx, k, rlpTransactions.size())) {
                     tx = new RemascTransaction(txdata);

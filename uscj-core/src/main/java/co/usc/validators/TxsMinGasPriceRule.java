@@ -18,9 +18,9 @@
 
 package co.usc.validators;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.core.Coin;
 import co.usc.panic.PanicProcessor;
-import co.usc.remasc.RemascTransaction;
 import org.apache.commons.collections4.CollectionUtils;
 import org.ethereum.core.Block;
 import org.ethereum.core.Transaction;
@@ -48,7 +48,7 @@ public class TxsMinGasPriceRule implements BlockValidationRule {
         Coin blockMgp = block.getMinimumGasPrice();
         if(CollectionUtils.isNotEmpty(block.getTransactionsList())) {
             for (Transaction tx : txs) {
-                if (!(tx instanceof RemascTransaction) && tx.getGasPrice().compareTo(blockMgp) < 0) {
+                if (!(tx instanceof BlmTransaction) && tx.getGasPrice().compareTo(blockMgp) < 0) {
                     logger.warn("Tx gas price is under the Min gas Price of the block tx={}", tx.getHash());
                     return false;
                 }

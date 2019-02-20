@@ -19,6 +19,7 @@
 
 package org.ethereum.core;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
@@ -453,6 +454,11 @@ public class Block {
             RLPElement transactionRaw = txTransactions.get(i);
             Transaction tx = new ImmutableTransaction(transactionRaw.getRLPData());
 
+            if (isBlmTransaction(tx, i, txTransactions.size())) {
+                // It is the Blm transaction
+                tx = new BlmTransaction(transactionRaw.getRLPData());
+            }
+
             if (isRemascTransaction(tx, i, txTransactions.size())) {
                 // It is the remasc transaction
                 tx = new RemascTransaction(transactionRaw.getRLPData());
@@ -461,6 +467,10 @@ public class Block {
         }
 
         return Collections.unmodifiableList(parsedTxs);
+    }
+
+    public static boolean isBlmTransaction(Transaction tx, int txPosition, int txsSize) {
+        return isLastTx(txPosition, txsSize) && checkBlmAddress(tx) && checkBlmTxZeroValues(tx);
     }
 
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
@@ -472,8 +482,23 @@ public class Block {
         return txPosition == (txsSize - 1);
     }
 
+    private static boolean checkBlmAddress(Transaction tx) {
+        return PrecompiledContracts.BP_LIST_ADDR.equals(tx.getReceiveAddress());
+    }
+
     private static boolean checkRemascAddress(Transaction tx) {
         return PrecompiledContracts.REMASC_ADDR.equals(tx.getReceiveAddress());
+    }
+
+    private static boolean checkBlmTxZeroValues(Transaction tx) {
+        if(null != tx.getSignature()){
+            return false;
+        }
+
+        return Coin.ZERO.equals(tx.getValue()) &&
+                BigInteger.ZERO.equals(new BigInteger(1, tx.getGasLimit())) &&
+                Coin.ZERO.equals(tx.getGasPrice());
+
     }
 
     private static boolean checkRemascTxZeroValues(Transaction tx) {

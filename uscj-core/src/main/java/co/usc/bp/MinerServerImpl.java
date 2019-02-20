@@ -30,9 +30,11 @@ import co.usc.ulordj.params.MainNetParams;
 import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
 import javafx.util.Pair;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
+import org.ethereum.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -77,7 +80,7 @@ public class MinerServerImpl implements MinerServer {
 
     private boolean started;
     private boolean isBP;
-    private boolean isTest = false;
+    private boolean isTest = true;
     private byte[] extraData;
 
     @GuardedBy("lock")
@@ -98,7 +101,7 @@ public class MinerServerImpl implements MinerServer {
 
     private final UscSystemProperties config;
 
-    private Pair<String, Long> bpSchedules;
+    private Map<String, Long> bpListMap;
 
     @Autowired
     public MinerServerImpl(
@@ -114,8 +117,6 @@ public class MinerServerImpl implements MinerServer {
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.builder = builder;
         this.isBP = false;
-
-        this.bpSchedules = new Pair<>("", 0L);
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
@@ -320,19 +321,14 @@ public class MinerServerImpl implements MinerServer {
      * buildAndProcessBlock creates a block to sign based on the given block as parent.
      *
      * @param newBlockParent         the new block parent.
-     * @param createCompetitiveBlock used for testing.
+     * @param bpListData             BP List to store in BLM Transaction
      */
     @Override
-    public void buildAndProcessBlock(@Nonnull Block newBlockParent, boolean createCompetitiveBlock) {
-
-        // See BlockChainImpl.calclBloom() if blocks has txs
-        if (createCompetitiveBlock) {
-            // Just for testing, bp on top of bestblock's parent
-            newBlockParent = blockchain.getBlockByHash(newBlockParent.getParentHash().getBytes());
-        }
+    public void buildAndProcessBlock(@Nonnull Block newBlockParent, byte[] bpListData) {
 
         logger.info("Starting block to sign from parent {} {}", newBlockParent.getNumber(), newBlockParent.getHash());
 
+        builder.setBpListData(bpListData);
         final Block newBlock = builder.build(newBlockParent, extraData);
 
         synchronized (lock) {
@@ -407,9 +403,9 @@ public class MinerServerImpl implements MinerServer {
             Block bestBlock = blockchain.getBestBlock();
             try {
                 // Build block only if it is a BP
-                if(isBP || isTest) {
+                if (isBP || isTest) {
                     logger.info("Building block to sign");
-                    buildAndProcessBlock(bestBlock, false);
+                    buildAndProcessBlock(bestBlock, Utils.encodeBpList(bpListMap));
                 }
 
                 scheduleRefreshBlockTimer(isTest);
@@ -420,6 +416,7 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
+
     /**
      * RefreshBPList updates the BP List.
      */
@@ -428,7 +425,14 @@ public class MinerServerImpl implements MinerServer {
         public void run() {
             try {
                 JSONArray bpList = getBPList();
-
+                Map<String, Long> bList = new LinkedHashMap<>();
+                for (int i = 0; i < bpList.length(); ++i) {
+                    JSONObject jsonObject = bpList.getJSONObject(i);
+                    System.out.println("bpList: " + Utils.UosPubKeyToUlord(jsonObject.getString("ulord_addr")));
+                    bList.put(jsonObject.getString("ulord_addr"), jsonObject.getLong("bp_valid_time"));
+                }
+                bpListMap = bList;
+                System.out.println();
             } catch (Exception ex) {
                 logger.error("Unexpected error: {}", ex);
             }
