@@ -159,12 +159,13 @@ public class MinerServerImpl implements MinerServer {
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
 
-            if(scheduleAndBuildTimer!= null) {
-                scheduleAndBuildTimer.cancel();
-            }
-
-            scheduleAndBuildTimer = new Timer("BP List Scheduler");
-            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
+            // Uncomment after fully implemented.
+//            if(scheduleAndBuildTimer!= null) {
+//                scheduleAndBuildTimer.cancel();
+//            }
+//
+//            scheduleAndBuildTimer = new Timer("BP List Scheduler");
+//            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
 
             // TODO: remove refreshBPListTimer and refreshBPListTimer after scheduleAndBuildTimer is implemented.
             if(refreshBPListTimer != null) {
@@ -440,7 +441,9 @@ public class MinerServerImpl implements MinerServer {
                 Map<String, Long> bList = new LinkedHashMap<>();
                 for (int i = 0; i < bpList.length(); ++i) {
                     JSONObject jsonObject = bpList.getJSONObject(i);
-                    bList.put(jsonObject.getString("ulord_addr"), jsonObject.getLong("bp_valid_time"));
+                    String uosPubKey = jsonObject.getString("ulord_addr");
+
+                    bList.put(Utils.UosPubKeyToUlord(uosPubKey), jsonObject.getLong("bp_valid_time"));
                 }
                 bpListMap = bList;
             } catch (Exception ex) {
