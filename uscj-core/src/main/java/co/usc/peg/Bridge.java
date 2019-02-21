@@ -172,6 +172,8 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
     // Adds the given key to the current pending federation
     public static final CallTransaction.Function VOTE_FEE_PER_KB = BridgeMethods.VOTE_FEE_PER_KB.getFunction();
 
+    public static final CallTransaction.Function GET_PENDING_ULD_TX_FOR_VOTE = BridgeMethods.GET_PENDING_ULD_TX_FOR_VOTE.getFunction();
+
     public static final int LOCK_WHITELIST_UNLIMITED_MODE_CODE = 0;
     public static final int LOCK_WHITELIST_ENTRY_NOT_FOUND_CODE = -1;
     public static final int LOCK_WHITELIST_INVALID_ADDRESS_FORMAT_ERROR_CODE = -2;
@@ -935,5 +937,11 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
 
     private boolean isLocalCall() {
         return uscTx.isLocalCallTransaction();
+    }
+
+    public String getPendingUldTxForVote(Object[] args) {
+        logger.trace("getPendingUldTransaction");
+
+        return bridgeSupport.getPendingUldTxForVote();
     }
 }

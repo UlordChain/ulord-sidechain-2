@@ -45,6 +45,7 @@ import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.Program;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.encoders.Hex;
@@ -569,13 +570,12 @@ public class BridgeSupport {
                 return;
             }
 
-            // vote for release sut
-            ABICallSpec winnerSpec = voteReleaseSut(uscTx, uldTxSerialized);
+            // vote the ulord transaction for release sut
+            ABICallSpec winnerSpec = voteUldTx(uscTx, uldTxSerialized);
             if (null == winnerSpec) {
                 return;
             }
             byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
-            //uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(winnerUldTxSerialized);
             uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
             uldTxHash = uldTx.getHash();
             Optional<Script> winnerScriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
@@ -678,13 +678,13 @@ public class BridgeSupport {
         }
 
         logger.info("ULD Tx {} processed in USC", uldTxHash);
-    }
+        }
 
     /**
      *
      * @throws IOException
      */
-    private ABICallSpec voteReleaseSut(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
+    private ABICallSpec voteUldTx(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
         // Must be authorized to vote (checking for signature)
         AddressBasedAuthorizer authorizer = federationSupport.getActiveFederationAuthorizer();
         if (!authorizer.isAuthorized(uscTx)) {
@@ -692,9 +692,9 @@ public class BridgeSupport {
             return null;
         }
 
-        ABICallSpec callSpec = new ABICallSpec("add", new byte[][]{uldTxSerialized});
-
         ABICallElection election = provider.getUldTxProcessElection(authorizer);
+
+        ABICallSpec callSpec = new ABICallSpec("voteUldTx", new byte[][]{uldTxSerialized});
         // Register the vote. It is expected to succeed, since all previous checks succeeded
         if (!election.vote(callSpec, uscTx.getSender())) {
             logger.warn("Unexpected federation change vote failure");
@@ -710,6 +710,31 @@ public class BridgeSupport {
         }
 
         return null;
+    }
+
+    public String getPendingUldTxForVote(){
+        AddressBasedAuthorizer authorizer = federationSupport.getActiveFederationAuthorizer();
+        if (null == authorizer){
+            logger.error("address authorize is null");
+            return null;
+        }
+
+        JSONArray jsonArray = new JSONArray();
+        Map<String, List<String>> mapUldTxIdVoters = new HashMap<String, List<String>>();
+        ABICallElection election = provider.getUldTxProcessElection(authorizer);
+        for (Map.Entry<ABICallSpec, List<UscAddress>> specVotes : election.getVotes().entrySet()) {
+            byte[] uldTxSerialized = (byte[])specVotes.getKey().getArguments()[0];
+            List<UscAddress> voters = specVotes.getValue();
+            Sha256Hash uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(uldTxSerialized);
+            List<String> listVoters = new ArrayList<String>();
+            for (int i = 0; i < voters.size(); i++){
+                listVoters.add(voters.get(i).toString());
+            }
+            mapUldTxIdVoters.put(Sha256Hash.bytesToHex(uldTxHash.getBytes()), listVoters);
+        }
+        jsonArray.put(mapUldTxIdVoters);
+
+        return jsonArray.toString();
     }
 
     /**
