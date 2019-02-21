@@ -104,6 +104,12 @@ public class ABICallElection {
         }
     }
 
+    public void clearWinners(ABICallSpec winner) {
+        if (winner != null) {
+            votes.remove(winner);
+        }
+    }
+
     private void validate() {
         // Make sure all the votes are authorized
         for (Map.Entry<ABICallSpec, List<UscAddress>> specVotes : votes.entrySet()) {

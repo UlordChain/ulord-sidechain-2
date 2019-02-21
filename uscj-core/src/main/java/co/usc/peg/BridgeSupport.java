@@ -571,14 +571,16 @@ public class BridgeSupport {
             }
 
             // vote the ulord transaction for release sut
-            ABICallSpec winnerSpec = voteUldTx(uscTx, uldTxSerialized);
+            ABICallSpec winnerSpec = voteLockUt(uscTx, uldTxSerialized);
             if (null == winnerSpec) {
                 return;
             }
             byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
-            uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
-            uldTxHash = uldTx.getHash();
-            Optional<Script> winnerScriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
+            if (!Arrays.equals(winnerUldTxSerialized, uldTxSerialized)) {
+                uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
+                scriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
+                uldTxHash = uldTx.getHash();
+            }
 
             // Compute the total amount sent. Value could have been sent both to the
             // currently active federation as well as to the currently retiring federation.
@@ -592,13 +594,11 @@ public class BridgeSupport {
             Coin totalAmount = amountToActive.add(amountToRetiring);
 
             // Get the sender public key
-            byte[] data = winnerScriptSig.get().getChunks().get(1).data;
-
-            // Tx is a lock tx, check whether the sender is whitelisted
+            byte[] data = scriptSig.get().getChunks().get(1).data;
             UldECKey senderUldKey = UldECKey.fromPublicOnly(data);
             Address senderUldAddress = new Address(uldContext.getParams(), senderUldKey.getPubKeyHash());
 
-            // If the address is not whitelisted, then return the funds
+            // Tx is a lock tx, check whether the sender is whitelisted, If the address is not whitelisted, then return the funds
             // using the exact same utxos sent to us.
             // That is, build a release transaction and get it in the release transaction set.
             // Otherwise, transfer SULD to the sender of the ULD
@@ -684,7 +684,7 @@ public class BridgeSupport {
      *
      * @throws IOException
      */
-    private ABICallSpec voteUldTx(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
+    private ABICallSpec voteLockUt(Transaction uscTx, byte[] uldTxSerialized) throws IOException {
         // Must be authorized to vote (checking for signature)
         AddressBasedAuthorizer authorizer = federationSupport.getActiveFederationAuthorizer();
         if (!authorizer.isAuthorized(uscTx)) {
@@ -692,9 +692,9 @@ public class BridgeSupport {
             return null;
         }
 
-        ABICallElection election = provider.getUldTxProcessElection(authorizer);
+        ABICallElection election = provider.getLockUtProcessElection(authorizer);
 
-        ABICallSpec callSpec = new ABICallSpec("voteUldTx", new byte[][]{uldTxSerialized});
+        ABICallSpec callSpec = new ABICallSpec("voteLockUt", new byte[][]{uldTxSerialized});
         // Register the vote. It is expected to succeed, since all previous checks succeeded
         if (!election.vote(callSpec, uscTx.getSender())) {
             logger.warn("Unexpected federation change vote failure");
@@ -705,7 +705,7 @@ public class BridgeSupport {
         ABICallSpec winnerSpec = election.getWinner();
         if (winnerSpec != null) {
             // Clear the winner so that we don't repeat ourselves
-            election.clearWinners();
+            election.clearWinners(winnerSpec);
             return winnerSpec;
         }
 
@@ -721,15 +721,10 @@ public class BridgeSupport {
 
         JSONArray jsonArray = new JSONArray();
         Map<String, List<String>> mapUldTxIdVoters = new HashMap<String, List<String>>();
-        ABICallElection election = provider.getUldTxProcessElection(authorizer);
+        ABICallElection election = provider.getLockUtProcessElection(authorizer);
         for (Map.Entry<ABICallSpec, List<UscAddress>> specVotes : election.getVotes().entrySet()) {
-            byte[] uldTxSerialized = (byte[])specVotes.getKey().getArguments()[0];
-            List<UscAddress> voters = specVotes.getValue();
-            Sha256Hash uldTxHash = UldTransactionFormatUtils.calculateUldTxHash(uldTxSerialized);
-            List<String> listVoters = new ArrayList<String>();
-            for (int i = 0; i < voters.size(); i++){
-                listVoters.add(voters.get(i).toString());
-            }
+            Sha256Hash uldTxHash = UldTransactionFormatUtils.calculateUldTxHash((byte[])specVotes.getKey().getArguments()[0]);
+            List<String> listVoters = specVotes.getValue().stream().map(UscAddress::toString).collect(Collectors.toList());
             mapUldTxIdVoters.put(Sha256Hash.bytesToHex(uldTxHash.getBytes()), listVoters);
         }
         jsonArray.put(mapUldTxIdVoters);
