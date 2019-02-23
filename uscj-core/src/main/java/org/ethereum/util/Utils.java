@@ -276,21 +276,19 @@ public class Utils {
 
     /**
      * encodeBpList encodes BP List in a byte array as
-     * [UlordPublicKey Length] [Time Length] [Actual Ulord PublicKey] [Actual Time]
-     * @param bpListMap input bpList <UlordPublicKey, Time>
+     * [UlordPublicKey Length] [Actual Ulord PublicKey]
+     * @param bpList input bpList <UlordPublicKey>
      * @return returns encoded byte array of bpList
      */
-    public static byte[] encodeBpList(Map<String, Long> bpListMap) {
-        if(bpListMap == null)
+    public static byte[] encodeBpList(List<String> bpList) {
+        if(bpList == null)
             return new byte[0];
 
-        byte[][] list = new byte[bpListMap.size()][];
+        byte[][] list = new byte[bpList.size()][];
 
         int i = 0;
         int arrayTotalSize = 0;
-        for ( Map.Entry<String, Long> entry : bpListMap.entrySet()) {
-            String ulordPubKey = entry.getKey();
-            byte[] time = longToBytes(entry.getValue());
+        for (String ulordPubKey : bpList) {
 
             UldECKey publicKey = UldECKey.fromPublicOnly(Hex.decode(ulordPubKey));
 
@@ -299,14 +297,9 @@ public class Utils {
             byte[] pubKeyLen = new byte[1];
             pubKeyLen[0] = (byte) pubKey.length;
 
-            byte[] timeLen = new byte[1];
-            timeLen [0] = (byte) time.length;
-
-            byte[] encoded = new byte[pubKeyLen.length + timeLen.length + pubKey.length + time.length];
+            byte[] encoded = new byte[pubKeyLen.length + pubKey.length];
             System.arraycopy(pubKeyLen, 0, encoded, 0, pubKeyLen.length);
-            System.arraycopy(timeLen, 0, encoded, pubKeyLen.length, timeLen.length);
-            System.arraycopy(pubKey, 0, encoded, pubKeyLen.length + timeLen.length, pubKey.length);
-            System.arraycopy(time, 0, encoded, pubKeyLen.length + timeLen.length + pubKey.length, time.length);
+            System.arraycopy(pubKey, 0, encoded, pubKeyLen.length, pubKey.length);
 
             list[i] = encoded;
             arrayTotalSize += encoded.length;
@@ -335,27 +328,20 @@ public class Utils {
         return buffer.getLong();
     }
 
-    public static Map<String, Long> decodeBpList(byte[] data) {
+    public static List<String> decodeBpList(byte[] data) {
         if(data == null)
             return null;
 
-        Map<String, Long> bpList = new LinkedHashMap<>();
+        List<String> bpList = new ArrayList<>();
 
         for (int i = 0; i < data.length;) {
             int pubKeyLen = data[i++];
-            int timeLen = data[i++];
             byte[] pubKey = new byte[pubKeyLen];
             for(int j = 0; j < pubKeyLen; ++j) {
                 pubKey[j] = data[i++];
             }
             UldECKey key = UldECKey.fromPublicOnly(pubKey);
-
-            byte[] time = new byte[timeLen];
-            for(int j = 0; j < timeLen; ++j) {
-                time[j] = data[i++];
-            }
-
-            bpList.put(key.getPublicKeyAsHex(), bytesToLong(time));
+            bpList.add(key.getPublicKeyAsHex());
         }
         return bpList;
     }

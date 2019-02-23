@@ -42,6 +42,11 @@ public class Constants {
     private int minGasLimit = 150000000;
     private int gasLimitBoundDivisor = 1024;
 
+    private static final long BLOCK_INTERVAL_MS = 1000l;
+    private static final long BLOCK_INTERVAL_US = BLOCK_INTERVAL_MS * 1000;
+    private static final long BLOCK_TIMESTAMP_EPOCH = 946684800000l; // epoch is year 2000.
+    private static final int PRODUCER_REPETITIONS = 6;
+
     //private static long blockPerDay = 24*3600 / 14;
 
     // 0.5 peta/s. This means that on reset difficulty will allow private mining.
@@ -101,6 +106,22 @@ public class Constants {
 
     public int getGasLimitBoundDivisor() {
         return gasLimitBoundDivisor;
+    }
+
+    public static long getBlockIntervalMs() {
+        return BLOCK_INTERVAL_MS;
+    }
+
+    public static int getProducerRepetitions() {
+        return PRODUCER_REPETITIONS;
+    }
+
+    public static long getBlockIntervalUs() {
+        return BLOCK_INTERVAL_US;
+    }
+
+    public static long getBlockTimestampEpoch() {
+        return BLOCK_TIMESTAMP_EPOCH;
     }
 
 //    public BlockDifficulty getMinimumDifficulty() {

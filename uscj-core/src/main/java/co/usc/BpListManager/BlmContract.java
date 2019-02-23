@@ -38,7 +38,7 @@ public class BlmContract extends PrecompiledContracts.PrecompiledContract {
     @Override
     public byte[] execute(byte[] data) {
         UscAddress sender = executionTx.getSender();
-        if(!sender.toString().equals(getSender().toString()) || data == null) {
+        if(!sender.toString().equals(getBlmZeroAddr().toString()) || data == null) {
             return new byte[0];
         }
 
@@ -57,7 +57,7 @@ public class BlmContract extends PrecompiledContracts.PrecompiledContract {
         }
     }
 
-    private UscAddress getSender() {
+    private UscAddress getBlmZeroAddr() {
         return new UscAddress(new byte[20]) {
             @Override
             public byte[] getBytes() {

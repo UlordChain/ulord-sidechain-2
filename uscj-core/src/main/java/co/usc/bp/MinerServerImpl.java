@@ -26,11 +26,8 @@ import co.usc.core.UscAddress;
 import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
-import co.usc.ulordj.params.MainNetParams;
-import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
-import javafx.util.Pair;
-import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.config.Constants;
 import org.ethereum.core.*;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
@@ -49,11 +46,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import co.usc.rpc.uos.UOSRpcChannel;
+
 /**
  * The MinerServer provides support to components that perform the actual mining.
  * It builds blocks to bp and publishes blocks once a valid nonce was found by the blockProducer.
@@ -63,7 +60,6 @@ import co.usc.rpc.uos.UOSRpcChannel;
 
 @Component("MinerServer")
 public class MinerServerImpl implements MinerServer {
-    private static final long DELAY_BETWEEN_REFRESH_BP_LIST_MS = TimeUnit.MILLISECONDS.toMillis(500);
 
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
@@ -73,15 +69,12 @@ public class MinerServerImpl implements MinerServer {
     private final Ethereum ethereum;
     private final Blockchain blockchain;
     private final BlockToSignBuilder builder;
-    private Timer refreshBlockTimer;
-    private Timer refreshBPListTimer;
     private Timer scheduleAndBuildTimer;
+    private Timer produceBlockTimer;
 
     private NewBlockListener blockListener;
 
     private boolean started;
-    private boolean isBP;
-    private boolean isTest = true;
     private byte[] extraData;
 
     @GuardedBy("lock")
@@ -102,8 +95,6 @@ public class MinerServerImpl implements MinerServer {
 
     private final UscSystemProperties config;
 
-    private Map<String, Long> bpListMap;
-
     @Autowired
     public MinerServerImpl(
             UscSystemProperties config,
@@ -117,7 +108,6 @@ public class MinerServerImpl implements MinerServer {
         this.blockchain = blockchain;
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.builder = builder;
-        this.isBP = false;
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
@@ -142,9 +132,8 @@ public class MinerServerImpl implements MinerServer {
             started = false;
             ethereum.removeListener(blockListener);
 
-            refreshBlockTimer = null;
-            refreshBPListTimer = null;
             scheduleAndBuildTimer = null;
+            produceBlockTimer = null;
         }
     }
 
@@ -159,88 +148,18 @@ public class MinerServerImpl implements MinerServer {
             blockListener = new NewBlockListener();
             ethereum.addListener(blockListener);
 
-            // Uncomment after fully implemented.
-//            if(scheduleAndBuildTimer!= null) {
-//                scheduleAndBuildTimer.cancel();
-//            }
-//
-//            scheduleAndBuildTimer = new Timer("BP List Scheduler");
-//            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
-
-            // TODO: remove refreshBPListTimer and refreshBPListTimer after scheduleAndBuildTimer is implemented.
-            if(refreshBPListTimer != null) {
-                refreshBPListTimer.cancel();
+            // Set up timer to produce block;
+            if(produceBlockTimer!= null) {
+                produceBlockTimer.cancel();
             }
+            produceBlockTimer = new Timer("Produce Block Timer");
 
-            refreshBPListTimer = new Timer("BP List Scheduler");
-            refreshBPListTimer.schedule(new RefreshBPList(), DELAY_BETWEEN_REFRESH_BP_LIST_MS, DELAY_BETWEEN_REFRESH_BP_LIST_MS);
-
-            if (refreshBlockTimer != null) {
-                refreshBlockTimer.cancel();
+            if(scheduleAndBuildTimer!= null) {
+                scheduleAndBuildTimer.cancel();
             }
-
-            refreshBlockTimer = new Timer("Refresh block for signing");
-            scheduleRefreshBlockTimer(isTest);
+            scheduleAndBuildTimer = new Timer("BP Scheduler");
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (100)));
         }
-    }
-
-    private void scheduleRefreshBlockTimer(boolean test) {
-
-        if(test) {
-            refreshBlockTimer.schedule(new RefreshBlock(), new Date(System.currentTimeMillis() + (1 * 1000)));
-        } else {
-            refreshBlockTimer.schedule(new RefreshBlock(), getMySchedule());
-        }
-    }
-
-    private int getUniqueBpCount(JSONArray bpList) {
-        List<String> addrArray = new ArrayList<>();
-        for(int i = 0; i < bpList.length(); ++i) {
-            String addr = bpList.getJSONObject(i).getString("ulord_addr");
-            if(!addrArray.contains(addr)) {
-                addrArray.add(addr);
-            }
-        }
-        return addrArray.size();
-    }
-
-    private Date getMySchedule() {
-        isBP = false;
-        JSONArray bpList = getBPList();
-        int nBP = getUniqueBpCount(bpList);
-
-        String bpAddr = bpList.getJSONObject(0).getString("ulord_addr");
-
-        // Check Ulord's network Mainnet/Testnet/Regtest
-        NetworkParameters params;
-        if (bpAddr.startsWith("U"))
-            params = MainNetParams.get();
-        else
-            params = TestNet3Params.get();
-
-        // TODO: Change params to config.getParams();
-        String myUlordAddr  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).toAddress(params).toBase58() ;
-
-        for(int i = 0; i < nBP; ++i) {
-            bpAddr = bpList.getJSONObject(i).getString("ulord_addr");
-            if(myUlordAddr.equals(bpAddr)) {
-                isBP = true;
-                long bpValidTime = bpList.getJSONObject(i).getLong("bp_valid_time");
-                long mySystemTime = System.currentTimeMillis() / 1000;
-                if(mySystemTime < bpValidTime) {
-                    return new Date(mySystemTime * 1000);
-                } else {
-                    // Find next recent time for this BP
-                    while (bpValidTime <= (System.currentTimeMillis() / 1000)) {
-                        bpValidTime += nBP;
-                    }
-                    logger.info("BP Scheduled Time: " + bpValidTime + ", CurrentTime: " + System.currentTimeMillis()/1000);
-                    return new Date(bpValidTime * 1000);
-                }
-            }
-        }
-
-        return new Date(System.currentTimeMillis() + (5 * 1000));
     }
 
     @Nullable
@@ -262,62 +181,6 @@ public class MinerServerImpl implements MinerServer {
         b.seal();
         ethereum.addNewMinedBlock(b);
     }
-
-//    private SubmitBlockResult processBlock(
-//            String blockHashForMergedMining,
-//            UldBlock blockWithHeaderOnly,
-//            UldTransaction coinbase,
-//            Function<MerkleProofBuilder, byte[]> proofBuilderFunction,
-//            boolean lastTag) {
-//        Block newBlock;
-//        Keccak256 key = new Keccak256(TypeConverter.removeZeroX(blockHashForMergedMining));
-//
-//        synchronized (lock) {
-//            Block workingBlock = blocksWaitingforSignatures.get(key);
-//
-//            if (workingBlock == null) {
-//                String message = "Cannot publish block, could not find hash " + blockHashForMergedMining + " in the cache";
-//                logger.warn(message);
-//
-//                return new SubmitBlockResult("ERROR", message);
-//            }
-//
-//            // clone the block
-//            newBlock = workingBlock.cloneBlock();
-//
-//            logger.debug("blocksWaitingForPoW size {}", blocksWaitingforSignatures.size());
-//        }
-//
-//        logger.info("Received block {} {}", newBlock.getNumber(), newBlock.getHash());
-//
-//        newBlock.seal();
-//
-//        if (!isValid(newBlock)) {
-//
-//            String message = "Invalid block supplied by blockProducer: " + newBlock.getShortHash() + " " /*+ newBlock.getShortHashForMergedMining()*/ + " at height " + newBlock.getNumber();
-//            logger.error(message);
-//
-//            return new SubmitBlockResult("ERROR", message);
-//
-//        } else {
-//            ImportResult importResult = ethereum.addNewMinedBlock(newBlock);
-//
-//            /*
-//            logger.info("Mined block import result is {}: {} {} at height {}", importResult, newBlock.getShortHash(), newBlock.getShortHashForMergedMining(), newBlock.getNumber());*/
-//            SubmittedBlockInfo blockInfo = new SubmittedBlockInfo(importResult, newBlock.getHash().getBytes(), newBlock.getNumber());
-//
-//            return new SubmitBlockResult("OK", "OK", blockInfo);
-//        }
-//    }
-
-//    private boolean isValid(Block block) {
-//        try {
-//            return powRule.isValid(block);
-//        } catch (Exception e) {
-//            logger.error("Failed to validate PoW from block {}: {}", block.getShortHash(), e);
-//            return false;
-//        }
-//    }
 
     @Override
     public UscAddress getCoinbaseAddress() {
@@ -381,23 +244,7 @@ public class MinerServerImpl implements MinerServer {
         // This event executes in the thread context of the caller.
         // In case of private blockProducer, it's the "Private Mining timer" task
         public void onBlock(Block block, List<TransactionReceipt> receipts) {
-            if (isSyncing()) {
-                return;
-            }
-
-            logger.trace("Start onBlock");
-            Block bestBlock = blockchain.getBestBlock();
-            //MinerWork work = currentWork;
-            String bestBlockHash = bestBlock.getHashJsonString();
-
-//            if (!work.getParentBlockHash().equals(bestBlockHash)) {
-//                //logger.debug("There is a new best block: {}, number: {}", bestBlock.getShortHashForMergedMining(), bestBlock.getNumber());
-//                buildAndProcessBlock(bestBlock, false);
-//            } else {
-//                //logger.debug("New block arrived but there is no need to build a new block to bp: {}", block.getShortHashForMergedMining());
-//            }
-
-            logger.trace("End onBlock");
+            // This function is no longer needed
         }
 
         private boolean isSyncing() {
@@ -405,50 +252,20 @@ public class MinerServerImpl implements MinerServer {
         }
     }
 
-    /**
-     * RefreshBlocks rebuilds and reprocess the block.
-     */
-    private class RefreshBlock extends TimerTask {
-        @Override
-        public void run() {
-            try {
-                // Build block only if it is a BP
-                if (isBP || isTest) {
-                    Block bestBlock = blockchain.getBestBlock();
-                    byte[] bpListData = Utils.encodeBpList(bpListMap);
+    private class ProduceBlock extends TimerTask {
 
-                    logger.info("Building block to sign");
-                    buildAndProcessBlock(bestBlock, bpListData);
-                }
-
-                scheduleRefreshBlockTimer(isTest);
-            } catch (Throwable th) {
-                logger.error("Unexpected error: {}", th);
-                panicProcessor.panic("mserror", th.getMessage());
-            }
+        List<String> producers;
+        Blockchain blockchain;
+        ProduceBlock(List<String> producers, Blockchain bestchain) {
+            this.producers = producers;
+            this.blockchain = bestchain;
         }
-    }
 
-
-    /**
-     * RefreshBPList updates the BP List.
-     */
-    private class RefreshBPList extends TimerTask {
         @Override
         public void run() {
-            try {
-                JSONArray bpList = getBPList();
-                Map<String, Long> bList = new LinkedHashMap<>();
-                for (int i = 0; i < bpList.length(); ++i) {
-                    JSONObject jsonObject = bpList.getJSONObject(i);
-                    String uosPubKey = jsonObject.getString("ulord_addr");
-
-                    bList.put(Utils.UosPubKeyToUlord(uosPubKey), jsonObject.getLong("bp_valid_time"));
-                }
-                bpListMap = bList;
-            } catch (Exception ex) {
-                logger.error("Unexpected error: {}", ex);
-            }
+            //System.out.println("Producing block");
+            byte[] bpListData = Utils.encodeBpList(producers);
+            buildAndProcessBlock(blockchain.getBestBlock(), bpListData);
         }
     }
 
@@ -459,63 +276,72 @@ public class MinerServerImpl implements MinerServer {
         @Override
         public void run() {
             try {
-
                 JSONArray bpList = getBPList();
                 System.out.println("BP List: " + bpList.toString());
-                Map<String, Long> bpListMap = new LinkedHashMap<>();
+                List<String> producers = new ArrayList<>();
                 for (int i = 0; i < bpList.length(); ++i) {
                     JSONObject jsonObject = bpList.getJSONObject(i);
                     String uosPubKey = jsonObject.getString("ulord_addr");
-
-                    bpListMap.put(Utils.UosPubKeyToUlord(uosPubKey), jsonObject.getLong("bp_valid_time"));
+                    producers.add(Utils.UosPubKeyToUlord(uosPubKey));
                 }
 
                 Block bestBlock = blockchain.getBestBlock();
 
                 // If the best block is genesis, build a block with the latest BP List.
                 // This BP List will be for the next round.
+                long futureSchedule = 0;
                 if(bestBlock.isGenesis()) {
-                    byte[] bpListData = Utils.encodeBpList(bpListMap);
+                    byte[] bpListData = Utils.encodeBpList(producers);
                     buildAndProcessBlock(bestBlock, bpListData);
+                    futureSchedule = Instant.now().toEpochMilli();
                 } else {
                     // 1. Check if this node is one of the BP's
-                    // 2. If this node is a BP and turn to generate block, Sign new BP List and broadcast.
-                    // 3. On receiving 2/3rd of signatures from other BPs, put the signatures and BP List in BlmTransaction.
-                    // 4. Generate the block and broadcast.
+                    // 2. Calculate this bp's future schedule and schedule to produce block.
 
-                    if(!isBp(bpListMap)) return;
+                    if(!isBp(producers)) return;
 
-                    getSchedule(bestBlock);
+                    futureSchedule = getFutureSchedule(producers);
 
-                    getVotes();
-
-                    validateSignatures();
-
-                    byte[] bpListData = Utils.encodeBpList(bpListMap);
-                    buildAndProcessBlock(bestBlock, bpListData);
-
+                    if(futureSchedule != -1)
+                        produceBlockTimer.schedule(new ProduceBlock(producers, blockchain), new Date(futureSchedule));
+                    else {
+                        futureSchedule = Instant.now().toEpochMilli();
+                    }
                 }
+                scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(futureSchedule + Constants.getBlockIntervalMs() * (Constants.getProducerRepetitions() + 1)));
             } catch (Exception ex) {
                 logger.error("Unexpected error: {}", ex);
             }
         }
     }
 
-    private void validateSignatures() {
-        // TODO: Implement
+    // Returns scheduled producer's key
+    private long getFutureSchedule(List<String> bpList) {
+        long time = Instant.now().toEpochMilli();
+
+        while(true) {
+            long blockTimestamp = Constants.getBlockTimestampEpoch();
+            long blockInterval = Constants.getBlockIntervalMs();
+            int producerRepetitions = Constants.getProducerRepetitions();
+
+            long divisions = (time - blockTimestamp) / blockInterval;
+            int bpIndex = (int)(divisions % (bpList.size() * producerRepetitions));
+            bpIndex /= producerRepetitions;
+            if(bpList.get(bpIndex).equals(UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex()))
+                break;
+            else if(time > Instant.now().toEpochMilli() * producerRepetitions * bpList.size() * blockInterval * 2) {
+                // return -1 if the slot is not found within 2 rounds time in the future.
+                return -1;
+            }
+            time += 50;
+        }
+        System.out.println("Scheduled for: " + new Date(time));
+        return time;
     }
 
-    private void getVotes() {
-        // TODO: Implement
-    }
-
-    private void getSchedule(Block bestBlock) {
-        // TODO: Implement
-    }
-
-    private boolean isBp(Map<String, Long> bpList) {
+    private boolean isBp(List<String> bpList) {
         String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
-        return bpList.containsKey(pubKey);
+        return bpList.contains(pubKey);
     }
 
     private JSONArray getBPList() {

@@ -20,7 +20,8 @@ public class BlmStorageProvider {
     }
 
     public void saveBpList(byte[] data) {
-        DataWord address = new DataWord(BP_LIST.getBytes(StandardCharsets.UTF_8));
-        this.repository.addStorageRow(this.contractAddress, address, new DataWord(data));
+        // No need to save the data as the data can be retrieved from the transaction's data field itself.
+//        DataWord address = new DataWord(BP_LIST.getBytes(StandardCharsets.UTF_8));
+//        this.repository.addStorageRow(this.contractAddress, address, new DataWord(data));
     }
 }
