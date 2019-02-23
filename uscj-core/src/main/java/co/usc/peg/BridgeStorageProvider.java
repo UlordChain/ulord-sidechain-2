@@ -58,8 +58,7 @@ public class BridgeStorageProvider {
     private static final DataWord FEE_PER_KB_KEY = DataWord.fromString("feePerKb");
     private static final DataWord FEE_PER_KB_ELECTION_KEY = DataWord.fromString("feePerKbElection");
 
-    private static final DataWord ULD_TX_PROCESS_KEY = DataWord.fromString("uldTxProcess");
-    private static final DataWord ULD_TX_PROCESS_ELECTION_KEY = DataWord.fromString("uldTxProcessElection");
+    private static final DataWord LOCK_UT_PROCESS_ELECTION_KEY = DataWord.fromString("lockUtProcessElection");
 
     private final Repository repository;
     private final UscAddress contractAddress;
@@ -95,7 +94,7 @@ public class BridgeStorageProvider {
     private Coin feePerKb;
     private ABICallElection feePerKbElection;
 
-    private ABICallElection uldTxProcessElection;
+    private ABICallElection lockUtProcessElection;
 
 
     public BridgeStorageProvider(Repository repository, UscAddress contractAddress, BridgeConstants bridgeConstants, BridgeStorageConfiguration bridgeStorageConfiguration) {
@@ -412,22 +411,22 @@ public class BridgeStorageProvider {
     /**
      * Save the uld tx process election
      */
-    public void saveUldTxProcessElection() {
-        if (uldTxProcessElection == null) {
+    public void saveLockUtProcessElection() {
+        if (lockUtProcessElection == null) {
             return;
         }
 
-        safeSaveToRepository(ULD_TX_PROCESS_ELECTION_KEY, uldTxProcessElection, BridgeSerializationUtils::serializeElection);
+        safeSaveToRepository(LOCK_UT_PROCESS_ELECTION_KEY, lockUtProcessElection, BridgeSerializationUtils::serializeElection);
     }
 
-    public ABICallElection getUldTxProcessElection(AddressBasedAuthorizer authorizer) {
-        if (uldTxProcessElection != null) {
-            return uldTxProcessElection;
+    public ABICallElection getLockUtProcessElection(AddressBasedAuthorizer authorizer) {
+        if (lockUtProcessElection != null) {
+            return lockUtProcessElection;
         }
 
-        uldTxProcessElection = safeGetFromRepository(ULD_TX_PROCESS_ELECTION_KEY,
+        lockUtProcessElection = safeGetFromRepository(LOCK_UT_PROCESS_ELECTION_KEY,
                 data -> (data == null)? new ABICallElection(authorizer) : BridgeSerializationUtils.deserializeElection(data, authorizer));
-        return uldTxProcessElection;
+        return lockUtProcessElection;
     }
 
     public void save() throws IOException {
@@ -452,7 +451,7 @@ public class BridgeStorageProvider {
         saveFeePerKb();
         saveFeePerKbElection();
 
-        saveUldTxProcessElection();
+        saveLockUtProcessElection();
     }
 
     private <T> T safeGetFromRepository(DataWord keyAddress, RepositoryDeserializer<T> deserializer) {

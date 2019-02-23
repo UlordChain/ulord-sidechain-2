@@ -394,7 +394,7 @@ public enum BridgeMethods {
                     new String[]{},
                     new String[]{"string"}
             ),
-            3000L,
+            10000L,
             (BridgeMethodExecutorTyped) Bridge::getPendingUldTxForVote,
             true
     ),
