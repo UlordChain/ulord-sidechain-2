@@ -40,9 +40,9 @@ public class TxValidatorNotBlmTxValidator implements TxValidatorStep {
     @Override
     public boolean validate(Transaction tx, @Nullable AccountState state, BigInteger gasLimit, Coin minimumGasPrice, long bestBlockNumber, boolean isFreeTx) {
         if (!(tx instanceof BlmTransaction)) {
-            return false;
+            return true;
         }
         logger.warn("Invalid transaction {}: it is a Blm transaction", tx.getHash());
-        return true;
+        return false;
     }
 }

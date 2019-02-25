@@ -18,6 +18,7 @@
 
 package co.usc.net.handler;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Coin;
 import co.usc.net.handler.txvalidator.*;
@@ -69,7 +70,9 @@ public class TxPendingValidator {
 
         for (TxValidatorStep step : validatorSteps) {
             if (!step.validate(tx, state, blockGasLimit, minimumGasPrice, bestBlockNumber, basicTxCost == 0)) {
-                logger.warn("[tx={}] {} failed", tx.getHash(), step.getClass());
+                if(!(tx instanceof BlmTransaction)) {
+                    logger.warn("[tx={}] {} failed", tx.getHash(), step.getClass());
+                }
                 return false;
             }
         }

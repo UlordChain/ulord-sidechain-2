@@ -28,6 +28,7 @@ import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.bouncycastle.util.BigIntegers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -219,6 +220,7 @@ public enum MessageType {
 
             // TODO: Get Signature from message and set on BodyResponseMessage class
             //RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
+            System.out.println(Instant.now().toString() + " Creating new BodyResponseMessage with signature = null");
             return new BodyResponseMessage(id, transactions, null);
         }
     },
