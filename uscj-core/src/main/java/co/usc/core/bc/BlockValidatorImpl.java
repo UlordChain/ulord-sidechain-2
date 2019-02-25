@@ -117,7 +117,7 @@ public class BlockValidatorImpl implements BlockValidator {
                 long timestamp = block.getTimestamp();
                 long diff = timestamp - parentTimestamp;
                 long gap = (Constants.getBlockIntervalMs() * (long)Constants.getProducerRepetitions() * (bpList.size() - 1)) / 1000;
-                if(diff < gap) {
+                if((diff < gap) && !getParent(parent).isGenesis()) {
                     logger.warn("Invalid Block: Blocks are from the same round.");
                     return false;
                 }
