@@ -214,10 +214,6 @@ public enum MessageType {
                     tx = new BlmTransaction(txdata);
                 }
 
-                if (Block.isRemascTransaction(tx, k, rlpTransactions.size())) {
-                    tx = new RemascTransaction(txdata);
-                }
-
                 transactions.add(tx);
             }
 

@@ -19,6 +19,7 @@
 
 package org.ethereum.vm.program;
 
+import co.usc.BpListManager.BlmContract;
 import co.usc.config.VmConfig;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -1563,7 +1564,7 @@ public class Program {
         }
 
         // Special initialization for Bridge and Remasc contracts
-        if (contract instanceof Bridge || contract instanceof RemascContract) {
+        if (contract instanceof Bridge || contract instanceof BlmContract) {
             // CREATE CALL INTERNAL TRANSACTION
             InternalTransaction internalTx = addInternalTx(null, getGasLimit(), senderAddress, contextAddress, endowment, EMPTY_BYTE_ARRAY, "call");
 

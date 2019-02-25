@@ -454,15 +454,12 @@ public class Block {
             RLPElement transactionRaw = txTransactions.get(i);
             Transaction tx = new ImmutableTransaction(transactionRaw.getRLPData());
 
+
             if (isBlmTransaction(tx, i, txTransactions.size())) {
                 // It is the Blm transaction
                 tx = new BlmTransaction(transactionRaw.getRLPData());
             }
 
-            if (isRemascTransaction(tx, i, txTransactions.size())) {
-                // It is the remasc transaction
-                tx = new RemascTransaction(transactionRaw.getRLPData());
-            }
             parsedTxs.add(tx);
         }
 

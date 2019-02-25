@@ -208,7 +208,7 @@ public class SyncProcessor implements SyncEventsHandler {
     @Override
     public void startSyncing(NodeID nodeID) {
         selectedPeerId = nodeID;
-        logger.info("Start syncing with node {}", nodeID);
+        logger.trace("Start syncing with node {}", nodeID);
         byte[] bestBlockHash = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockHash();
         setSyncState(new CheckingBestHeaderSyncState(this.syncConfiguration, this, syncInformation, bestBlockHash));
     }
