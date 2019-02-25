@@ -324,9 +324,7 @@ public class MinerServerImpl implements MinerServer {
             long blockInterval = Constants.getBlockIntervalMs();
             int producerRepetitions = Constants.getProducerRepetitions();
 
-            long divisions = (time - blockTimestamp) / blockInterval;
-            int bpIndex = (int)(divisions % (bpList.size() * producerRepetitions));
-            bpIndex /= producerRepetitions;
+            int bpIndex = Utils.getBpScheduledIndex(time, blockTimestamp, blockInterval, producerRepetitions, bpList.size());
             if(bpList.get(bpIndex).equals(UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex()))
                 break;
             else if(time > Instant.now().toEpochMilli() * producerRepetitions * bpList.size() * blockInterval * 2) {

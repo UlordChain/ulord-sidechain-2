@@ -345,4 +345,11 @@ public class Utils {
         }
         return bpList;
     }
+
+    public static int getBpScheduledIndex(long time, long blockTimestamp, long blockInterval,int producerRepetitions, int listSize) {
+        long divisions = (time - blockTimestamp) / blockInterval;
+        int bpIndex = (int)(divisions % (listSize * producerRepetitions));
+        bpIndex /= producerRepetitions;
+        return bpIndex;
+    }
 }
