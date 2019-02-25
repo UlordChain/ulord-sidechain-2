@@ -95,6 +95,8 @@ public class MinerServerImpl implements MinerServer {
 
     private final UscSystemProperties config;
 
+    private final UOSRpcChannel uosRpcChannel;
+
     @Autowired
     public MinerServerImpl(
             UscSystemProperties config,
@@ -102,12 +104,15 @@ public class MinerServerImpl implements MinerServer {
             Blockchain blockchain,
             BlockProcessor nodeBlockProcessor,
             BlockToSignBuilder builder,
-            MiningConfig miningConfig) {
+            MiningConfig miningConfig,
+            UOSRpcChannel uosRpcChannel
+            ) {
         this.config = config;
         this.ethereum = ethereum;
         this.blockchain = blockchain;
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.builder = builder;
+        this.uosRpcChannel = uosRpcChannel;
 
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
@@ -276,7 +281,7 @@ public class MinerServerImpl implements MinerServer {
         @Override
         public void run() {
             try {
-                JSONArray bpList = getBPList();
+                JSONArray bpList = uosRpcChannel.getBPList();
                 System.out.println("BP List: " + bpList.toString());
                 List<String> producers = new ArrayList<>();
                 for (int i = 0; i < bpList.length(); ++i) {
@@ -342,9 +347,9 @@ public class MinerServerImpl implements MinerServer {
         return bpList.contains(pubKey);
     }
 
-    private JSONArray getBPList() {
-        UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
-        JSONObject bpSchedule = uosRpcChannel.getBPSchedule();
-        return bpSchedule.getJSONObject("round2").getJSONArray("rows");
-    }
+    //private JSONArray getBPList() {
+    //    UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
+    //    JSONObject bpSchedule = uosRpcChannel.getBPSchedule();
+    //    return bpSchedule.getJSONObject("round2").getJSONArray("rows");
+    //}
 }

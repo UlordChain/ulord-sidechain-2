@@ -1,7 +1,9 @@
 package co.usc.rpc.uos;
 
+import co.usc.config.UscSystemProperties;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -13,15 +15,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class UOSRpcChannel {
 
     private String rpcUrl;
     private String urlParameters;
+    private UscSystemProperties config;
 
-    public UOSRpcChannel(String url, String port, String urlParameters){
+    @Autowired
+    public UOSRpcChannel(UscSystemProperties config){
 
-        this.rpcUrl = url + ":" + port + "/v1/chain/get_table_rows";
-        this.urlParameters = urlParameters;
+        //this.rpcUrl = url + ":" + port + "/v1/chain/get_table_rows";
+        //this.urlParameters = urlParameters;
+        this.config = config;
+        this.rpcUrl = this.config.UosURL() + ":" + this.config.UosPort() + "/v1/chain/get_table_rows";;
+        this.urlParameters = this.config.UosParam();
     }
 
     public String requestBPList(){
@@ -104,6 +112,12 @@ public class UOSRpcChannel {
             }
         }
         return addrArray.size();
+    }
+
+    public JSONArray getBPList() {
+        //UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
+        JSONObject bpSchedule = getBPSchedule();
+        return bpSchedule.getJSONObject("round2").getJSONArray("rows");
     }
 
     //TODO remove this function once requestBPList is used in Test/Production
