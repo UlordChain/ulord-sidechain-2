@@ -152,7 +152,7 @@ public class DefaultConfig {
         int minGasLimit = commonConstants.getMinGasLimit();
         int maxExtraDataSize = commonConstants.getMaximumExtraDataSize();
 
-        return new BlockCompositeRule(new TxsMinGasPriceRule(), blockCompositeRule, new BlockRootValidationRule(),
+        return new BlockCompositeRule(new TxsMinGasPriceRule(), blockCompositeRule, new BlockRootValidationRule(), new BlmValidationRule(),
                 blockTimeStampValidationRule, new GasLimitRule(minGasLimit), new ExtraDataRule(maxExtraDataSize));
     }
 

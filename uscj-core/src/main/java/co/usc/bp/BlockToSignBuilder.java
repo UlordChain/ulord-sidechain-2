@@ -152,7 +152,9 @@ public class BlockToSignBuilder {
         //txs.add(remascTx);
 
         Transaction BlmTx = new BlmTransaction(parent.getNumber() + 1, getBpListData());
-        txs.add(BlmTx);
+
+        if(!txs.contains(BlmTx))
+            txs.add(BlmTx);
 
         Map<UscAddress, BigInteger> accountNonces = new HashMap<>();
 

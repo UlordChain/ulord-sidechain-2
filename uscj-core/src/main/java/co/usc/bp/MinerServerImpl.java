@@ -282,7 +282,7 @@ public class MinerServerImpl implements MinerServer {
         public void run() {
             try {
                 JSONArray bpList = uosRpcChannel.getBPList();
-                System.out.println("BP List: " + bpList.toString());
+                logger.debug("Received BP List: " + bpList.toString());
                 List<String> producers = new ArrayList<>();
                 for (int i = 0; i < bpList.length(); ++i) {
                     JSONObject jsonObject = bpList.getJSONObject(i);
@@ -338,7 +338,7 @@ public class MinerServerImpl implements MinerServer {
             }
             time += 50;
         }
-        System.out.println("Scheduled for: " + new Date(time));
+        logger.debug("BP Scheduled for: " + new Date(time));
         return time;
     }
 

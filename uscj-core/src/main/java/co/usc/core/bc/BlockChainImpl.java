@@ -25,6 +25,7 @@ import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
 import co.usc.validators.BlockValidator;
 import com.google.common.annotations.VisibleForTesting;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockInformation;
@@ -178,7 +179,8 @@ public class BlockChainImpl implements Blockchain {
                     long saveTime = System.nanoTime();
                     ImportResult result = internalTryToConnect(block);
                     long totalTime = System.nanoTime() - saveTime;
-                    logger.info("block: num: [{}] hash: [{}], processed after: [{}]nano, result {}", block.getNumber(), block.getShortHash(), totalTime, result);
+                    logger.info("block: num: [{}] hash: [{}], producer: {}, processed after: [{}]nano, result {}",
+                            block.getNumber(), block.getShortHash(), Hex.toHexString(block.getCoinbase().getBytes()), totalTime, result);
                     return result;
                 }
             } catch (Throwable t) {
