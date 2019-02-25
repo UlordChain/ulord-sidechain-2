@@ -124,9 +124,9 @@ public class UOSRpcChannel {
     public static void main(String []args){
         String rpcUrl = "https://rpc1.uosio.org";
 
-        UOSRpcChannel uosRpcChannel = new UOSRpcChannel(rpcUrl, "8250", "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}");
-        JSONObject obj = uosRpcChannel.getBPSchedule();
-        System.out.println(obj);
-        System.out.println(obj.getJSONObject("round1").getJSONArray("rows"));
+        //UOSRpcChannel uosRpcChannel = new UOSRpcChannel(rpcUrl, "8250", "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}");
+        //JSONObject obj = uosRpcChannel.getBPSchedule();
+        //System.out.println(obj);
+        //System.out.println(obj.getJSONObject("round1").getJSONArray("rows"));
     }
 }
