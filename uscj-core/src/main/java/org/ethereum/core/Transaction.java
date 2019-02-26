@@ -123,9 +123,9 @@ public class Transaction {
     }
 
     /* creation contract tx
-     * [ nonce, gasPrice, gasLimit, "", endowment, init, bpSignature(v, r, s) ]
+     * [ nonce, gasPrice, gasLimit, "", endowment, init, signature(v, r, s) ]
      * or simple send tx
-     * [ nonce, gasPrice, gasLimit, receiveAddress, value, data, bpSignature(v, r, s) ]
+     * [ nonce, gasPrice, gasLimit, receiveAddress, value, data, signature(v, r, s) ]
      */
     public Transaction(byte[] nonce, byte[] gasPriceRaw, byte[] gasLimit, byte[] receiveAddress, byte[] value, byte[] data) {
         this(nonce, gasPriceRaw, gasLimit, receiveAddress, value, data, (byte) 0);

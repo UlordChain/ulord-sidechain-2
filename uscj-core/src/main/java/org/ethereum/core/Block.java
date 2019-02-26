@@ -205,8 +205,6 @@ public class Block {
 
         // Parse Header
         RLPList header = (RLPList) block.get(0);
-
-        // TODO: Find a way to pass current network parameters
         this.header = new BlockHeader(header, this.sealed);
 
         // Parse Transactions
