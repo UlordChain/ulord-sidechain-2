@@ -1,5 +1,6 @@
 package co.usc.net.messages;
 
+import org.bouncycastle.util.BigIntegers;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
@@ -34,7 +35,11 @@ public class BodyResponseMessage extends MessageWithId {
             rlpTransactions[k] = this.transactions.get(k).getEncoded();
         }
 
-        return RLP.encodeList(RLP.encodeList(rlpTransactions));
+        byte[] v = RLP.encodeByte(signature.v);
+        byte[] r = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.r));
+        byte[] s = RLP.encodeElement(BigIntegers.asUnsignedByteArray(signature.s));
+
+        return RLP.encodeList(RLP.encodeList(rlpTransactions), v, r, s);
     }
 
     @Override

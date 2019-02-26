@@ -218,10 +218,16 @@ public enum MessageType {
                 transactions.add(tx);
             }
 
+            byte v = message.get(1).getRLPData()[0];
+            byte[] r = message.get(2).getRLPData();
+            byte[] s = message.get(3).getRLPData();
+
+            ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
+
             // TODO: Get Signature from message and set on BodyResponseMessage class
             //RLPList signature = (RLPList)RLP.decode2(message.get(1).getRLPData()).get(0);
             System.out.println(Instant.now().toString() + " Creating new BodyResponseMessage with signature = null");
-            return new BodyResponseMessage(id, transactions, null);
+            return new BodyResponseMessage(id, transactions, signature);
         }
     },
     SKELETON_REQUEST_MESSAGE(16) {
