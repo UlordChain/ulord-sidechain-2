@@ -18,56 +18,63 @@ import java.util.List;
 @Component
 public class UOSRpcChannel {
 
-    private String rpcUrl;
+    private List<String> rpcUrls;
     private String urlParameters;
     private UscSystemProperties config;
+    private String rpc;
 
     @Autowired
     public UOSRpcChannel(UscSystemProperties config){
-
-        //this.rpcUrl = url + ":" + port + "/v1/chain/get_table_rows";
-        //this.urlParameters = urlParameters;
         this.config = config;
-        this.rpcUrl = this.config.UosURL() + ":" + this.config.UosPort() + "/v1/chain/get_table_rows";;
+        this.rpc = "/v1/chain/get_table_rows";
+
+        this.rpcUrls = this.config.UosURL();
         this.urlParameters = this.config.UosParam();
     }
 
     public String requestBPList(){
         HttpURLConnection connection = null;
 
-        try{
-            URL url = new URL(rpcUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Content-Length",
-                    Integer.toString(urlParameters.getBytes().length));
-            connection.setRequestProperty("Content-Language", "en-US");
+        StringBuilder response = new StringBuilder();
+        for(String rpcUrl : rpcUrls)
+        {
+            try{
+                URL url = new URL(rpcUrl + rpc);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Content-Length",
+                        Integer.toString(urlParameters.getBytes().length));
+                connection.setRequestProperty("Content-Language", "en-US");
 
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
+                connection.setUseCaches(false);
+                connection.setDoOutput(true);
 
-            //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    connection.getOutputStream());
-            wr.writeBytes(urlParameters);
-            wr.close();
+                //Send request
+                DataOutputStream wr = new DataOutputStream (
+                        connection.getOutputStream());
+                wr.writeBytes(urlParameters);
+                wr.close();
 
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
+                //Get Response
+                InputStream is = connection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    response.append(line);
+                    response.append('\r');
+                }
+                rd.close();
+                if(response != null){
+                    break;
+                }
             }
-            rd.close();
-            return response.toString();
+            catch(Exception ex){
+                System.out.println("Exception: " + ex.getMessage());
+            }
         }
-        catch(Exception ex){
-            return "Exception: " + ex.getMessage();
-        }
+        return response.toString();
     }
 
     public JSONObject getBPSchedule(){
@@ -115,18 +122,7 @@ public class UOSRpcChannel {
     }
 
     public JSONArray getBPList() {
-        //UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
         JSONObject bpSchedule = getBPSchedule();
         return bpSchedule.getJSONObject("round2").getJSONArray("rows");
-    }
-
-    //TODO remove this function once requestBPList is used in Test/Production
-    public static void main(String []args){
-        String rpcUrl = "https://rpc1.uosio.org";
-
-        //UOSRpcChannel uosRpcChannel = new UOSRpcChannel(rpcUrl, "8250", "{\"scope\":\"uosclist\",\"code\":\"uosio\",\"table\":\"uosclist\",\"json\":\"true\"}");
-        //JSONObject obj = uosRpcChannel.getBPSchedule();
-        //System.out.println(obj);
-        //System.out.println(obj.getJSONObject("round1").getJSONArray("rows"));
     }
 }

@@ -346,10 +346,4 @@ public class MinerServerImpl implements MinerServer {
         String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
         return bpList.contains(pubKey);
     }
-
-    //private JSONArray getBPList() {
-    //    UOSRpcChannel uosRpcChannel = new UOSRpcChannel(config.UosURL(), config.UosPort(), config.UosParam());
-    //    JSONObject bpSchedule = uosRpcChannel.getBPSchedule();
-    //    return bpSchedule.getJSONObject("round2").getJSONArray("rows");
-    //}
 }
