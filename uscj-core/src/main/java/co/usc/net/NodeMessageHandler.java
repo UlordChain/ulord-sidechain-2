@@ -271,7 +271,6 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
         try {
             // Validate BpList
             if(!syncProcessor.isPeerSyncing()) {
-                System.out.println("Validating BPList " + block.getNumber());
                 if(!isValidBpList(block)) {
                     logger.error("Invalid BpList Block {}: {}", block.getNumber(), block.getShortHash());
                     return false;
