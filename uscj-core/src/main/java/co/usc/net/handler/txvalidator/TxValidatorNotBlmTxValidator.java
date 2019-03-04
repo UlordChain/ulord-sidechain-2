@@ -42,7 +42,7 @@ public class TxValidatorNotBlmTxValidator implements TxValidatorStep {
         if (!(tx instanceof BlmTransaction)) {
             return true;
         }
-        logger.warn("Invalid transaction {}: it is a Blm transaction", tx.getHash());
+        logger.trace("transaction {}: it is a Blm transaction", tx.getHash());
         return false;
     }
 }

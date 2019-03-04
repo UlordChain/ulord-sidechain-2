@@ -644,8 +644,7 @@ public abstract class SystemProperties {
     }
 
     public boolean scoringPunishmentEnabled() {
-        return configFromFiles.hasPath("scoring.punishmentEnabled") ?
-                configFromFiles.getBoolean("scoring.punishmentEnabled") : false;
+        return configFromFiles.hasPath("scoring.punishmentEnabled") && configFromFiles.getBoolean("scoring.punishmentEnabled");
     }
 
     public int scoringNumberOfNodes() {

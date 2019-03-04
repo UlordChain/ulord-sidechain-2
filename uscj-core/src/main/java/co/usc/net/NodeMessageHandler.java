@@ -18,10 +18,12 @@
 
 package co.usc.net;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.bc.BlockChainStatus;
 import co.usc.crypto.Keccak256;
 import co.usc.net.messages.*;
+import co.usc.rpc.uos.UOSRpcChannel;
 import co.usc.scoring.EventType;
 import co.usc.scoring.PeerScoringManager;
 import co.usc.validators.BlockValidationRule;
@@ -31,6 +33,9 @@ import org.ethereum.core.BlockIdentifier;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.server.ChannelManager;
+import org.ethereum.util.Utils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.encoders.Hex;
@@ -69,6 +74,8 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
     private volatile boolean stopped;
 
+    private final UOSRpcChannel uosRpcChannel;
+
     @Autowired
     public NodeMessageHandler(UscSystemProperties config,
                               @Nonnull final BlockProcessor blockProcessor,
@@ -76,7 +83,8 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
                               @Nullable final ChannelManager channelManager,
                               @Nullable final TransactionGateway transactionGateway,
                               @Nullable final PeerScoringManager peerScoringManager,
-                              @Nonnull BlockValidationRule blockValidationRule) {
+                              @Nonnull BlockValidationRule blockValidationRule,
+                              UOSRpcChannel uosRpcChannel) {
         this.config = config;
         this.channelManager = channelManager;
         this.blockProcessor = blockProcessor;
@@ -85,6 +93,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
         this.blockValidationRule = blockValidationRule;
         this.cleanMsgTimestamp = System.currentTimeMillis();
         this.peerScoringManager = peerScoringManager;
+        this.uosRpcChannel = uosRpcChannel;
     }
 
     /**
@@ -253,16 +262,32 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
     /**
      * isValidBlock validates if the given block meets the minimum criteria to be processed:
-     * The PoW should be valid and the block can't be too far in the future.
+     * The block should be valid and the block can't be too far in the future.
      *
      * @param block the block to check
      * @return true if the block is valid, false otherwise.
      */
     private boolean isValidBlock(@Nonnull final Block block) {
         try {
+            // Validate BpList
+            if(!syncProcessor.isPeerSyncing()) {
+                System.out.println("Validating BPList " + block.getNumber());
+                if(!isValidBpList(block)) {
+                    logger.error("Invalid BpList Block {}: {}", block.getNumber(), block.getShortHash());
+                    return false;
+                }
+            }
+//            if(!this.blockProcessor.hasBetterBlockToSync()) {
+//                System.out.println("Validating BPList " + block.getNumber());
+//                if(!isValidBpList(block)) {
+//                    logger.error("Invalid BpList Block {}: {}", block.getNumber(), block.getShortHash());
+//                    return false;
+//                }
+//            }
+
             return blockValidationRule.isValid(block);
         } catch (Exception e) {
-            logger.error("Failed to validate PoW from block {}: {}", block.getShortHash(), e);
+            logger.error("Failed to validate block {}: {}", block.getShortHash(), e);
             return false;
         }
     }
@@ -316,6 +341,27 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
         tryRelayBlock(sender, block, result);
         recordEvent(sender, EventType.VALID_BLOCK);
         Metrics.processBlockMessage("finish", block, sender.getPeerNodeID());
+    }
+
+    private boolean isValidBpList(Block block) {
+        for (Transaction tx :
+                block.getTransactionsList()) {
+            if(tx instanceof BlmTransaction) {
+                List<String> producersList = Utils.decodeBpList(tx.getData());
+                JSONArray bpList = uosRpcChannel.getBPList();
+                List<String> producers = new ArrayList<>();
+                for (int i = 0; i < bpList.length(); ++i) {
+                    JSONObject jsonObject = bpList.getJSONObject(i);
+                    String uosPubKey = jsonObject.getString("ulord_addr");
+                    producers.add(Utils.UosPubKeyToUlord(uosPubKey));
+                }
+                if(producersList.equals(producers)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void tryRelayBlock(@Nonnull MessageChannel sender, Block block, BlockProcessResult result) {

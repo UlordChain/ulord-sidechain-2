@@ -18,11 +18,14 @@
 
 package co.usc.core.bc;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.blocks.BlockRecorder;
+import co.usc.config.UscSystemProperties;
 import co.usc.net.Metrics;
 import co.usc.panic.PanicProcessor;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
+import co.usc.ulordj.core.UldECKey;
 import co.usc.validators.BlockValidator;
 import com.google.common.annotations.VisibleForTesting;
 import org.bouncycastle.util.encoders.Hex;
@@ -34,10 +37,14 @@ import org.ethereum.db.ReceiptStore;
 import org.ethereum.db.TransactionInfo;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.util.RLP;
+import org.ethereum.util.Utils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -85,6 +92,8 @@ public class BlockChainImpl implements Blockchain {
     private EthereumListener listener;
     private BlockValidator blockValidator;
 
+    private final UscSystemProperties config;
+
     private volatile BlockChainStatus status = new BlockChainStatus(null /*, BlockDifficulty.ZERO*/);
 
     private final Object connectLock = new Object();
@@ -103,18 +112,18 @@ public class BlockChainImpl implements Blockchain {
                           TransactionPool transactionPool,
                           EthereumListener listener,
                           BlockValidator blockValidator,
-                          boolean flushEnabled,
-                          int flushNumberOfBlocks,
-                          BlockExecutor blockExecutor) {
+                          BlockExecutor blockExecutor,
+                          UscSystemProperties config) {
         this.repository = repository;
         this.blockStore = blockStore;
         this.receiptStore = receiptStore;
         this.listener = listener;
         this.blockValidator = blockValidator;
-        this.flushEnabled = flushEnabled;
-        this.flushNumberOfBlocks = flushNumberOfBlocks;
+        this.flushEnabled = config.isFlushEnabled();
+        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
         this.blockExecutor = blockExecutor;
         this.transactionPool = transactionPool;
+        this.config = config;
     }
 
     @Override
@@ -307,6 +316,40 @@ public class BlockChainImpl implements Blockchain {
 
         return ImportResult.IMPORTED_BEST;
     }
+
+//    private boolean isValidBpList(Block block) {
+//        Transaction blmTransaction = getBlmTransaction(block);
+//        JSONArray bpList = uosRpcChannel.getBPList();
+//        List<String> producers = new ArrayList<>();
+//        for (int i = 0; i < bpList.length(); ++i) {
+//            JSONObject jsonObject = bpList.getJSONObject(i);
+//            String uosPubKey = jsonObject.getString("ulord_addr");
+//            producers.add(Utils.UosPubKeyToUlord(uosPubKey));
+//        }
+//
+//        return Utils.encodeBpList(producers).equals(blmTransaction.getData());
+//    }
+//
+//    private boolean isBp(Block block) {
+//        Transaction blmTransaction = getBlmTransaction(block);
+//        if(blmTransaction == null) {
+//            logger.warn("The block must contain at lease one BlmTransaction");
+//            return false;
+//        }
+//
+//        List<String> bpList = Utils.decodeBpList(blmTransaction.getData());
+//        String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
+//        return bpList.contains(pubKey);
+//    }
+//
+//    private Transaction getBlmTransaction(Block block) {
+//        for (Transaction tx : block.getTransactionsList()) {
+//            if(tx instanceof BlmTransaction) {
+//                return tx;
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public BlockChainStatus getStatus() {

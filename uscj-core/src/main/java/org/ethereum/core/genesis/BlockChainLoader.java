@@ -87,8 +87,6 @@ public class BlockChainLoader {
                 transactionPool,
                 listener,
                 blockValidator,
-                config.isFlushEnabled(),
-                config.flushNumberOfBlocks(),
                 new BlockExecutor(
                     repository,
                         (tx1, txindex1, coinbase, track1, block1, totalGasUsed1) -> new TransactionExecutor(
@@ -112,7 +110,8 @@ public class BlockChainLoader {
                             config.vmTraceDir(),
                             config.vmTraceCompressed()
                         )
-                )
+                ),
+                config
         );
 
         Block bestBlock = blockStore.getBestBlock();

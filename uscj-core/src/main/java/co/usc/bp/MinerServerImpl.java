@@ -18,6 +18,7 @@
 
 package co.usc.bp;
 
+import co.usc.net.SyncProcessor;
 import co.usc.ulordj.core.*;
 import co.usc.config.MiningConfig;
 import co.usc.config.UscSystemProperties;
@@ -163,7 +164,7 @@ public class MinerServerImpl implements MinerServer {
                 scheduleAndBuildTimer.cancel();
             }
             scheduleAndBuildTimer = new Timer("BP Scheduler");
-            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (1000 * 5)));
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (1000 * 15)));
         }
     }
 

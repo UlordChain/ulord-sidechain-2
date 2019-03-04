@@ -340,6 +340,10 @@ public class SyncProcessor implements SyncEventsHandler {
         return syncState.isSyncing() && selectedPeerId == nodeID;
     }
 
+    public boolean isPeerSyncing() {
+        return syncState.isSyncing();
+    }
+
     @VisibleForTesting
     public Map<Long, MessageType> getExpectedResponses() {
         return pendingMessages;
