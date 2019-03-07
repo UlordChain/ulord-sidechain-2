@@ -70,6 +70,8 @@ public class MinerServerImpl implements MinerServer {
 
     private static final int CACHE_SIZE = 20;
 
+    int IRREVERSIBLE_THRESHOLD = 70;
+
     private final Ethereum ethereum;
     private final Blockchain blockchain;
     private final BlockToSignBuilder builder;
@@ -354,30 +356,25 @@ public class MinerServerImpl implements MinerServer {
 
     private void updateLatestIrreversibleBlock(Block block) {
         List<Long> blockNumbers = new ArrayList<>();
-        List<String> bpList = new ArrayList<>();
-        for (Transaction tx : block.getTransactionsList()) {
-            if(tx instanceof BlmTransaction) {
-                bpList = Utils.decodeBpList(tx.getData());
-            }
-        }
+        List<String> bpList = block.getBpList();
 
         for (String bp : bpList) {
             long lastKnownBlockNum = 0;
 
-            Block parentBlock = blockchain.getBlockStore().getBlockByHash(block.getParentHash().getBytes());
+            Block startBlock = block;
             for(int i = 0; i < bpList.size() * 2; ++i) {
 
-                if(parentBlock == null || parentBlock.isGenesis()) {
+                if(startBlock == null || startBlock.isGenesis()) {
                     break;
                 }
 
-                String parentBp = parentBlock.getCoinbase().toString();
+                String parentBp = startBlock.getCoinbase().toString();
                 String bpAddr = Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress());
                 if(parentBp.equals(bpAddr)) {
-                    lastKnownBlockNum = parentBlock.getNumber();
+                    lastKnownBlockNum = startBlock.getNumber();
                     break;
                 }
-                parentBlock = blockchain.getBlockStore().getBlockByHash(parentBlock.getParentHash().getBytes());
+                startBlock = blockchain.getBlockStore().getBlockByHash(startBlock.getParentHash().getBytes());
             }
             blockNumbers.add(lastKnownBlockNum);
             System.out.println("BP: " + Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress()) + " - Last known block height: "+ lastKnownBlockNum);
@@ -385,14 +382,10 @@ public class MinerServerImpl implements MinerServer {
 
         Collections.sort(blockNumbers);
 
-        int confirmedPos = (int)(bpList.size() * (1 - 70 * 0.1 / 100 ));
-        if (confirmedPos < 0) {
-            logger.warn(
-                    "updateLatestSolidifiedBlock error, solidifiedPosition:{},wits.size:{}",
-                    confirmedPos,
-                    bpList.size());
-        }
-        System.out.println("Block " + (blockNumbers.get(confirmedPos) - 1) + " can be considered confirmed");
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
 
+        System.out.println("Block " + confirmedBlockNum + " can be considered confirmed");
+
+        // TODO: Set irreversible block here.
     }
 }
