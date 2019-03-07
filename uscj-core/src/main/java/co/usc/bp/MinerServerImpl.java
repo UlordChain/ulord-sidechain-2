@@ -18,6 +18,7 @@
 
 package co.usc.bp;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.net.SyncProcessor;
 import co.usc.ulordj.core.*;
 import co.usc.config.MiningConfig;
@@ -28,8 +29,10 @@ import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
 import com.google.common.annotations.VisibleForTesting;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.Utils;
@@ -66,6 +69,8 @@ public class MinerServerImpl implements MinerServer {
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
     private static final int CACHE_SIZE = 20;
+
+    int IRREVERSIBLE_THRESHOLD = 70;
 
     private final Ethereum ethereum;
     private final Blockchain blockchain;
@@ -185,6 +190,7 @@ public class MinerServerImpl implements MinerServer {
 
     private void processBlock1(Block b) {
         b.seal();
+        updateLatestIrreversibleBlock(b);
         ethereum.addNewMinedBlock(b);
     }
 
@@ -346,5 +352,40 @@ public class MinerServerImpl implements MinerServer {
     private boolean isBp(List<String> bpList) {
         String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
         return bpList.contains(pubKey);
+    }
+
+    private void updateLatestIrreversibleBlock(Block block) {
+        List<Long> blockNumbers = new ArrayList<>();
+        List<String> bpList = block.getBpList();
+
+        for (String bp : bpList) {
+            long lastKnownBlockNum = 0;
+
+            Block startBlock = block;
+            for(int i = 0; i < bpList.size() * 2; ++i) {
+
+                if(startBlock == null || startBlock.isGenesis()) {
+                    break;
+                }
+
+                String parentBp = startBlock.getCoinbase().toString();
+                String bpAddr = Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress());
+                if(parentBp.equals(bpAddr)) {
+                    lastKnownBlockNum = startBlock.getNumber();
+                    break;
+                }
+                startBlock = blockchain.getBlockStore().getBlockByHash(startBlock.getParentHash().getBytes());
+            }
+            blockNumbers.add(lastKnownBlockNum);
+            System.out.println("BP: " + Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress()) + " - Last known block height: "+ lastKnownBlockNum);
+        }
+
+        Collections.sort(blockNumbers);
+
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
+
+        System.out.println("Block " + confirmedBlockNum + " can be considered confirmed");
+
+        // TODO: Set irreversible block here.
     }
 }

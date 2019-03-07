@@ -34,6 +34,7 @@ import org.ethereum.rpc.TypeConverter;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
+import org.ethereum.util.Utils;
 import org.ethereum.vm.PrecompiledContracts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -658,6 +659,21 @@ public class Block {
 
     public BigInteger getGasLimitAsInteger() {
         return (this.getGasLimit() == null) ? null : BigIntegers.fromUnsignedByteArray(this.getGasLimit());
+    }
+
+    public Transaction getBlmTransaction() {
+        for (Transaction tx : this.transactionsList) {
+            if (tx instanceof BlmTransaction)
+                return tx;
+        }
+        return null;
+    }
+
+    public List<String> getBpList() {
+        Transaction tx = getBlmTransaction();
+        if(tx == null)
+            return null;
+        return Utils.decodeBpList(tx.getData());
     }
 
     public void flushRLP() {
