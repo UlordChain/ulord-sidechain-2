@@ -18,6 +18,7 @@
 
 package co.usc.bp;
 
+import co.usc.BpListManager.BlmTransaction;
 import co.usc.net.SyncProcessor;
 import co.usc.ulordj.core.*;
 import co.usc.config.MiningConfig;
@@ -28,8 +29,10 @@ import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
 import com.google.common.annotations.VisibleForTesting;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.Utils;
@@ -185,6 +188,7 @@ public class MinerServerImpl implements MinerServer {
 
     private void processBlock1(Block b) {
         b.seal();
+        updateLatestIrreversibleBlock(b);
         ethereum.addNewMinedBlock(b);
     }
 
@@ -346,5 +350,49 @@ public class MinerServerImpl implements MinerServer {
     private boolean isBp(List<String> bpList) {
         String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
         return bpList.contains(pubKey);
+    }
+
+    private void updateLatestIrreversibleBlock(Block block) {
+        List<Long> blockNumbers = new ArrayList<>();
+        List<String> bpList = new ArrayList<>();
+        for (Transaction tx : block.getTransactionsList()) {
+            if(tx instanceof BlmTransaction) {
+                bpList = Utils.decodeBpList(tx.getData());
+            }
+        }
+
+        for (String bp : bpList) {
+            long lastKnownBlockNum = 0;
+
+            Block parentBlock = blockchain.getBlockStore().getBlockByHash(block.getParentHash().getBytes());
+            for(int i = 0; i < bpList.size() * 2; ++i) {
+
+                if(parentBlock == null || parentBlock.isGenesis()) {
+                    break;
+                }
+
+                String parentBp = parentBlock.getCoinbase().toString();
+                String bpAddr = Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress());
+                if(parentBp.equals(bpAddr)) {
+                    lastKnownBlockNum = parentBlock.getNumber();
+                    break;
+                }
+                parentBlock = blockchain.getBlockStore().getBlockByHash(parentBlock.getParentHash().getBytes());
+            }
+            blockNumbers.add(lastKnownBlockNum);
+            System.out.println("BP: " + Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress()) + " - Last known block height: "+ lastKnownBlockNum);
+        }
+
+        Collections.sort(blockNumbers);
+
+        int confirmedPos = (int)(bpList.size() * (1 - 70 * 0.1 / 100 ));
+        if (confirmedPos < 0) {
+            logger.warn(
+                    "updateLatestSolidifiedBlock error, solidifiedPosition:{},wits.size:{}",
+                    confirmedPos,
+                    bpList.size());
+        }
+        System.out.println("Block " + (blockNumbers.get(confirmedPos) - 1) + " can be considered confirmed");
+
     }
 }
