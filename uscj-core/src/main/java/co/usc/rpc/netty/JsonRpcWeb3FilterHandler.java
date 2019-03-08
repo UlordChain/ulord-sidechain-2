@@ -60,6 +60,7 @@ public class JsonRpcWeb3FilterHandler extends SimpleChannelInboundHandler<FullHt
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         HttpResponse response;
+
         HttpMethod httpMethod = request.getMethod();
         HttpHeaders headers = request.headers();
 

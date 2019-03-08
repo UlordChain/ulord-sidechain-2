@@ -32,6 +32,7 @@ import co.usc.rpc.modules.eth.EthModule;
 import co.usc.rpc.modules.mnr.MnrModule;
 import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.txpool.TxPoolModule;
+import co.usc.rpc.modules.uos.UosModule;
 import co.usc.scoring.InvalidInetAddressException;
 import co.usc.scoring.PeerScoringInformation;
 import co.usc.scoring.PeerScoringManager;
@@ -98,6 +99,8 @@ public class Web3Impl implements Web3 {
     private final MnrModule mnrModule;
     private final DebugModule debugModule;
 
+    private final UosModule uosModule;
+
     protected Web3Impl(
             Ethereum eth,
             Blockchain blockchain,
@@ -116,7 +119,8 @@ public class Web3Impl implements Web3 {
             PeerScoringManager peerScoringManager,
             PeerServer peerServer,
             BlockProcessor nodeBlockProcessor,
-            ConfigCapabilities configCapabilities) {
+            ConfigCapabilities configCapabilities,
+            UosModule uosModule) {
         this.eth = eth;
         this.blockchain = blockchain;
         this.blockStore = blockStore;
@@ -135,6 +139,9 @@ public class Web3Impl implements Web3 {
         this.nodeBlockProcessor = nodeBlockProcessor;
         this.configCapabilities = configCapabilities;
         this.config = config;
+
+        this.uosModule = uosModule;
+
         filterManager = new FilterManager(eth);
         snapshotManager = new SnapshotManager(blockchain, transactionPool);
         initialBlockNumber = this.blockchain.getBestBlock().getNumber();
@@ -1176,5 +1183,10 @@ public class Web3Impl implements Web3 {
     @Override
     public String[] sco_bannedAddresses() {
         return this.peerScoringManager.getBannedAddresses().toArray(new String[0]);
+    }
+
+    @Override
+    public void uos_pushBPList(String list, String signedList){
+        uosModule.pushBPList(list, signedList);
     }
 }

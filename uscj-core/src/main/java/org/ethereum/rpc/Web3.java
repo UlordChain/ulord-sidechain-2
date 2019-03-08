@@ -164,4 +164,6 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
     void sco_unbanAddress(String address);
     PeerScoringInformation[] sco_peerList();
     String[] sco_bannedAddresses();
+
+    void uos_pushBPList(String list, String signedList);
 }

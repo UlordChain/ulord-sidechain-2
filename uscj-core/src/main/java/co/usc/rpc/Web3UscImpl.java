@@ -27,6 +27,7 @@ import co.usc.rpc.modules.eth.EthModule;
 import co.usc.rpc.modules.mnr.MnrModule;
 import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.txpool.TxPoolModule;
+import co.usc.rpc.modules.uos.UosModule;
 import co.usc.scoring.PeerScoringManager;
 import org.ethereum.core.*;
 import org.ethereum.db.BlockStore;
@@ -77,11 +78,12 @@ public class Web3UscImpl extends Web3Impl {
                        PeerServer peerServer,
                        BlockProcessor nodeBlockProcessor,
                        //HashRateCalculator hashRateCalculator,
-                       ConfigCapabilities configCapabilities) {
+                       ConfigCapabilities configCapabilities,
+                       UosModule uosModule) {
         super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, minerServer,
               personalModule, ethModule, txPoolModule, mnrModule, debugModule,
               channelManager, repository, peerScoringManager, peerServer, nodeBlockProcessor,
-              /*hashRateCalculator,*/ configCapabilities);
+              /*hashRateCalculator,*/ configCapabilities, uosModule);
 
         this.networkStateExporter = networkStateExporter;
         this.blockStore = blockStore;
