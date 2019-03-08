@@ -169,7 +169,7 @@ public class MinerServerImpl implements MinerServer {
                 scheduleAndBuildTimer.cancel();
             }
             scheduleAndBuildTimer = new Timer("BP Scheduler");
-            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (1000 * 15)));
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (100)));
         }
     }
 
@@ -377,14 +377,13 @@ public class MinerServerImpl implements MinerServer {
                 startBlock = blockchain.getBlockStore().getBlockByHash(startBlock.getParentHash().getBytes());
             }
             blockNumbers.add(lastKnownBlockNum);
-            System.out.println("BP: " + Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress()) + " - Last known block height: "+ lastKnownBlockNum);
         }
 
         Collections.sort(blockNumbers);
 
         Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
 
-        System.out.println("Block " + confirmedBlockNum + " can be considered confirmed");
+        logger.info("Block " + confirmedBlockNum + " marked irreversible.");
 
         // TODO: Set irreversible block here.
     }
