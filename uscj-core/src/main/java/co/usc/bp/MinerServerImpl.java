@@ -169,7 +169,7 @@ public class MinerServerImpl implements MinerServer {
                 scheduleAndBuildTimer.cancel();
             }
             scheduleAndBuildTimer = new Timer("BP Scheduler");
-            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (100)));
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (1000 * 10)));
         }
     }
 
@@ -190,7 +190,6 @@ public class MinerServerImpl implements MinerServer {
 
     private void processBlock1(Block b) {
         b.seal();
-        updateLatestIrreversibleBlock(b);
         ethereum.addNewMinedBlock(b);
     }
 
@@ -352,39 +351,5 @@ public class MinerServerImpl implements MinerServer {
     private boolean isBp(List<String> bpList) {
         String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
         return bpList.contains(pubKey);
-    }
-
-    private void updateLatestIrreversibleBlock(Block block) {
-        List<Long> blockNumbers = new ArrayList<>();
-        List<String> bpList = block.getBpList();
-
-        for (String bp : bpList) {
-            long lastKnownBlockNum = 0;
-
-            Block startBlock = block;
-            for(int i = 0; i < bpList.size() * 2; ++i) {
-
-                if(startBlock == null || startBlock.isGenesis()) {
-                    break;
-                }
-
-                String parentBp = startBlock.getCoinbase().toString();
-                String bpAddr = Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress());
-                if(parentBp.equals(bpAddr)) {
-                    lastKnownBlockNum = startBlock.getNumber();
-                    break;
-                }
-                startBlock = blockchain.getBlockStore().getBlockByHash(startBlock.getParentHash().getBytes());
-            }
-            blockNumbers.add(lastKnownBlockNum);
-        }
-
-        Collections.sort(blockNumbers);
-
-        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
-
-        logger.info("Block " + confirmedBlockNum + " marked irreversible.");
-
-        // TODO: Set irreversible block here.
     }
 }

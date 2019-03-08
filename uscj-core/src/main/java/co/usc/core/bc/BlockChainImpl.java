@@ -30,6 +30,7 @@ import co.usc.validators.BlockValidator;
 import com.google.common.annotations.VisibleForTesting;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
+import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockInformation;
 import org.ethereum.db.BlockStore;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -202,6 +204,54 @@ public class BlockChainImpl implements Blockchain {
         }
     }
 
+    private void updateLatestIrreversibleBlock(Block block) {
+        List<Long> blockNumbers = new ArrayList<>();
+        List<String> bpList = block.getBpList();
+
+        for (String bp : bpList) {
+            long lastKnownBlockNum = 0;
+
+            Block startBlock = block;
+            for(int i = 0; i < bpList.size() * 2; ++i) {
+
+                if(startBlock == null || startBlock.isGenesis()) {
+                    break;
+                }
+
+                String parentBp = startBlock.getCoinbase().toString();
+                String bpAddr = Hex.toHexString(ECKey.fromPublicOnly(Hex.decode(bp)).getAddress());
+                if(parentBp.equals(bpAddr)) {
+                    lastKnownBlockNum = startBlock.getNumber();
+                    break;
+                }
+                startBlock = blockStore.getBlockByHash(startBlock.getParentHash().getBytes());
+            }
+            blockNumbers.add(lastKnownBlockNum);
+        }
+
+        Collections.sort(blockNumbers);
+
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
+
+        markBlocksAsIrreversible(confirmedBlockNum);
+        //blockchain.getBlockByNumber(confirmedBlockNum).setIrreversible();
+
+        // TODO: Set irreversible block here.
+    }
+
+    private void markBlocksAsIrreversible(Long confirmedBlockNum) {
+        Block block = blockStore.getChainBlockByNumber(confirmedBlockNum);
+
+        if(block == null || block.isGenesis()) return;
+
+        if(!block.isIrreversible()) {
+            logger.info("Block " + confirmedBlockNum + " marked irreversible.");
+            block.setIrreversible();
+            // Check previous blocks
+            markBlocksAsIrreversible(--confirmedBlockNum);
+        }
+    }
+
     @Override
     public void suspendProcess() {
         this.lock.writeLock().lock();
@@ -304,6 +354,8 @@ public class BlockChainImpl implements Blockchain {
         onBestBlock(block, result);
         logger.trace("Start onBlock");
         onBlock(block, result);
+        logger.trace("Set Latest Irreversible");
+        updateLatestIrreversibleBlock(block);
         logger.trace("Start flushData");
         flushData();
 

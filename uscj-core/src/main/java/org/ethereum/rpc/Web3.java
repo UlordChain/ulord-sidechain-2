@@ -74,6 +74,7 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
         public String r; // DATA, 32 Bytes - the root of the signatures of the block.
         public String s; // DATA, 32 Bytes - the root of the signatures of the block.
         public String blockProducer; // DATA, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
+        public String irriversible; // Flag - if the block is irreversible or not
         public String extraData; // DATA - the "extra data" field of this block
         public String size;//QUANTITY - integer the size of this block in bytes.
         public String gasLimit;//: QUANTITY - the maximum gas allowed in this block.
@@ -96,6 +97,7 @@ public interface Web3 extends Web3TxPoolModule, Web3EthModule, Web3MnrModule, We
                     ", r='" + r + '\'' +
                     ", s='" + s + '\'' +
                     ", blockProducer='" + blockProducer + '\'' +
+                    ", irreversible='" + irriversible + '\'' +
                     ", extraData='" + extraData + '\'' +
                     ", size='" + size + '\'' +
                     ", gasLimit='" + gasLimit + '\'' +

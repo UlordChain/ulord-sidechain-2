@@ -81,6 +81,7 @@ public class Block {
     /* Private */
     private byte[] rlpEncoded;
     private boolean parsed = false;
+    private boolean irreversible = false;
 
     private static final byte LOWER_REAL_V = 27;
 
@@ -167,8 +168,6 @@ public class Block {
             this.transactionsList = Collections.unmodifiableList(transactionsList);
         }
 
-//        this.signature = null;
-
         this.header = new BlockHeader(parentHash, coinbase, logsBloom,
                 number, gasLimit, gasUsed,
                 timestamp, extraData, minimumGasPrice);
@@ -200,8 +199,8 @@ public class Block {
 
     private void parseRLP() {
         RLPList block = RLP.decodeList(rlpEncoded);
-        if (block.size() != 3) {
-            throw new IllegalArgumentException("A block must have exactly 3 items, found: " + block.size());
+        if (block.size() != 4) {
+            throw new IllegalArgumentException("A block must have exactly 4 items, found: " + block.size());
         }
 
         // Parse Header
@@ -219,6 +218,12 @@ public class Block {
         byte[] r = sig.get(1).getRLPData();
         byte[] s = sig.get(2).getRLPData();
         this.signature = ECDSASignature.fromComponents(r, s, v);
+
+        if(block.get(3).getRLPData()[0] == 0)
+            this.irreversible = false;
+        else
+            this.irreversible = true;
+
         this.parsed = true;
     }
 
@@ -412,6 +417,8 @@ public class Block {
             toStringBuff.append("  signature []\n");
         }
 
+        toStringBuff.append("  irreversible: ").append(irreversible).append("\n");
+
         if (!getTransactionsList().isEmpty()) {
             toStringBuff.append("  Txs [\n");
             for (Transaction tx : getTransactionsList()) {
@@ -596,6 +603,11 @@ public class Block {
         body.add(transactions);
         body.add(signatures);
 
+        if(this.irreversible)
+            body.add(new byte[]{1});
+        else
+            body.add(new byte[]{0});
+
         return body;
     }
 
@@ -679,5 +691,13 @@ public class Block {
     public void flushRLP() {
         this.rlpEncoded = null;
         this.parsed = true;
+    }
+
+    public void setIrreversible() {
+        this.irreversible = true;
+    }
+
+    public boolean isIrreversible() {
+        return this.irreversible;
     }
 }

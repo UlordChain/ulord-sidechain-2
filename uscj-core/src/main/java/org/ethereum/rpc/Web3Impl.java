@@ -571,6 +571,7 @@ public class Web3Impl implements Web3 {
         }
 
         br.blockProducer = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase().getBytes());
+        br.irriversible = b.isIrreversible() ? "true" : "false";
         br.extraData = TypeConverter.toJsonHex(b.getExtraData());
 
         br.gasLimit = TypeConverter.toJsonHex(b.getGasLimit());
