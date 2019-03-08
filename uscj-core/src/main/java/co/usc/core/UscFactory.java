@@ -33,6 +33,7 @@ import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.personal.PersonalModuleWalletDisabled;
 import co.usc.rpc.modules.personal.PersonalModuleWalletEnabled;
 import co.usc.rpc.modules.txpool.TxPoolModule;
+import co.usc.rpc.modules.uos.UosModule;
 import co.usc.rpc.netty.*;
 import co.usc.scoring.PeerScoring;
 import co.usc.scoring.PeerScoringManager;
@@ -153,7 +154,8 @@ public class UscFactory {
                         PeerServer peerServer,
                         BlockProcessor nodeBlockProcessor,
                         //HashRateCalculator hashRateCalculator,
-                        ConfigCapabilities configCapabilities) {
+                        ConfigCapabilities configCapabilities,
+                        UosModule uosModule) {
         return new Web3UscImpl(
                 usc,
                 blockchain,
@@ -174,7 +176,8 @@ public class UscFactory {
                 peerServer,
                 nodeBlockProcessor,
                 //hashRateCalculator,
-                configCapabilities
+                configCapabilities,
+                uosModule
         );
     }
 
