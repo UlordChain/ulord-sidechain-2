@@ -160,6 +160,13 @@ public class IndexedBlockStore extends AbstractBlockstore {
     }
 
     @Override
+    public void updateBlockIrreversible(Block block) {
+        if (blocks.get(block.getHash().getBytes()) != null) {
+            blocks.put(block.getHash().getBytes(), block.getEncoded());
+        }
+    }
+
+    @Override
     public synchronized List<BlockInformation> getBlocksInformationByNumber(long number) {
         List<BlockInformation> result = new ArrayList<>();
 

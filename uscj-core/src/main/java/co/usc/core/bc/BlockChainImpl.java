@@ -244,6 +244,7 @@ public class BlockChainImpl implements Blockchain {
         if(!block.isIrreversible()) {
             logger.info("Block " + confirmedBlockNum + " marked irreversible.");
             block.setIrreversible();
+            blockStore.updateBlockIrreversible(block);
             // Check previous blocks
             markBlocksAsIrreversible(--confirmedBlockNum);
         }
