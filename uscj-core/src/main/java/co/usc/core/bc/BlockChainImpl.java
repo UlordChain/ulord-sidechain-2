@@ -234,9 +234,6 @@ public class BlockChainImpl implements Blockchain {
         Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
 
         markBlocksAsIrreversible(confirmedBlockNum);
-        //blockchain.getBlockByNumber(confirmedBlockNum).setIrreversible();
-
-        // TODO: Set irreversible block here.
     }
 
     private void markBlocksAsIrreversible(Long confirmedBlockNum) {

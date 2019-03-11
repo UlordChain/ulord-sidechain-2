@@ -321,6 +321,8 @@ public class MinerServerImpl implements MinerServer {
                 }
                 scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(futureSchedule + Constants.getBlockIntervalMs() * (Constants.getProducerRepetitions() + 1)));
             } catch (Exception ex) {
+                // Try to schedule for the next round.
+                scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(Instant.now().toEpochMilli() + Constants.getBlockIntervalMs() * Constants.getProducerRepetitions()));
                 logger.error("Unexpected error: {}", ex);
             }
         }
