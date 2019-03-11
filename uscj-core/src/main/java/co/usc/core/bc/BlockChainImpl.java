@@ -190,7 +190,7 @@ public class BlockChainImpl implements Blockchain {
                     long saveTime = System.nanoTime();
                     ImportResult result = internalTryToConnect(block);
                     long totalTime = System.nanoTime() - saveTime;
-                    logger.info("block: num: [{}] hash: [{}], producer: {}, processed after: [{}]nano, result {}",
+                    logger.info("block-n:[{}] hash:[{}], bp:{}, proc_time:[{}]nano, res:{}",
                             block.getNumber(), block.getShortHash(), Hex.toHexString(block.getCoinbase().getBytes()), totalTime, result);
                     return result;
                 }
