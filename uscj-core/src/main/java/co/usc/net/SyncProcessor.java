@@ -305,17 +305,6 @@ public class SyncProcessor implements SyncEventsHandler {
         return this.peerStatuses.count();
     }
 
-//    @VisibleForTesting
-//    int getNoAdvancedPeers() {
-//        BlockChainStatus chainStatus = this.blockchain.getStatus();
-//
-//        if (chainStatus == null) {
-//            return this.peerStatuses.count();
-//        }
-//
-//        return this.peerStatuses.countIf(s -> chainStatus.hasLowerTotalDifficultyThan(s.getStatus()));
-//    }
-
     @VisibleForTesting
     public void registerExpectedMessage(MessageWithId message) {
         pendingMessages.put(message.getId(), message.getMessageType());
@@ -366,20 +355,6 @@ public class SyncProcessor implements SyncEventsHandler {
         public boolean isKnownBlock(byte[] hash) {
             return blockchain.getBlockByHash(hash) != null;
         }
-
-//        @Override
-//        public boolean hasLowerDifficulty(NodeID nodeID) {
-//            Status status = getPeerStatus(nodeID).getStatus();
-//            if (status == null) {
-//                return false;
-//            }
-//
-//            boolean hasTotalDifficulty = status.getTotalDifficulty() != null;
-//            BlockChainStatus nodeStatus = blockchain.getStatus();
-//            // this works only for testing purposes, real status without difficulty don't reach this far
-//            return  (hasTotalDifficulty && nodeStatus.hasLowerTotalDifficultyThan(status)) ||
-//                (!hasTotalDifficulty && nodeStatus.getBestBlockNumber() < status.getBestBlockNumber());
-//        }
 
         @Override
         public BlockProcessResult processBlock(Block block, MessageChannel channel) {

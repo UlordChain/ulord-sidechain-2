@@ -317,26 +317,6 @@ public class SyncPool implements Iterable<Channel> {
                 return;
             }
 
-            // filtering by 20% from top difficulty
-//            Collections.sort(active, new Comparator<Channel>() {
-//                @Override
-//                public int compare(Channel c1, Channel c2) {
-//                    return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
-//                }
-//            });
-//
-//            BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
-//            int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
-//
-//            for (int i = thresholdIdx; i >= 0; i--) {
-//                if (isIn20PercentRange(active.get(i).getTotalDifficulty(), highestDifficulty)) {
-//                    thresholdIdx = i;
-//                    break;
-//                }
-//            }
-
-            //List<Channel> filtered = active.subList(0, thresholdIdx + 1);
-
             // sorting by latency in asc order
             Collections.sort(active, new Comparator<Channel>() {
                 @Override
@@ -369,14 +349,6 @@ public class SyncPool implements Iterable<Channel> {
                 nodes.isEmpty() ? "empty" : sb.toString()
         );
     }
-
-//    public void updateLowerUsefulDifficulty() {
-//        BlockDifficulty td = blockchain.getTotalDifficulty();
-//
-//        if (td.compareTo(lowerUsefulDifficulty) > 0) {
-//            lowerUsefulDifficulty = td;
-//        }
-//    }
 
     private void heartBeat() {
         for (Channel peer : this) {

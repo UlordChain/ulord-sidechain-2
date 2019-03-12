@@ -478,7 +478,7 @@ public class BlockChainImpl implements Blockchain {
 
     @Override
     public void setBestBlock(Block block) {
-        this.setStatus(block /*, status.getTotalDifficulty()*/);
+        this.setStatus(block);
     }
 
     @Override
@@ -536,7 +536,7 @@ public class BlockChainImpl implements Blockchain {
 
     private void storeBlock(Block block, boolean inBlockChain) {
         blockStore.saveBlock(block, inBlockChain);
-        logger.trace("Block saved: number: {}, hash: {}, TD: {}",
+        logger.trace("Block saved: number: {}, hash: {}",
                 block.getNumber(), block.getShortHash());
     }
 
