@@ -315,21 +315,21 @@ public class IndexedBlockStore extends AbstractBlockstore {
         }
 
         Block bestLine = bestBlock;
-//        if (bestBlock.getNumber() > forkBlock.getNumber()){
-//
-//            while(currentLevel > forkBlock.getNumber()) {
-//                List<BlockInfo> blocks =  index.get(currentLevel);
-//                BlockInfo blockInfo = getBlockInfoForHash(blocks, bestLine.getHash().getBytes());
-//                if (blockInfo != null) {
-//                    blockInfo.setMainChain(false);
-//                    if (index.containsKey(currentLevel)) {
-//                        index.put(currentLevel, blocks);
-//                    }
-//                }
-//                bestLine = getBlockByHash(bestLine.getParentHash().getBytes());
-//                --currentLevel;
-//            }
-//        }
+        if (bestBlock.getNumber() > forkBlock.getNumber()){
+
+            while(currentLevel > forkBlock.getNumber()) {
+                List<BlockInfo> blocks =  index.get(currentLevel);
+                BlockInfo blockInfo = getBlockInfoForHash(blocks, bestLine.getHash().getBytes());
+                if (blockInfo != null) {
+                    blockInfo.setMainChain(false);
+                    if (index.containsKey(currentLevel)) {
+                        index.put(currentLevel, blocks);
+                    }
+                }
+                bestLine = getBlockByHash(bestLine.getParentHash().getBytes());
+                --currentLevel;
+            }
+        }
 
         // 2. Loop back on each level until common block
         while( !bestLine.isEqual(forkLine) ) {

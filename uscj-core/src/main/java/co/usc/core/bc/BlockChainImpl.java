@@ -96,7 +96,7 @@ public class BlockChainImpl implements Blockchain {
 
     private final UscSystemProperties config;
 
-    private volatile BlockChainStatus status = new BlockChainStatus(null /*, BlockDifficulty.ZERO*/);
+    private volatile BlockChainStatus status = new BlockChainStatus(null);
 
     private final Object connectLock = new Object();
     private final Object accessLock = new Object();
@@ -342,7 +342,6 @@ public class BlockChainImpl implements Blockchain {
         }
 
         logger.trace("Start switchToBlockChain");
-        //TODO this function handles fork
         switchToBlockChain(block);
         logger.trace("Start saveReceipts");
         saveReceipts(block, result);
