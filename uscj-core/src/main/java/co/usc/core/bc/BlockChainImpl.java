@@ -232,7 +232,7 @@ public class BlockChainImpl implements Blockchain {
 
         Collections.sort(blockNumbers);
 
-        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size()) / 3);
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
 
         markBlocksAsIrreversible(confirmedBlockNum);
     }
@@ -262,8 +262,7 @@ public class BlockChainImpl implements Blockchain {
     }
 
     private ImportResult internalTryToConnect(Block block) {
-        if (blockStore.getBlockByHash(block.getHash().getBytes()) != null /*&&
-                !BlockDifficulty.ZERO.equals(blockStore.getTotalDifficultyForHash(block.getHash().getBytes()))*/) {
+        if (blockStore.getBlockByHash(block.getHash().getBytes()) != null) {
             logger.debug("Block already exist in chain hash: {}, number: {}",
                          block.getShortHash(),
                          block.getNumber());
