@@ -573,15 +573,14 @@ public class Block {
     }
 
     public byte[] getEncoded() {
-        if (rlpEncoded == null) {
-            byte[] header = this.header.getEncoded();
+        byte[] header = this.header.getEncoded();
 
-            List<byte[]> block = getBodyElements();
-            block.add(0, header);
-            byte[][] elements = block.toArray(new byte[block.size()][]);
+        List<byte[]> block = getBodyElements();
+        block.add(0, header);
+        byte[][] elements = block.toArray(new byte[block.size()][]);
 
-            this.rlpEncoded = RLP.encodeList(elements);
-        }
+        this.rlpEncoded = RLP.encodeList(elements);
+
         return rlpEncoded;
     }
 

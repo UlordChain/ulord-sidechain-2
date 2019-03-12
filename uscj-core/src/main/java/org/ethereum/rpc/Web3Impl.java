@@ -535,7 +535,6 @@ public class Web3Impl implements Web3 {
     public BlockInformationResult getBlockInformationResult(BlockInformation blockInformation) {
         BlockInformationResult bir = new BlockInformationResult();
         bir.hash = TypeConverter.toJsonHex(blockInformation.getHash());
-//        bir.totalDifficulty = TypeConverter.toJsonHex(blockInformation.getTotalDifficulty().asBigInteger());
         bir.inMainChain = blockInformation.isInMainChain();
 
         return bir;
@@ -545,10 +544,6 @@ public class Web3Impl implements Web3 {
         if (b==null) {
             return null;
         }
-
-//        byte[] mergeHeader = b.getUlordMergedMiningHeader();
-
-//        boolean isPending = (mergeHeader == null || mergeHeader.length == 0) && !b.isGenesis();
 
         //TODO Remove comment before moving to Production
         //boolean isPending = (b.getSignature().size() < (21*2/3 + 1)) && !b.isGenesis();

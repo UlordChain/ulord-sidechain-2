@@ -54,9 +54,8 @@ public class SnapshotManager {
         BlockStore store = blockchain.getBlockStore();
 
         Block block = store.getChainBlockByNumber(0);
-        //BlockDifficulty difficulty = blockchain.getBlockStore().getTotalDifficultyForHash(block.getHash().getBytes());
 
-        blockchain.setStatus(block/*, difficulty*/);
+        blockchain.setStatus(block);
 
         // To clean pending state, first process the fork
         transactionPool.processBest(block);

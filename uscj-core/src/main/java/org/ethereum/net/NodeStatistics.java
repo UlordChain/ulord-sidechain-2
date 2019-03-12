@@ -104,7 +104,6 @@ public class NodeStatistics {
     public final StatHandler ethInbound = new StatHandler();
     public final StatHandler ethOutbound = new StatHandler();
     private StatusMessage ethLastInboundStatusMsg = null;
-    //private BigInteger ethTotalDifficulty = BigInteger.ZERO;
 
 
     int getSessionReputation() {
@@ -159,17 +158,8 @@ public class NodeStatistics {
 
     public void ethHandshake(StatusMessage ethInboundStatus) {
         this.ethLastInboundStatusMsg = ethInboundStatus;
-        //this.ethTotalDifficulty = ethInboundStatus.getTotalDifficultyAsBigInt();
         ethHandshake.add();
     }
-
-    //public BigInteger getEthTotalDifficulty() {
-    //    return ethTotalDifficulty;
-    //}
-
-    //public void setEthTotalDifficulty(BigInteger ethTotalDifficulty) {
-    //    this.ethTotalDifficulty = ethTotalDifficulty;
-    //}
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
@@ -207,7 +197,6 @@ public class NodeStatistics {
                 ", rlpx: " + rlpxHandshake + "/" + rlpxAuthMessagesSent + "/" + rlpxConnectionAttempts + " " +
                 rlpxInMessages + "/" + rlpxOutMessages +
                 ", eth: " + ethHandshake + "/" + ethInbound + "/" + ethOutbound + " " +
-                //(ethLastInboundStatusMsg != null ? ByteUtil.toHexString(ethLastInboundStatusMsg.getTotalDifficulty()) : "-") + " " +
                 (disconnected ? "X " : "") +
                 (rlpxLastLocalDisconnectReason != null ? ("<=" + rlpxLastLocalDisconnectReason) : " ") +
                 (rlpxLastRemoteDisconnectReason != null ? ("=>" + rlpxLastRemoteDisconnectReason) : " ")  +

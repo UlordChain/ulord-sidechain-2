@@ -27,9 +27,6 @@ public class PeersInformation {
         this.syncInformation = syncInformation;
         this.syncConfiguration = syncConfiguration;
         this.peerComparator = ((Comparator<Map.Entry<NodeID, SyncPeerStatus>>) this::comparePeerFailInstant);
-                // TODO reenable when unprocessable blocks stop being marked as invalid blocks
-//                .thenComparing(this::comparePeerScoring)
-                //.thenComparing(this::comparePeerTotalDifficulty);
     }
 
     public int count() {
@@ -120,27 +117,4 @@ public class PeersInformation {
         return Integer.compare(score, scoreOther);
     }
 
-    /*
-    private int comparePeerTotalDifficulty(
-            Map.Entry<NodeID, SyncPeerStatus> entry,
-            Map.Entry<NodeID, SyncPeerStatus> other) {
-        BlockDifficulty ttd = entry.getValue().getStatus().getTotalDifficulty();
-        BlockDifficulty otd = other.getValue().getStatus().getTotalDifficulty();
-
-        // status messages from outdated nodes might have null difficulties
-        if (ttd == null && otd == null) {
-            return 0;
-        }
-
-        if (ttd == null) {
-            return -1;
-        }
-
-        if (otd == null) {
-            return 1;
-        }
-
-        return ttd.compareTo(otd);
-    }
-    */
 }

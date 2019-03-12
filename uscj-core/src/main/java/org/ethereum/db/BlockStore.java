@@ -59,9 +59,9 @@ public interface BlockStore {
 
     List<Block> getListBlocksEndWith(byte[] hash, long qty);
 
-    void saveBlock(Block block, /*BlockDifficulty cummDifficulty,*/ boolean mainChain);
+    void saveBlock(Block block, boolean mainChain);
 
-//    BlockDifficulty getTotalDifficultyForHash(byte[] hash);
+    void updateBlockIrreversible(Block block);
 
     Block getBestBlock();
 

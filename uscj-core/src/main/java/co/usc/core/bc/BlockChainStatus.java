@@ -27,11 +27,9 @@ import org.ethereum.core.Block;
 
 public class BlockChainStatus {
     private final Block bestBlock;
-//    private final BlockDifficulty totalDifficulty;
 
-    public BlockChainStatus(Block bestBlock /*, BlockDifficulty totalDifficulty*/) {
+    public BlockChainStatus(Block bestBlock) {
         this.bestBlock = bestBlock;
-//        this.totalDifficulty = totalDifficulty;
     }
 
     public Block getBestBlock() {
@@ -42,11 +40,4 @@ public class BlockChainStatus {
         return bestBlock.getNumber();
     }
 
-//    public BlockDifficulty getTotalDifficulty() {
-//        return totalDifficulty;
-//    }
-
-//    public boolean hasLowerTotalDifficultyThan(Status status) {
-//        return this.totalDifficulty.compareTo(status.getTotalDifficulty()) < 0;
-//    }
 }
