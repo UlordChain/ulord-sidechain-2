@@ -169,7 +169,7 @@ public class MinerServerImpl implements MinerServer {
                 scheduleAndBuildTimer.cancel();
             }
             scheduleAndBuildTimer = new Timer("BP Scheduler");
-            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (1000 * 10)));
+            scheduleAndBuildTimer.schedule(new ScheduleAndBuild(), new Date(System.currentTimeMillis() + (100)));
         }
     }
 

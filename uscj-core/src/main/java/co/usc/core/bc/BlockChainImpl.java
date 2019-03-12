@@ -29,6 +29,7 @@ import co.usc.ulordj.core.UldECKey;
 import co.usc.validators.BlockValidator;
 import com.google.common.annotations.VisibleForTesting;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.config.Constants;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
@@ -231,7 +232,7 @@ public class BlockChainImpl implements Blockchain {
 
         Collections.sort(blockNumbers);
 
-        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size()) / 3);
 
         markBlocksAsIrreversible(confirmedBlockNum);
     }
@@ -268,6 +269,22 @@ public class BlockChainImpl implements Blockchain {
                          block.getNumber());
 
             return ImportResult.EXIST;
+        }
+
+        Block siblingBlock = blockStore.getChainBlockByNumber(block.getNumber());
+        if (siblingBlock != null) {
+            if(siblingBlock.isIrreversible()) {
+                logger.warn("Sibling block is irreversible, failed to add block:{}, hash:{}", block.getNumber(), block.getShortHash());
+                return ImportResult.INVALID_BLOCK;
+            } else {
+                if(siblingBlock.getCoinbase().equals(block.getCoinbase())) {
+                    long timeGap = block.getTimestamp() - siblingBlock.getTimestamp();
+                    if(timeGap < (Constants.getBlockIntervalMs() * Constants.getProducerRepetitions())/1000) {
+                        logger.warn("Block is of the same round, failed to add block:{}, hash:{}", block.getNumber(), block.getShortHash());
+                        return ImportResult.INVALID_BLOCK;
+                    }
+                }
+            }
         }
 
         Block bestBlock;
@@ -365,40 +382,6 @@ public class BlockChainImpl implements Blockchain {
 
         return ImportResult.IMPORTED_BEST;
     }
-
-//    private boolean isValidBpList(Block block) {
-//        Transaction blmTransaction = getBlmTransaction(block);
-//        JSONArray bpList = uosRpcChannel.getBPList();
-//        List<String> producers = new ArrayList<>();
-//        for (int i = 0; i < bpList.length(); ++i) {
-//            JSONObject jsonObject = bpList.getJSONObject(i);
-//            String uosPubKey = jsonObject.getString("ulord_addr");
-//            producers.add(Utils.UosPubKeyToUlord(uosPubKey));
-//        }
-//
-//        return Utils.encodeBpList(producers).equals(blmTransaction.getData());
-//    }
-//
-//    private boolean isBp(Block block) {
-//        Transaction blmTransaction = getBlmTransaction(block);
-//        if(blmTransaction == null) {
-//            logger.warn("The block must contain at lease one BlmTransaction");
-//            return false;
-//        }
-//
-//        List<String> bpList = Utils.decodeBpList(blmTransaction.getData());
-//        String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
-//        return bpList.contains(pubKey);
-//    }
-//
-//    private Transaction getBlmTransaction(Block block) {
-//        for (Transaction tx : block.getTransactionsList()) {
-//            if(tx instanceof BlmTransaction) {
-//                return tx;
-//            }
-//        }
-//        return null;
-//    }
 
     @Override
     public BlockChainStatus getStatus() {
