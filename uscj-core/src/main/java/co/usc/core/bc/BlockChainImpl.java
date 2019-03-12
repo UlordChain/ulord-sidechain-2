@@ -232,7 +232,7 @@ public class BlockChainImpl implements Blockchain {
 
         Collections.sort(blockNumbers);
 
-        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size()) / 3);
+        Long confirmedBlockNum = blockNumbers.get((blockNumbers.size() - 1) / 3);
 
         markBlocksAsIrreversible(confirmedBlockNum);
     }
@@ -277,7 +277,7 @@ public class BlockChainImpl implements Blockchain {
                 return ImportResult.INVALID_BLOCK;
             } else {
                 if(siblingBlock.getCoinbase().equals(block.getCoinbase())) {
-                    long timeGap = block.getTimestamp() - siblingBlock.getTimestamp();
+                    long timeGap = siblingBlock.getTimestamp() - block.getTimestamp();
                     if(timeGap < (Constants.getBlockIntervalMs() * Constants.getProducerRepetitions())/1000) {
                         logger.warn("Block is of the same round, failed to add block:{}, hash:{}", block.getNumber(), block.getShortHash());
                         return ImportResult.INVALID_BLOCK;
