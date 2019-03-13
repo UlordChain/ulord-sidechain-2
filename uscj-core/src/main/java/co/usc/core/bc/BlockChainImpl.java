@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -261,6 +262,9 @@ public class BlockChainImpl implements Blockchain {
         this.lock.writeLock().unlock();
     }
 
+    long previousBlockTime;
+    long latestBlockTime;
+
     private ImportResult internalTryToConnect(Block block) {
         if (blockStore.getBlockByHash(block.getHash().getBytes()) != null) {
             logger.debug("Block already exist in chain hash: {}, number: {}",
@@ -303,7 +307,7 @@ public class BlockChainImpl implements Blockchain {
         }
         // else, Get parent AND total difficulty
         else {
-            logger.trace("get parent and total difficulty");
+            logger.trace("get parent");
             parent = blockStore.getBlockByHash(block.getParentHash().getBytes());
 
             if (parent == null) {
@@ -370,7 +374,13 @@ public class BlockChainImpl implements Blockchain {
         logger.trace("Set Latest Irreversible");
         updateLatestIrreversibleBlock(block);
         logger.trace("Start flushData");
-        flushData();
+        latestBlockTime = Instant.now().toEpochMilli()/1000;
+        if(latestBlockTime - previousBlockTime > (Constants.getProducerRepetitions() - 1))  {
+            previousBlockTime = latestBlockTime;
+            flushData();
+            System.out.println("Time out " + latestBlockTime);
+        }
+        //flushData();
 
         logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
 
@@ -582,7 +592,7 @@ public class BlockChainImpl implements Blockchain {
     private int nFlush = 0;
 
     private void flushData() {
-        if (flushEnabled && nFlush == 0)  {
+        //if (flushEnabled && nFlush == 0)  {
             long saveTime = System.nanoTime();
             repository.flush();
             long totalTime = System.nanoTime() - saveTime;
@@ -591,9 +601,9 @@ public class BlockChainImpl implements Blockchain {
             blockStore.flush();
             totalTime = System.nanoTime() - saveTime;
             logger.trace("blockstore flush: [{}]nano", totalTime);
-        }
-        nFlush++;
-        nFlush = nFlush % flushNumberOfBlocks;
+        //}
+        //nFlush++;
+        //nFlush = nFlush % flushNumberOfBlocks;
     }
 
     public static byte[] calcTxTrie(List<Transaction> transactions) {
