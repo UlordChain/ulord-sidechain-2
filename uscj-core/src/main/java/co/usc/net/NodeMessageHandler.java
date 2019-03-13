@@ -286,7 +286,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
             return blockValidationRule.isValid(block);
         } catch (Exception e) {
-            logger.error("Failed to validate block {}: {}", block.getShortHash(), e);
+            logger.error("Failed to validate block {} {}: {}", block.getNumber(), block.getShortHash(), e);
             return false;
         }
     }
