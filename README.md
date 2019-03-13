@@ -1,4 +1,4 @@
-# Welcome to Ulord-Sidechain-2
+## Welcome to Ulord-Sidechain-2
 
 ## About
 Ulord-Sidechain a.k.a USC is a secondary chain for Ulord implemented in java. USC's goal is providing the value and functionality to the Ulord ecosystem by enabling smart-contracts, near instant payment confirmations and higher-scalability. USC  smart contract platform  supports 2-way peg with Ulord that also rewards Ulord miners via merge-mining, allowing them to actively participate in the Smart Contract revolution.
