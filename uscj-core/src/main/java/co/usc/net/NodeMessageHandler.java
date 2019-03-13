@@ -334,6 +334,10 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
                 block.getTransactionsList()) {
             if(tx instanceof BlmTransaction) {
                 List<String> producersList = Utils.decodeBpList(tx.getData());
+
+                if(!Utils.isBp(producersList, config))
+                    return true;
+
                 JSONArray bpList = uosRpcChannel.getBPList();
                 List<String> producers = new ArrayList<>();
                 for (int i = 0; i < bpList.length(); ++i) {

@@ -309,7 +309,7 @@ public class MinerServerImpl implements MinerServer {
                     // 1. Check if this node is one of the BP's
                     // 2. Calculate this bp's future schedule and schedule to produce block.
 
-                    if(!isBp(producers)) return;
+                    if(!Utils.isBp(producers, config)) return;
 
                     futureSchedule = getFutureSchedule(producers);
 
@@ -350,8 +350,5 @@ public class MinerServerImpl implements MinerServer {
         return time;
     }
 
-    private boolean isBp(List<String> bpList) {
-        String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
-        return bpList.contains(pubKey);
-    }
+
 }

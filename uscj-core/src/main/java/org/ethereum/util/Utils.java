@@ -19,6 +19,7 @@
 
 package org.ethereum.util;
 
+import co.usc.config.UscSystemProperties;
 import co.usc.ulordj.core.Base58;
 import co.usc.ulordj.core.NetworkParameters;
 import co.usc.ulordj.core.UldECKey;
@@ -351,5 +352,10 @@ public class Utils {
         int bpIndex = (int)(divisions % (listSize * producerRepetitions));
         bpIndex /= producerRepetitions;
         return bpIndex;
+    }
+
+    public static boolean isBp(List<String> bpList, UscSystemProperties config) {
+        String pubKey  = UldECKey.fromPrivate(config.getMyKey().getPrivKeyBytes()).getPublicKeyAsHex();
+        return bpList.contains(pubKey);
     }
 }
