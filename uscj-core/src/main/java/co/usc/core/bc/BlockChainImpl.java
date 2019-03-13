@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -108,6 +109,8 @@ public class BlockChainImpl implements Blockchain {
     private final BlockExecutor blockExecutor;
     private BlockRecorder blockRecorder;
     private boolean noValidation;
+
+    private long previousBlockTime;
 
     public BlockChainImpl(Repository repository,
                           BlockStore blockStore,
@@ -369,8 +372,13 @@ public class BlockChainImpl implements Blockchain {
         onBlock(block, result);
         logger.trace("Set Latest Irreversible");
         updateLatestIrreversibleBlock(block);
-        logger.trace("Start flushData");
-        flushData();
+
+        long latestBlockTime = Instant.now().toEpochMilli()/1000;
+        if(latestBlockTime - previousBlockTime > (Constants.getProducerRepetitions() - 1))  {
+            previousBlockTime = latestBlockTime;
+            logger.trace("Start flushData");
+            flushData();
+        }
 
         logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
 
@@ -582,18 +590,14 @@ public class BlockChainImpl implements Blockchain {
     private int nFlush = 0;
 
     private void flushData() {
-        if (flushEnabled && nFlush == 0)  {
-            long saveTime = System.nanoTime();
-            repository.flush();
-            long totalTime = System.nanoTime() - saveTime;
-            logger.trace("repository flush: [{}]nano", totalTime);
-            saveTime = System.nanoTime();
-            blockStore.flush();
-            totalTime = System.nanoTime() - saveTime;
-            logger.trace("blockstore flush: [{}]nano", totalTime);
-        }
-        nFlush++;
-        nFlush = nFlush % flushNumberOfBlocks;
+        long saveTime = System.nanoTime();
+        repository.flush();
+        long totalTime = System.nanoTime() - saveTime;
+        logger.trace("repository flush: [{}]nano", totalTime);
+        saveTime = System.nanoTime();
+        blockStore.flush();
+        totalTime = System.nanoTime() - saveTime;
+        logger.trace("blockstore flush: [{}]nano", totalTime);
     }
 
     public static byte[] calcTxTrie(List<Transaction> transactions) {
