@@ -110,6 +110,8 @@ public class BlockChainImpl implements Blockchain {
     private BlockRecorder blockRecorder;
     private boolean noValidation;
 
+    private long previousBlockTime;
+
     public BlockChainImpl(Repository repository,
                           BlockStore blockStore,
                           ReceiptStore receiptStore,
@@ -262,9 +264,6 @@ public class BlockChainImpl implements Blockchain {
         this.lock.writeLock().unlock();
     }
 
-    long previousBlockTime;
-    long latestBlockTime;
-
     private ImportResult internalTryToConnect(Block block) {
         if (blockStore.getBlockByHash(block.getHash().getBytes()) != null) {
             logger.debug("Block already exist in chain hash: {}, number: {}",
@@ -373,14 +372,13 @@ public class BlockChainImpl implements Blockchain {
         onBlock(block, result);
         logger.trace("Set Latest Irreversible");
         updateLatestIrreversibleBlock(block);
-        logger.trace("Start flushData");
-        latestBlockTime = Instant.now().toEpochMilli()/1000;
+
+        long latestBlockTime = Instant.now().toEpochMilli() / 1000;
         if(latestBlockTime - previousBlockTime > (Constants.getProducerRepetitions() - 1))  {
             previousBlockTime = latestBlockTime;
+            logger.trace("Start flushData");
             flushData();
-            System.out.println("Time out " + latestBlockTime);
         }
-        //flushData();
 
         logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
 
@@ -587,23 +585,15 @@ public class BlockChainImpl implements Blockchain {
         return blockValidator.isValid(block);
     }
 
-    // Rolling counter that helps doing flush every UscSystemProperties.CONFIG.flushNumberOfBlocks() flush attempts
-    // We did this because flush is slow, and doing flush for every block degrades the node performance.
-    private int nFlush = 0;
-
     private void flushData() {
-        //if (flushEnabled && nFlush == 0)  {
-            long saveTime = System.nanoTime();
-            repository.flush();
-            long totalTime = System.nanoTime() - saveTime;
-            logger.trace("repository flush: [{}]nano", totalTime);
-            saveTime = System.nanoTime();
-            blockStore.flush();
-            totalTime = System.nanoTime() - saveTime;
-            logger.trace("blockstore flush: [{}]nano", totalTime);
-        //}
-        //nFlush++;
-        //nFlush = nFlush % flushNumberOfBlocks;
+        long saveTime = System.nanoTime();
+        repository.flush();
+        long totalTime = System.nanoTime() - saveTime;
+        logger.trace("repository flush: [{}]nano", totalTime);
+        saveTime = System.nanoTime();
+        blockStore.flush();
+        totalTime = System.nanoTime() - saveTime;
+        logger.trace("blockstore flush: [{}]nano", totalTime);
     }
 
     public static byte[] calcTxTrie(List<Transaction> transactions) {
