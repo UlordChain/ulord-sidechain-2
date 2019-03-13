@@ -12,10 +12,10 @@ Sidechain is not specifically referring to a certain chain, but refers to any ch
 ## Installation 
 
 
-### Get external dependencies
+## Get external dependencies
 
 
-# Getting Started
+## Getting Started
 
-# License
+## License
 USC2 is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the [COPYING.LESSER](https://github.com/UlordChain/Ulord-Sidechain/blob/master/COPYING.LESSER) file.
