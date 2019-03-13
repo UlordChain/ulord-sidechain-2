@@ -47,21 +47,6 @@ public class Constants {
     private static final long BLOCK_TIMESTAMP_EPOCH = 946684800000l; // epoch is year 2000.
     private static final int PRODUCER_REPETITIONS = 6;
 
-    //private static long blockPerDay = 24*3600 / 14;
-
-    // 0.5 peta/s. This means that on reset difficulty will allow private mining.
-//    private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf((long) 14E15 / 2 )); // 0.5 peta/s.
-
-    // Use this to test CPU-mining by Java client:
-    // private BigInteger minimumDifficulty = BigInteger.valueOf((long) 14E4 / 2 ); // 0.005 mega/s.
-
-
-    //private BigInteger difficultyBoundDivisor = BigInteger.valueOf(2048);
-    //private int expDifficultyPeriod = 100000;
-
-    //private int uncleGenerationLimit = 7;
-    //private int uncleListLimit = 10;
-
     private int bestNumberDiffLimit = 100;
 
     private int newBlockMaxSecondsInTheFuture = 540;
@@ -123,28 +108,6 @@ public class Constants {
     public static long getBlockTimestampEpoch() {
         return BLOCK_TIMESTAMP_EPOCH;
     }
-
-//    public BlockDifficulty getMinimumDifficulty() {
-//        return minimumDifficulty;
-//    }
-
-    //public BigInteger getDifficultyBoundDivisor() {
-    //    return difficultyBoundDivisor;
-    //}
-
-    //public int getExpDifficultyPeriod() {
-    //    return expDifficultyPeriod;
-    //}
-
-    /*
-    public int getUncleGenerationLimit() {
-        return uncleGenerationLimit;
-    }
-
-    public int getUncleListLimit() {
-        return uncleListLimit;
-    }
-    */
 
     public int getBestNumberDiffLimit() {
         return bestNumberDiffLimit;

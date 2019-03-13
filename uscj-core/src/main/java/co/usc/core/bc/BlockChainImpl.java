@@ -291,8 +291,6 @@ public class BlockChainImpl implements Blockchain {
 
         Block bestBlock;
 
-        logger.trace("get current state");
-
         // get current state
         synchronized (accessLock) {
             bestBlock = status.getBestBlock();
@@ -304,11 +302,9 @@ public class BlockChainImpl implements Blockchain {
         if (bestBlock == null || bestBlock.isParentOf(block)) {
             parent = bestBlock;
         }
-        // else, Get parent AND total difficulty
+        // else, Get parent
         else {
-            logger.trace("get parent");
             parent = blockStore.getBlockByHash(block.getParentHash().getBytes());
-
             if (parent == null) {
                 return ImportResult.NO_PARENT;
             }
@@ -325,34 +321,24 @@ public class BlockChainImpl implements Blockchain {
         BlockResult result = null;
 
         if (parent != null) {
-            long saveTime = System.nanoTime();
-            logger.trace("execute start");
-
             if (this.noValidation) {
                 result = blockExecutor.executeAll(block, parent.getStateRoot());
             } else {
                 result = blockExecutor.execute(block, parent.getStateRoot(), false);
             }
 
-            logger.trace("execute done");
-
             boolean isValid = noValidation || blockExecutor.validate(block, result);
-
-            logger.trace("validate done");
 
             if (!isValid) {
                 return ImportResult.INVALID_BLOCK;
             }
-
-            long totalTime = System.nanoTime() - saveTime;
-            logger.trace("block: num: [{}] hash: [{}], executed after: [{}]nano", block.getNumber(), block.getShortHash(), totalTime);
         }
 
         //TODO this need refactor to add the new block
         // It is the new best block
 
         if (bestBlock != null && !bestBlock.isParentOf(block)) {
-            logger.trace("Rebranching: {} ~> {} From block {} ~> {}",
+            logger.info("Rebranching: {} ~> {} From block {} ~> {}",
                     bestBlock.getShortHash(), block.getShortHash(), bestBlock.getNumber(), block.getNumber());
             BlockFork fork = new BlockFork();
             fork.calculate(bestBlock, block, blockStore);
@@ -360,29 +346,19 @@ public class BlockChainImpl implements Blockchain {
             blockStore.reBranch(block);
         }
 
-        logger.trace("Start switchToBlockChain");
         switchToBlockChain(block);
-        logger.trace("Start saveReceipts");
         saveReceipts(block, result);
-        logger.trace("Start processBest");
         processBest(block);
-        logger.trace("Start onBestBlock");
         onBestBlock(block, result);
-        logger.trace("Start onBlock");
         onBlock(block, result);
-        logger.trace("Set Latest Irreversible");
         updateLatestIrreversibleBlock(block);
 
         long latestBlockTime = Instant.now().toEpochMilli() / 1000;
         if(latestBlockTime - previousBlockTime > (Constants.getProducerRepetitions() - 1))  {
             previousBlockTime = latestBlockTime;
-            logger.trace("Start flushData");
             flushData();
         }
 
-        logger.trace("Better block {} {}", block.getNumber(), block.getShortHash());
-
-        logger.debug("block added to the blockChain: index: [{}]", block.getNumber());
         if (block.getNumber() % 100 == 0) {
             logger.info("*** Last block added [ #{} ]", block.getNumber());
         }
@@ -533,7 +509,6 @@ public class BlockChainImpl implements Blockchain {
         this.blockRecorder = blockRecorder;
     }
 
-    //TODO this function handles fork
     private void switchToBlockChain(Block block) {
         synchronized (accessLock) {
             storeBlock(block, true);
