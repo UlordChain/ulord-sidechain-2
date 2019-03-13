@@ -330,28 +330,19 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
     }
 
     private boolean isValidBpList(Block block) {
-        for (Transaction tx :
-                block.getTransactionsList()) {
-            if(tx instanceof BlmTransaction) {
-                List<String> producersList = Utils.decodeBpList(tx.getData());
+        List<String> producersList = block.getBpList();
 
-                if(!Utils.isBp(producersList, config))
-                    return true;
+        if(!Utils.isBp(producersList, config))
+            return true;
 
-                JSONArray bpList = uosRpcChannel.getBPList();
-                List<String> producers = new ArrayList<>();
-                for (int i = 0; i < bpList.length(); ++i) {
-                    JSONObject jsonObject = bpList.getJSONObject(i);
-                    String uosPubKey = jsonObject.getString("ulord_addr");
-                    producers.add(Utils.UosPubKeyToUlord(uosPubKey));
-                }
-                if(producersList.equals(producers)) {
-                    return true;
-                }
-            }
+        JSONArray bpList = uosRpcChannel.getBPList();
+        List<String> producers = new ArrayList<>();
+        for (int i = 0; i < bpList.length(); ++i) {
+            JSONObject jsonObject = bpList.getJSONObject(i);
+            String uosPubKey = jsonObject.getString("ulord_addr");
+            producers.add(Utils.UosPubKeyToUlord(uosPubKey));
         }
-
-        return false;
+        return producersList.equals(producers);
     }
 
     private void tryRelayBlock(@Nonnull MessageChannel sender, Block block, BlockProcessResult result) {
