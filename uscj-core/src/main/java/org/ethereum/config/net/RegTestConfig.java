@@ -1,7 +1,6 @@
 package org.ethereum.config.net;
 
-import org.ethereum.config.blockchain.HardForkActivationConfig;
-import org.ethereum.config.blockchain.regtest.RegTestShakespeareConfig;
+import org.ethereum.config.blockchain.regtest.RegTestGenesisConfig;
 
 public class RegTestConfig extends AbstractNetConfig {
     /**
@@ -10,21 +9,20 @@ public class RegTestConfig extends AbstractNetConfig {
      */
     public static RegTestConfig getDefaultRegTestConfig() {
         RegTestConfig config = new RegTestConfig();
-
-        config.add(0, new RegTestShakespeareConfig());
+        config.add(0, new RegTestGenesisConfig());
         return config;
     }
 
-    public static RegTestConfig getFromConfig(HardForkActivationConfig hardForkActivationConfig) {
-        if (hardForkActivationConfig == null) {
-            return getDefaultRegTestConfig();
-        }
-        RegTestConfig customConfig = new RegTestConfig();
-        if (hardForkActivationConfig.getShakespeareActivationHeight() != 0) {
-            // Only add genesis config if the fork configs are set
-            customConfig.add(0, new org.ethereum.config.blockchain.regtest.RegTestGenesisConfig());
-        }
-        customConfig.add(hardForkActivationConfig.getShakespeareActivationHeight(), new RegTestShakespeareConfig());
-        return customConfig;
-    }
+//    public static RegTestConfig getFromConfig(HardForkActivationConfig hardForkActivationConfig) {
+//        if (hardForkActivationConfig == null) {
+//            return getDefaultRegTestConfig();
+//        }
+//        RegTestConfig customConfig = new RegTestConfig();
+//        if (hardForkActivationConfig.getShakespeareActivationHeight() != 0) {
+//            // Only add genesis config if the fork configs are set
+//            customConfig.add(0, new org.ethereum.config.blockchain.regtest.RegTestGenesisConfig());
+//        }
+//        customConfig.add(hardForkActivationConfig.getShakespeareActivationHeight(), new RegTestShakespeareConfig());
+//        return customConfig;
+//    }
 }

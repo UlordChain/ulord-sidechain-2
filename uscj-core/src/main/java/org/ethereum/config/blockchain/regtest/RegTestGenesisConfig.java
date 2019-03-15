@@ -29,21 +29,12 @@ public class RegTestGenesisConfig extends GenesisConfig {
 
     public static class RegTestConstants extends GenesisConstants {
 
-//        private final BlockDifficulty minimumDifficulty = new BlockDifficulty(BigInteger.valueOf(1));
-        private static final byte CHAIN_ID = 53;
-
-//        @Override
-//        public BlockDifficulty getFallbackMiningDifficulty() { return BlockDifficulty.ZERO; }
+        private static final byte CHAIN_ID = 57;
 
         @Override
         public BridgeConstants getBridgeConstants() {
             return BridgeRegTestConstants.getInstance();
         }
-
-//        @Override
-//        public BlockDifficulty getMinimumDifficulty() {
-//            return minimumDifficulty;
-//        }
 
         @Override
         public int getDurationLimit() {
@@ -63,10 +54,5 @@ public class RegTestGenesisConfig extends GenesisConfig {
 
     public RegTestGenesisConfig() {
         super(new RegTestConstants());
-    }
-
-    @Override
-    public boolean areBridgeTxsFree() {
-        return true;
     }
 }

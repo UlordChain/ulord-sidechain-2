@@ -61,48 +61,48 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
 
     @Override
     public boolean areBridgeTxsFree() {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean isUscIP85() { return false; }
+    public boolean isUscIP85() { return true; }
 
     @Override
-    public boolean isUscIP87() { return false; }
+    public boolean isUscIP87() { return true; }
 
     @Override
     public boolean isUscIP88() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isUscIP89() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isUscIP90() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isUscIP91() {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean isUscIP92() {return false; }
+    public boolean isUscIP92() {return true; }
 
     @Override
-    public boolean isUscIP93() {return false; }
+    public boolean isUscIP93() {return true; }
 
     @Override
     public boolean isUscIP94() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isUscIP98() {
-        return false;
+        return true;
     }
 }

@@ -19,10 +19,7 @@
 
 package org.ethereum.config.net;
 
-import org.ethereum.config.blockchain.mainnet.MainNetAfterBridgeSyncConfig;
-import org.ethereum.config.blockchain.mainnet.MainNetBeforeBridgeSyncConfig;
-import org.ethereum.config.blockchain.mainnet.MainNetShakespeareConfig;
-import org.ethereum.config.blockchain.mainnet.MainNetUnlimitedWhitelistConfig;
+import org.ethereum.config.blockchain.mainnet.MainNetGenesisConfig;
 
 
 /**
@@ -30,12 +27,6 @@ import org.ethereum.config.blockchain.mainnet.MainNetUnlimitedWhitelistConfig;
  */
 public class MainNetConfig extends AbstractNetConfig {
     public MainNetConfig() {
-        add(0, new MainNetBeforeBridgeSyncConfig());
-        add(144_000, new MainNetUnlimitedWhitelistConfig());
-        add(200_000, new MainNetShakespeareConfig());
-        // 60 days of 1 block every 14 seconds.
-        // On blockchain launch blocks will be faster until difficulty is adjusted to available hashing power.
-        add(370_000, new MainNetAfterBridgeSyncConfig());
-
+        add(0, new MainNetGenesisConfig());
     }
 }
