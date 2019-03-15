@@ -20,6 +20,9 @@ package co.usc.peg;
 
 import co.usc.ulordj.core.UldTransaction;
 import com.google.common.primitives.UnsignedBytes;
+import org.ethereum.core.Block;
+import org.ethereum.core.Blockchain;
+import org.ethereum.db.BlockStore;
 
 import java.util.*;
 
@@ -112,6 +115,28 @@ public class ReleaseTransactionSet {
         while (iterator.hasNext()) {
             Entry entry = iterator.next();
             if (hasEnoughConfirmations(entry, currentBlockNumber, minimumConfirmations) && (!maximumSliceSize.isPresent() || count < maximumSliceSize.get())) {
+                output.add(entry.getTransaction());
+                iterator.remove();
+                count++;
+                if (maximumSliceSize.isPresent() && count == maximumSliceSize.get()) {
+                    break;
+                }
+            }
+        }
+
+        return output;
+    }
+
+    public Set<UldTransaction> sliceWithIrreversibility(Optional<Integer> maximumSliceSize, BlockStore blockStore) {
+        Set<UldTransaction> output = new HashSet<>();
+
+        int count = 0;
+        Iterator<Entry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            Entry entry = iterator.next();
+            Block block = blockStore.getChainBlockByNumber(entry.uscBlockNumber);
+
+            if (block != null && block.isIrreversible() && (!maximumSliceSize.isPresent() || count < maximumSliceSize.get())) {
                 output.add(entry.getTransaction());
                 iterator.remove();
                 count++;

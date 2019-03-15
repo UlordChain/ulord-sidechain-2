@@ -43,7 +43,7 @@ public class BridgeMainNetConstants extends BridgeConstants {
                 getUldParams()
         );
 
-        uld2UscMinimumAcceptableConfirmations = 20;
+        uld2UscMinimumAcceptableConfirmations = 10;
         uld2UscMinimumAcceptableConfirmationsOnUsc = 1000;
         usc2UldMinimumAcceptableConfirmations = 1000;
 

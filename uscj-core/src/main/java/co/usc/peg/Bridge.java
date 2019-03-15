@@ -194,6 +194,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
     private org.ethereum.core.Block uscExecutionBlock;
     private Repository repository;
     private List<LogInfo> logs;
+    private BlockStore blockStore;
 
     private BridgeSupport bridgeSupport;
 
@@ -282,6 +283,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
         this.repository = repository;
         this.logs = logs;
         this.blockchainConfig = blockchainNetConfig.getConfigForBlock(uscExecutionBlock.getNumber());
+        this.blockStore = uscBlockStore;
     }
 
     @Override
@@ -344,7 +346,7 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
 
     private BridgeSupport setup() {
         BridgeEventLogger eventLogger = new BridgeEventLoggerImpl(this.bridgeConstants, this.logs);
-        return new BridgeSupport(this.config, repository, eventLogger, contractAddress, uscExecutionBlock);
+        return new BridgeSupport(this.config, repository, eventLogger, contractAddress, uscExecutionBlock, blockStore);
     }
 
     private void teardown() throws IOException {

@@ -41,8 +41,10 @@ import co.usc.peg.utils.PartialMerkleTreeFormatUtils;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ethereum.core.Block;
+import org.ethereum.core.Blockchain;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
+import org.ethereum.db.BlockStore;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.Program;
 import org.json.JSONArray;
@@ -98,6 +100,7 @@ public class BridgeSupport {
     private UldBlockChain uldBlockChain;
     private final org.ethereum.core.Block uscExecutionBlock;
 
+    private BlockStore blockStore;
     // Used by unit tests
     public BridgeSupport(
             UscSystemProperties config,
@@ -127,7 +130,8 @@ public class BridgeSupport {
             Repository repository,
             BridgeEventLogger eventLogger,
             UscAddress contractAddress,
-            Block uscExecutionBlock) {
+            Block uscExecutionBlock,
+            BlockStore blockStore) {
         this(
                 repository,
                 new BridgeStorageProvider(
@@ -144,6 +148,7 @@ public class BridgeSupport {
                 null,
                 null
         );
+        this.blockStore = blockStore;
     }
 
     public BridgeSupport(
@@ -1015,12 +1020,7 @@ public class BridgeSupport {
         // TODO: add only one uld transaction at a time
         // TODO: (at least at this stage).
 
-        // IMPORTANT: sliceWithEnoughConfirmations also modifies the transaction set in place
-        Set<UldTransaction> txsWithEnoughConfirmations = releaseTransactionSet.sliceWithConfirmations(
-                uscExecutionBlock.getNumber(),
-                bridgeConstants.getUsc2UldMinimumAcceptableConfirmations(),
-                Optional.of(1)
-        );
+        Set<UldTransaction> txsWithEnoughConfirmations = releaseTransactionSet.sliceWithIrreversibility(Optional.of(1), blockStore);
 
         // Add the uld transaction to the 'awaiting signatures' list
         if (txsWithEnoughConfirmations.size() > 0) {

@@ -86,7 +86,8 @@ public class EthModule
                 repository,
                 null,
                 PrecompiledContracts.BRIDGE_ADDR,
-                block);
+                block,
+                blockchain.getBlockStore());
 
         byte[] result = bridgeSupport.getStateForDebugging();
 
