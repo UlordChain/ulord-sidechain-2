@@ -229,9 +229,9 @@ public class UscSystemProperties extends SystemProperties {
         return getString("blocks.player", null);
     }
 
-    public boolean isFlushEnabled() {
-        return getBoolean("blockchain.flush", true);
-    }
+//    public boolean isFlushEnabled() {
+//        return getBoolean("blockchain.flush", true);
+//    }
 
 //    public int flushNumberOfBlocks() {
 //        return configFromFiles.hasPath("blockchain.flushNumberOfBlocks") && configFromFiles.getInt("blockchain.flushNumberOfBlocks") > 0 ?
