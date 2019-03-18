@@ -19,21 +19,12 @@
 
 package org.ethereum.config.net;
 
-
-import org.ethereum.config.blockchain.testnet.TestNetAfterBridgeSyncConfig;
-import org.ethereum.config.blockchain.testnet.TestNetBeforeBridgeSyncConfig;
-import org.ethereum.config.blockchain.testnet.TestNetShakespeareConfig;
-import org.ethereum.config.blockchain.testnet.TestNetUnlimitedWhitelistConfig;
+import org.ethereum.config.blockchain.testnet.TestNetGenesisConfig;
 
 public class TestNetConfig extends AbstractNetConfig {
     public static final TestNetConfig INSTANCE = new TestNetConfig();
 
     public TestNetConfig() {
-        add(0, new TestNetBeforeBridgeSyncConfig());
-        // 21 days of 1 block every 14 seconds.
-        // On blockchain launch blocks will be faster until difficulty is adjusted to available hashing power.
-        add(129_600, new TestNetAfterBridgeSyncConfig());
-        add(399_093, new TestNetUnlimitedWhitelistConfig());
-        add(462_000, new TestNetShakespeareConfig());
+        add(0, new TestNetGenesisConfig());
     }
 }

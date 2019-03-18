@@ -26,7 +26,6 @@ import co.usc.ulordj.params.RegTestParams;
 import co.usc.ulordj.params.TestNet3Params;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.*;
-import org.ethereum.config.blockchain.HardForkActivationConfig;
 import org.ethereum.config.net.MainNetConfig;
 import org.ethereum.config.net.TestNetConfig;
 import org.ethereum.config.net.RegTestConfig;
@@ -84,8 +83,6 @@ public abstract class SystemProperties {
     public static BlockchainNetConfig DONOTUSE_blockchainConfig;
 
     public static final String PROPERTY_BC_CONFIG_NAME = "blockchain.config.name";
-    // TODO: define a proper name for this config setting
-    public static final String PROPERTY_BC_CONFIG_HARDFORKACTIVATION_NAME = "blockchain.config.hardforkActivationHeights";
     public static final String PROPERTY_PEER_PORT = "peer.port";
     public static final String PROPERTY_DB_RESET = "database.reset";
     // TODO review rpc properties
@@ -105,7 +102,7 @@ public abstract class SystemProperties {
     private static final Boolean DEFAULT_VMTEST_LOAD_LOCAL = false;
     private static final String DEFAULT_BLOCKS_LOADER = "";
 
-    public static final String MAINNET = "main";
+    public static final String MAINNET = "mainnet";
     public static final String TESTNET = "testnet";
     public static final String REGTEST = "regtest";
     public static final String DEVNET  = "devnet";
@@ -223,11 +220,13 @@ public abstract class SystemProperties {
                     params = TestNet3Params.get();
                     break;
                 case DEVNET:
-                    blockchainConfig = DevNetConfig.getFromConfig(getHardForkActivationConfig());
+                    blockchainConfig = DevNetConfig.getDefaultDevNetConfig();
+                    //blockchainConfig = DevNetConfig.getFromConfig(getHardForkActivationConfig());
                     params = TestNet3Params.get();
                     break;
                 case REGTEST:
-                    blockchainConfig = RegTestConfig.getFromConfig(getHardForkActivationConfig());
+                    blockchainConfig = RegTestConfig.getDefaultRegTestConfig();
+                    //blockchainConfig = RegTestConfig.getFromConfig(getHardForkActivationConfig());
                     params = RegTestParams.get();
                     break;
                 default:
@@ -768,12 +767,5 @@ public abstract class SystemProperties {
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Invalid address: '" + ipToParse + "'", e);
         }
-    }
-
-    private HardForkActivationConfig getHardForkActivationConfig() {
-        if (!this.getConfig().hasPath(PROPERTY_BC_CONFIG_HARDFORKACTIVATION_NAME)) {
-            return null;
-        }
-        return new HardForkActivationConfig(this.getConfig().getObject(PROPERTY_BC_CONFIG_HARDFORKACTIVATION_NAME).toConfig());
     }
 }

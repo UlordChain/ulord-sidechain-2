@@ -107,12 +107,10 @@ public class DefaultConfig {
     @Bean
     public MiningConfig miningConfig(UscSystemProperties uscSystemProperties) {
         return new MiningConfig(
-                uscSystemProperties.coinbaseAddress(),
+                //uscSystemProperties.coinbaseAddress(),
                 uscSystemProperties.minerMinFeesNotifyInDollars(),
                 uscSystemProperties.minerGasUnitInDollars(),
                 uscSystemProperties.minerMinGasPrice(),
-                //uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleListLimit(),
-                //uscSystemProperties.getBlockchainConfig().getCommonConstants().getUncleGenerationLimit(),
                 new GasLimitConfig(
                         uscSystemProperties.getBlockchainConfig().getCommonConstants().getMinGasLimit(),
                         uscSystemProperties.getTargetGasLimit(),

@@ -30,10 +30,7 @@ import java.math.BigInteger;
 public class GenesisConfig extends AbstractConfig {
 
     public static class GenesisConstants extends Constants {
-        @Override
-        public int getDurationLimit() {
-            return 13;
-        }
+
     }
 
     // IMPORTANT NOTICE

@@ -72,11 +72,6 @@ public class Constants {
         return MAX_ADDRESS_BYTE_LENGTH;
     }
 
-    // Average Time between blocks
-    public int getDurationLimit() {
-        return DURATION_LIMIT;
-    }
-
     public BigInteger getInitialNonce() {
         return BigInteger.ZERO;
     }

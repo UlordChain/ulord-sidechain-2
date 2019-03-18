@@ -18,14 +18,12 @@
 
 package co.usc.core.bc;
 
-import co.usc.BpListManager.BlmTransaction;
 import co.usc.blocks.BlockRecorder;
 import co.usc.config.UscSystemProperties;
 import co.usc.net.Metrics;
 import co.usc.panic.PanicProcessor;
 import co.usc.trie.Trie;
 import co.usc.trie.TrieImpl;
-import co.usc.ulordj.core.UldECKey;
 import co.usc.validators.BlockValidator;
 import com.google.common.annotations.VisibleForTesting;
 import org.bouncycastle.util.encoders.Hex;
@@ -39,9 +37,6 @@ import org.ethereum.db.ReceiptStore;
 import org.ethereum.db.TransactionInfo;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.util.RLP;
-import org.ethereum.util.Utils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,8 +99,8 @@ public class BlockChainImpl implements Blockchain {
     private final Object accessLock = new Object();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private final boolean flushEnabled;
-    private final int flushNumberOfBlocks;
+//    private final boolean flushEnabled;
+//    private final int flushNumberOfBlocks;
     private final BlockExecutor blockExecutor;
     private BlockRecorder blockRecorder;
     private boolean noValidation;
@@ -125,8 +120,8 @@ public class BlockChainImpl implements Blockchain {
         this.receiptStore = receiptStore;
         this.listener = listener;
         this.blockValidator = blockValidator;
-        this.flushEnabled = config.isFlushEnabled();
-        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
+//        this.flushEnabled = config.isFlushEnabled();
+//        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
         this.blockExecutor = blockExecutor;
         this.transactionPool = transactionPool;
         this.config = config;
@@ -313,7 +308,7 @@ public class BlockChainImpl implements Blockchain {
         // Validate incoming block before its processing
         if (!isValid(block)) {
             long blockNumber = block.getNumber();
-            logger.warn("Invalid block with number: {}", blockNumber);
+            logger.warn("Invalid block with number: {}, bp: {}", blockNumber, block.getCoinbase().toString());
             panicProcessor.panic("invalidblock", String.format("Invalid block %s %s", blockNumber, block.getHash()));
             return ImportResult.INVALID_BLOCK;
         }

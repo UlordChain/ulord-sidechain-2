@@ -61,48 +61,58 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
 
     @Override
     public boolean areBridgeTxsFree() {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean isUscIP85() { return false; }
+    // Improvements to REMASC contract
+    public boolean isUscIP85() { return true; }
 
     @Override
-    public boolean isUscIP87() { return false; }
+    // Whitelisting adds unlimited option
+    public boolean isUscIP87() { return true; }
 
     @Override
+    // Bridge local calls
     public boolean isUscIP88() {
-        return false;
+        return true;
     }
 
     @Override
+    // Improve blockchain block locator
     public boolean isUscIP89() {
-        return false;
+        return true;
     }
 
     @Override
+    // Add support for return EXTCODESIZE for precompiled contracts
     public boolean isUscIP90() {
-        return false;
+        return true;
     }
 
     @Override
+    // Add support for STATIC_CALL opcode
     public boolean isUscIP91() {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean isUscIP92() {return false; }
+    // Storage improvements
+    public boolean isUscIP92() {return true; }
 
     @Override
-    public boolean isUscIP93() {return false; }
+    // Code Refactor, removes the sample contract
+    public boolean isUscIP93() {return true; }
 
     @Override
+    // Disable OP_CODEREPLACE
     public boolean isUscIP94() {
-        return false;
+        return true;
     }
 
     @Override
+    // Disable fallback mining in advance
     public boolean isUscIP98() {
-        return false;
+        return true;
     }
 }

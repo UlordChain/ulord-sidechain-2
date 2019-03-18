@@ -76,7 +76,6 @@ public class Block {
 
     /* Block Producers Signature*/
     private ECDSASignature signature;
-    //private byte[] bpSignature;
 
     /* Private */
     private byte[] rlpEncoded;

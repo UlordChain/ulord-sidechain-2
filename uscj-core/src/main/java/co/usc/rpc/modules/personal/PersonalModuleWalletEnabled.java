@@ -70,10 +70,10 @@ public class PersonalModuleWalletEnabled implements PersonalModule {
         // which is then used to set the current blockProducer coinbase address.
         // Generally used for testing, since you usually don't want to store
         // wallets in production for security reasons.
-        Account coinbaseAccount = properties.localCoinbaseAccount();
-        if (coinbaseAccount != null) {
-            this.wallet.addAccount(coinbaseAccount);
-        }
+//        Account coinbaseAccount = properties.localCoinbaseAccount();
+//        if (coinbaseAccount != null) {
+//            this.wallet.addAccount(coinbaseAccount);
+//        }
 
         // initializes wallet accounts based on configuration
         for (WalletAccount acc : properties.walletAccounts()) {
