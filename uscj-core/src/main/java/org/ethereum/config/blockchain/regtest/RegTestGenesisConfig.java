@@ -37,11 +37,6 @@ public class RegTestGenesisConfig extends GenesisConfig {
         }
 
         @Override
-        public int getDurationLimit() {
-            return 10;
-        }
-
-        @Override
         public int getNewBlockMaxSecondsInTheFuture() {
             return 0;
         }
