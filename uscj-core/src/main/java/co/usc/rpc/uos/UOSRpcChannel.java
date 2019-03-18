@@ -1,8 +1,11 @@
 package co.usc.rpc.uos;
 
 import co.usc.config.UscSystemProperties;
+import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +20,7 @@ import java.util.List;
 
 @Component
 public class UOSRpcChannel {
-
+    private static final Logger logger = LoggerFactory.getLogger("UOSRpcChannel");
     private List<String> rpcUrls;
     private String urlParameters;
     private UscSystemProperties config;
@@ -122,7 +125,10 @@ public class UOSRpcChannel {
     }
 
     public JSONArray getBPList() {
+        long saveTime = System.nanoTime();
         JSONObject bpSchedule = getBPSchedule();
+        long totalTime = System.nanoTime() - saveTime;
+        logger.debug("UOS RPC response time {}nano", totalTime);
         return bpSchedule.getJSONObject("round2").getJSONArray("rows");
     }
 }
