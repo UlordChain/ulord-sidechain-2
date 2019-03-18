@@ -83,8 +83,6 @@ public abstract class SystemProperties {
     public static BlockchainNetConfig DONOTUSE_blockchainConfig;
 
     public static final String PROPERTY_BC_CONFIG_NAME = "blockchain.config.name";
-    // TODO: define a proper name for this config setting
-    public static final String PROPERTY_BC_CONFIG_HARDFORKACTIVATION_NAME = "blockchain.config.hardforkActivationHeights";
     public static final String PROPERTY_PEER_PORT = "peer.port";
     public static final String PROPERTY_DB_RESET = "database.reset";
     // TODO review rpc properties
@@ -104,7 +102,7 @@ public abstract class SystemProperties {
     private static final Boolean DEFAULT_VMTEST_LOAD_LOCAL = false;
     private static final String DEFAULT_BLOCKS_LOADER = "";
 
-    public static final String MAINNET = "main";
+    public static final String MAINNET = "mainnet";
     public static final String TESTNET = "testnet";
     public static final String REGTEST = "regtest";
     public static final String DEVNET  = "devnet";

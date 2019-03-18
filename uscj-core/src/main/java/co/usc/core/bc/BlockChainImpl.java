@@ -105,7 +105,7 @@ public class BlockChainImpl implements Blockchain {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     private final boolean flushEnabled;
-    private final int flushNumberOfBlocks;
+//    private final int flushNumberOfBlocks;
     private final BlockExecutor blockExecutor;
     private BlockRecorder blockRecorder;
     private boolean noValidation;
@@ -126,7 +126,7 @@ public class BlockChainImpl implements Blockchain {
         this.listener = listener;
         this.blockValidator = blockValidator;
         this.flushEnabled = config.isFlushEnabled();
-        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
+//        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
         this.blockExecutor = blockExecutor;
         this.transactionPool = transactionPool;
         this.config = config;

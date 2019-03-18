@@ -70,8 +70,6 @@ public class MinerServerImpl implements MinerServer {
 
     private static final int CACHE_SIZE = 20;
 
-    int IRREVERSIBLE_THRESHOLD = 70;
-
     private final Ethereum ethereum;
     private final Blockchain blockchain;
     private final BlockToSignBuilder builder;
