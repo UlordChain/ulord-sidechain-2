@@ -21,7 +21,6 @@ package co.usc.peg;
 import co.usc.ulordj.core.UldTransaction;
 import com.google.common.primitives.UnsignedBytes;
 import org.ethereum.core.Block;
-import org.ethereum.core.Blockchain;
 import org.ethereum.db.BlockStore;
 
 import java.util.*;
