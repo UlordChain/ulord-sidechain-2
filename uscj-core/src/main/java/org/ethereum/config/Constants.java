@@ -36,7 +36,6 @@ public class Constants {
     private static final int MAX_CONTRACT_SIZE = 0x6000;
     // we defined it be large enough for to allow large tx and also to have space still to operate on vm
     private static final BigInteger TRANSACTION_GAS_CAP = BigDecimal.valueOf(Math.pow(2,  60)).toBigInteger();
-    public static final int DURATION_LIMIT = 8;
     private static final int MAX_ADDRESS_BYTE_LENGTH = 20;
     private int maximumExtraDataSize = 32;
     private int minGasLimit = 150000000;
@@ -49,7 +48,7 @@ public class Constants {
 
     private int bestNumberDiffLimit = 100;
 
-    private int newBlockMaxSecondsInTheFuture = 540;
+    private int newBlockMaxSecondsInTheFuture = 126;
 
     private final BigInteger minimumPayableGas = BigInteger.valueOf(200000);
     private final BigInteger federatorMinimumPayableGas = BigInteger.valueOf(50000);
