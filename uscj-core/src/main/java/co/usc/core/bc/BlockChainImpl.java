@@ -308,7 +308,7 @@ public class BlockChainImpl implements Blockchain {
         // Validate incoming block before its processing
         if (!isValid(block)) {
             long blockNumber = block.getNumber();
-            logger.warn("Invalid block with number: {}", blockNumber);
+            logger.warn("Invalid block with number: {}, bp: {}", blockNumber, block.getCoinbase().toString());
             panicProcessor.panic("invalidblock", String.format("Invalid block %s %s", blockNumber, block.getHash()));
             return ImportResult.INVALID_BLOCK;
         }
