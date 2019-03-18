@@ -40,11 +40,6 @@ public class DevNetGenesisConfig extends GenesisConfig {
             return DevNetConstants.CHAIN_ID;
         }
 
-        @Override
-        public int getDurationLimit() {
-            return 14;
-        }
-
     }
 
     public DevNetGenesisConfig() {
