@@ -420,6 +420,6 @@ public class UscSystemProperties extends SystemProperties {
     }
 
     public Integer getGasPriceBump() {
-        return configFromFiles.getInt("transaction.gasPriceBump");
+        return getInt("transaction.gasPriceBump", 0);
     }
 }
