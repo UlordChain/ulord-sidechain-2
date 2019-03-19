@@ -276,8 +276,9 @@ public class BlockChainImpl implements Blockchain {
             } else {
                 if(siblingBlock.getCoinbase().equals(block.getCoinbase())) {
                     long timeGap = siblingBlock.getTimestamp() - block.getTimestamp();
-                    if(timeGap < (Constants.getBlockIntervalMs() * Constants.getProducerRepetitions())/1000) {
-                        logger.warn("Block is of the same round, failed to add block:{}, hash:{}", block.getNumber(), block.getShortHash());
+                    if(timeGap < (Constants.getBlockIntervalMs() * Constants.getProducerRepetitions())/1000 && timeGap > 0) {
+                        logger.warn("Block is of the same round, failed to add block:{}, hash:{} : ts:{}, sibling ts:{}",
+                                block.getNumber(), block.getShortHash(), block.getTimestamp(), siblingBlock.getTimestamp());
                         return ImportResult.INVALID_BLOCK;
                     }
                 }
