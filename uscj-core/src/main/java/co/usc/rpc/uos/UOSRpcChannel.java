@@ -128,7 +128,7 @@ public class UOSRpcChannel {
         long saveTime = System.nanoTime();
         JSONObject bpSchedule = getBPSchedule();
         long totalTime = System.nanoTime() - saveTime;
-        logger.debug("UOS RPC response time {}nano", totalTime);
+        logger.debug("UOS RPC response time {} seconds", ((double)totalTime/1_000_000_000.0));
         return bpSchedule.getJSONObject("round2").getJSONArray("rows");
     }
 }
