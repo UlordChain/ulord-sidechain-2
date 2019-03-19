@@ -145,8 +145,10 @@ public class TransactionExecutor {
 
         boolean cumulativeGasReached = txGasLimit.add(BigInteger.valueOf(gasUsedInTheBlock)).compareTo(curBlockGasLimit) > 0;
         if (cumulativeGasReached) {
-            execError(String.format("Too much gas used in this block: Require: %s Got: %s",
-                    curBlockGasLimit.longValue() - toBI(tx.getGasLimit()).longValue(),
+            execError(String.format("Too much gas used in this block: Limit: %s, Used: %s, Require: %s, Got: %s",
+                    curBlockGasLimit.longValue(),
+                    gasUsedInTheBlock,
+                    ((gasUsedInTheBlock + toBI(tx.getGasLimit()).longValue()) - curBlockGasLimit.longValue()),
                     toBI(tx.getGasLimit()).longValue()));
 
             return false;
