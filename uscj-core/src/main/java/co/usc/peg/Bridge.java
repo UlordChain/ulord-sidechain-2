@@ -365,53 +365,55 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
         }
     }
 
-    public void receiveHeaders(Object[] args)
-    {
-        logger.trace("receiveHeaders");
-
-        Object[] uldBlockSerializedArray = (Object[]) args[0];
-
-        // Before going and actually deserializing and calling the underlying function,
-        // check that all block headers passed in are actually block headers doing
-        // a simple size check. If this check fails, just fail.
-        if (Arrays.stream(uldBlockSerializedArray).anyMatch(bytes -> !UldTransactionFormatUtils.isBlockHeaderSize(((byte[])bytes).length))) {
-            // This exception type bypasses bridge teardown, signalling no work done
-            // and preventing the overhead of saving bridge storage
-            logger.warn("Unexpected ULD header(s) received (size mismatch). Aborting processing.");
-            throw new BridgeIllegalArgumentException("Unexpected ULD header(s) received (size mismatch). Aborting processing.");
-        }
-
-        UldBlock[] uldBlockArray = new UldBlock[uldBlockSerializedArray.length];
-        for (int i = 0; i < uldBlockSerializedArray.length; i++) {
-            byte[] uldBlockSerialized = (byte[]) uldBlockSerializedArray[i];
-            try {
-                UldBlock header = bridgeConstants.getUldParams().getDefaultSerializer().makeBlock(uldBlockSerialized);
-                uldBlockArray[i] = header;
-            } catch (ProtocolException e) {
-                throw new BridgeIllegalArgumentException("Block " + i + " could not be parsed " + Hex.toHexString(uldBlockSerialized), e);
-            }
-        }
-        try {
-            bridgeSupport.receiveHeaders(uldBlockArray);
-        } catch (Exception e) {
-            logger.warn("Exception adding header", e);
-            throw new RuntimeException("Exception adding header", e);
-        }
+    public void receiveHeaders(Object[] args) {
+        logger.warn("receiveHeaders is Disabled");
+//        logger.trace("receiveHeaders");
+//
+//        Object[] uldBlockSerializedArray = (Object[]) args[0];
+//
+//        // Before going and actually deserializing and calling the underlying function,
+//        // check that all block headers passed in are actually block headers doing
+//        // a simple size check. If this check fails, just fail.
+//        if (Arrays.stream(uldBlockSerializedArray).anyMatch(bytes -> !UldTransactionFormatUtils.isBlockHeaderSize(((byte[])bytes).length))) {
+//            // This exception type bypasses bridge teardown, signalling no work done
+//            // and preventing the overhead of saving bridge storage
+//            logger.warn("Unexpected ULD header(s) received (size mismatch). Aborting processing.");
+//            throw new BridgeIllegalArgumentException("Unexpected ULD header(s) received (size mismatch). Aborting processing.");
+//        }
+//
+//        UldBlock[] uldBlockArray = new UldBlock[uldBlockSerializedArray.length];
+//        for (int i = 0; i < uldBlockSerializedArray.length; i++) {
+//            byte[] uldBlockSerialized = (byte[]) uldBlockSerializedArray[i];
+//            try {
+//                UldBlock header = bridgeConstants.getUldParams().getDefaultSerializer().makeBlock(uldBlockSerialized);
+//                uldBlockArray[i] = header;
+//            } catch (ProtocolException e) {
+//                throw new BridgeIllegalArgumentException("Block " + i + " could not be parsed " + Hex.toHexString(uldBlockSerialized), e);
+//            }
+//        }
+//        try {
+//            bridgeSupport.receiveHeaders(uldBlockArray);
+//        } catch (Exception e) {
+//            logger.warn("Exception adding header", e);
+//            throw new RuntimeException("Exception adding header", e);
+//        }
     }
 
     public void registerUldTransaction(Object[] args) {
-        logger.trace("registerUldTransaction");
+        logger.warn("registerUldTransaction is Disabled");
 
-        byte[] uldTxSerialized = (byte[]) args[0];
-        int height = ((BigInteger)args[1]).intValue();
-
-        byte[] pmtSerialized = (byte[]) args[2];
-        try {
-            bridgeSupport.registerUldTransaction(uscTx, uldTxSerialized, height, pmtSerialized);
-        } catch (IOException | BlockStoreException e) {
-            logger.warn("Exception in registerUldTransaction", e);
-            throw new RuntimeException("Exception in registerUldTransaction", e);
-        }
+//        logger.trace("registerUldTransaction");
+//
+//        byte[] uldTxSerialized = (byte[]) args[0];
+//        int height = ((BigInteger)args[1]).intValue();
+//
+//        byte[] pmtSerialized = (byte[]) args[2];
+//        try {
+//            bridgeSupport.registerUldTransaction(uscTx, uldTxSerialized, height, pmtSerialized);
+//        } catch (IOException | BlockStoreException e) {
+//            logger.warn("Exception in registerUldTransaction", e);
+//            throw new RuntimeException("Exception in registerUldTransaction", e);
+//        }
     }
 
     public void registerUldTransactionByVote(Object[] args) {

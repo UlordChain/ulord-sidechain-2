@@ -67,7 +67,8 @@ public class ContractStorageStoreFactory {
         UscAddress addr = new UscAddress(address);
 
         if (addr.equals(PrecompiledContracts.REMASC_ADDR) ||
-                addr.equals(PrecompiledContracts.BRIDGE_ADDR)) {
+                addr.equals(PrecompiledContracts.BRIDGE_ADDR)||
+                addr.equals(PrecompiledContracts.BP_LIST_ADDR)) {
             return true;
         }
 
