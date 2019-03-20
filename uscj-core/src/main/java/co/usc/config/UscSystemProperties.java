@@ -88,9 +88,6 @@ public class UscSystemProperties extends SystemProperties {
 
     @Nullable
     public String UosParam() {
-        if (!isMinerServerEnabled()) {
-            return null;
-        }
         return configFromFiles.getString(UOS_PARAM);
     }
 
