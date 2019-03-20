@@ -81,9 +81,6 @@ public class UscSystemProperties extends SystemProperties {
 
     @Nullable
     public List<String> UosURL() {
-        if (!isMinerServerEnabled()) {
-            return null;
-        }
         List<String> list = configFromFiles.getStringList(UOS_URL);
 
         return list;
