@@ -52,7 +52,7 @@ import java.util.*;
 public class BlockToSignBuilder {
     private static final Logger logger = LoggerFactory.getLogger("blocktosignbuilder");
 
-    private final MiningConfig miningConfig;
+    private final BpConfig bpConfig;
     private final Repository repository;
     private final BlockStore blockStore;
     private final TransactionPool transactionPool;
@@ -61,12 +61,12 @@ public class BlockToSignBuilder {
 
     private final Clock clock;
     private final MinimumGasPriceCalculator minimumGasPriceCalculator;
-    private final MinerUtils minerUtils;
+    private final BpUtils bpUtils;
     private final BlockExecutor executor;
 
     private final UscSystemProperties config;
 
-    private final Coin minerMinGasPriceTarget;
+    private final Coin bpMinGasPriceTarget;
 
     private long timeAdjustment;
     private long minimumAcceptableTime;
@@ -75,15 +75,15 @@ public class BlockToSignBuilder {
 
     @Autowired
     public BlockToSignBuilder(
-            MiningConfig miningConfig,
+            BpConfig bpConfig,
             Repository repository,
             BlockStore blockStore,
             TransactionPool transactionPool,
             GasLimitCalculator gasLimitCalculator,
-            @Qualifier("minerServerBlockValidation") BlockValidationRule validationRules,
+            @Qualifier("bpServerBlockValidation") BlockValidationRule validationRules,
             UscSystemProperties config,
             ReceiptStore receiptStore) {
-        this.miningConfig = Objects.requireNonNull(miningConfig);
+        this.bpConfig = Objects.requireNonNull(bpConfig);
         this.repository = Objects.requireNonNull(repository);
         this.blockStore = Objects.requireNonNull(blockStore);
         this.transactionPool = Objects.requireNonNull(transactionPool);
@@ -92,7 +92,7 @@ public class BlockToSignBuilder {
 
         this.clock = Clock.systemUTC();
         this.minimumGasPriceCalculator = new MinimumGasPriceCalculator();
-        this.minerUtils = new MinerUtils();
+        this.bpUtils = new BpUtils();
         final ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
         this.executor = new BlockExecutor(repository, (tx1, txindex1, coinbase, track1, block1, totalGasUsed1) -> new TransactionExecutor(
                 tx1,
@@ -116,7 +116,7 @@ public class BlockToSignBuilder {
                 config.vmTraceCompressed()
         ));
         this.config = config;
-        this.minerMinGasPriceTarget = Coin.valueOf(miningConfig.getMinGasPriceTarget());
+        this.bpMinGasPriceTarget = Coin.valueOf(bpConfig.getMinGasPriceTarget());
     }
 
     /**
@@ -128,7 +128,7 @@ public class BlockToSignBuilder {
     public Block build(Block newBlockParent, byte[] extraData) {
         Coin minimumGasPrice = minimumGasPriceCalculator.calculate(
                 newBlockParent.getMinimumGasPrice(),
-                minerMinGasPriceTarget
+                bpMinGasPriceTarget
         );
 
         final List<Transaction> txsToRemove = new ArrayList<>();
@@ -145,7 +145,7 @@ public class BlockToSignBuilder {
 
     private List<Transaction> getTransactions(List<Transaction> txsToRemove, Block parent, Coin minGasPrice) {
         logger.debug("getting transactions from pending state");
-        List<Transaction> txs = minerUtils.getAllTransactions(transactionPool);
+        List<Transaction> txs = bpUtils.getAllTransactions(transactionPool);
         logger.debug("{} transaction(s) collected from pending state", txs.size());
 
         //Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
@@ -160,7 +160,7 @@ public class BlockToSignBuilder {
 
         Repository originalRepo = repository.getSnapshotTo(parent.getStateRoot());
 
-        return minerUtils.filterTransactions(txsToRemove, txs, accountNonces, originalRepo, minGasPrice);
+        return bpUtils.filterTransactions(txsToRemove, txs, accountNonces, originalRepo, minGasPrice);
     }
 
     private void removePendingTransactions(List<Transaction> transactions) {
@@ -195,11 +195,11 @@ public class BlockToSignBuilder {
         final long timestampSeconds = this.getCurrentTimeInSeconds();
 
         // Set gas limit before executing block
-        BigInteger minGasLimit = BigInteger.valueOf(miningConfig.getGasLimit().getMininimum());
-        BigInteger targetGasLimit = BigInteger.valueOf(miningConfig.getGasLimit().getTarget());
+        BigInteger minGasLimit = BigInteger.valueOf(bpConfig.getGasLimit().getMininimum());
+        BigInteger targetGasLimit = BigInteger.valueOf(bpConfig.getGasLimit().getTarget());
         BigInteger parentGasLimit = new BigInteger(1, newBlockParent.getGasLimit());
         BigInteger gasUsed = BigInteger.valueOf(newBlockParent.getGasUsed());
-        boolean forceLimit = miningConfig.getGasLimit().isTargetForced();
+        boolean forceLimit = bpConfig.getGasLimit().isTargetForced();
         BigInteger gasLimit = gasLimitCalculator.calculateBlockGasLimit(parentGasLimit,
                                                                         gasUsed, minGasLimit, targetGasLimit, forceLimit);
 

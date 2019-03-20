@@ -18,10 +18,8 @@
 
 package co.usc.bp;
 
-import co.usc.BpListManager.BlmTransaction;
-import co.usc.net.SyncProcessor;
 import co.usc.ulordj.core.*;
-import co.usc.config.MiningConfig;
+import co.usc.config.BpConfig;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
@@ -29,10 +27,8 @@ import co.usc.crypto.Keccak256;
 import co.usc.net.BlockProcessor;
 import co.usc.panic.PanicProcessor;
 import com.google.common.annotations.VisibleForTesting;
-import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.*;
-import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.Utils;
@@ -56,16 +52,16 @@ import java.util.*;
 import co.usc.rpc.uos.UOSRpcChannel;
 
 /**
- * The MinerServer provides support to components that perform the actual mining.
+ * The BpServer provides support to components that perform the actual mining.
  * It builds blocks to bp and publishes blocks once a valid nonce was found by the blockProducer.
  *
  * @author Oscar Guindzberg
  */
 
-@Component("MinerServer")
-public class MinerServerImpl implements MinerServer {
+@Component("BpServer")
+public class BpServerImpl implements BpServer {
 
-    private static final Logger logger = LoggerFactory.getLogger("minerserver");
+    private static final Logger logger = LoggerFactory.getLogger("bpserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
     private static final int CACHE_SIZE = 20;
@@ -88,7 +84,6 @@ public class MinerServerImpl implements MinerServer {
     @GuardedBy("lock")
     private Coin latestPaidFeesWithNotify;
     @GuardedBy("lock")
-    private volatile MinerWork currentWork; // This variable can be read at anytime without the lock.
     private final Object lock = new Object();
 
     private final UscAddress coinbaseAddress;
@@ -102,13 +97,13 @@ public class MinerServerImpl implements MinerServer {
     private final UOSRpcChannel uosRpcChannel;
 
     @Autowired
-    public MinerServerImpl(
+    public BpServerImpl(
             UscSystemProperties config,
             Ethereum ethereum,
             Blockchain blockchain,
             BlockProcessor nodeBlockProcessor,
             BlockToSignBuilder builder,
-            MiningConfig miningConfig,
+            BpConfig bpConfig,
             UOSRpcChannel uosRpcChannel
             ) {
         this.config = config;
@@ -121,8 +116,8 @@ public class MinerServerImpl implements MinerServer {
         latestPaidFeesWithNotify = Coin.ZERO;
         latestParentHash = null;
         coinbaseAddress = new UscAddress(config.getMyKey().getAddress());
-        minFeesNotifyInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
-        gasUnitInDollars = BigDecimal.valueOf(miningConfig.getMinFeesNotifyInDollars());
+        minFeesNotifyInDollars = BigDecimal.valueOf(bpConfig.getMinFeesNotifyInDollars());
+        gasUnitInDollars = BigDecimal.valueOf(bpConfig.getMinFeesNotifyInDollars());
 
     }
 

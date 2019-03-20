@@ -23,7 +23,7 @@ package org.ethereum.vm;
 /**
  * The fundamental network cost unit. Paid for exclusively by SULD, which is converted
  * freely to and from Gas as required. Gas does not exist outside of the internal USC
- * computation engine; its price is set by the Transaction and miners are free to
+ * computation engine; its price is set by the Transaction and BPs are free to
  * ignore Transactions whose Gas price is too low.
  */
 public class GasCost {

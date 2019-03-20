@@ -21,7 +21,7 @@ package co.usc.rpc.exception;
 import org.ethereum.rpc.exception.UscJsonRpcRequestException;
 
 /**
- * Designed to be used only when an error occurs at MinerServer.SubmitUlordBlock() method.
+ * Designed to be used only when an error occurs at BpServer.SubmitUlordBlock() method.
  *
  * @author martin.medina
  */

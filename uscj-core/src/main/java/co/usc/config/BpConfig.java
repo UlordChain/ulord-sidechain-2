@@ -18,21 +18,18 @@
 
 package co.usc.config;
 
-import co.usc.core.UscAddress;
-
 /**
  * Wraps configuration for Mining, which is usually derived from configuration files.
  */
-public class MiningConfig {
+public class BpConfig {
     private final double minFeesNotifyInDollars;
-    private final double minerGasUnitInDollars;
+    private final double bpGasUnitInDollars;
     private final long minGasPriceTarget;
     private final GasLimitConfig gasLimit;
 
-    public MiningConfig(/*UscAddress coinbaseAddress,*/ double minFeesNotifyInDollars, double minerGasUnitInDollars, long minGasPriceTarget, GasLimitConfig gasLimit) {
-        //this.coinbaseAddress = coinbaseAddress;
+    public BpConfig(double minFeesNotifyInDollars, double bpGasUnitInDollars, long minGasPriceTarget, GasLimitConfig gasLimit) {
         this.minFeesNotifyInDollars = minFeesNotifyInDollars;
-        this.minerGasUnitInDollars = minerGasUnitInDollars;
+        this.bpGasUnitInDollars = bpGasUnitInDollars;
         this.minGasPriceTarget= minGasPriceTarget;
         this.gasLimit = gasLimit;
     }
@@ -42,7 +39,7 @@ public class MiningConfig {
     }
 
     public double getGasUnitInDollars() {
-        return minerGasUnitInDollars;
+        return bpGasUnitInDollars;
     }
 
     public long getMinGasPriceTarget() {

@@ -19,7 +19,7 @@
 package co.usc.bp;
 
 /**
- * Wraps the result of a MinerServer.SubmitUlordBlock() method call.
+ * Wraps the result of a BpServer.SubmitUlordBlock() method call.
  *
  * @author martin.medina
  */

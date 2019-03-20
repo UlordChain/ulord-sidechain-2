@@ -60,9 +60,6 @@ public class UscSystemProperties extends SystemProperties {
     private static final int PD_DEFAULT_TIMEOUT_MESSAGE = PD_DEFAULT_CLEAN_PERIOD - 1; //miliseconds
     private static final int PD_DEFAULT_REFRESH_PERIOD = 60000; //miliseconds
 
-//    private static final String BP_REWARD_ADDRESS_CONFIG = "blockProducer.reward.address";
-//    private static final String BP_COINBASE_SECRET_CONFIG = "blockProducer.coinbase.secret";
-
     private static final String UOS_URL = "blockProducer.uos.url";
     private static final String UOS_PARAM = "blockProducer.uos.param";
 
@@ -91,77 +88,19 @@ public class UscSystemProperties extends SystemProperties {
         return configFromFiles.getString(UOS_PARAM);
     }
 
-//    @Nullable
-//    public UscAddress coinbaseAddress() {
-//        if (!isMinerServerEnabled()) {
-//            //todo(diegoll): we should carefully handle the case when you don't have a coinbase and want to execute pending blocks
-//            return new UscAddress(new byte[20]);
-//        }
-//
-//        // validity checks are performed by localCoinbaseAccount
-//        Account account = localCoinbaseAccount();
-//        if (account != null) {
-//            return account.getAddress();
-//        }
-//
-//        String coinbaseAddress = configFromFiles.getString(BP_REWARD_ADDRESS_CONFIG);
-//        if (coinbaseAddress.length() != Constants.getMaxAddressByteLength() * 2) {
-//            throw new UscConfigurationException(BP_REWARD_ADDRESS_CONFIG + " needs to be Hex encoded and 20 byte length");
-//        }
-//
-//        return new UscAddress(coinbaseAddress);
-//    }
-//
-//    @Nullable
-//    public Account localCoinbaseAccount() {
-//        if (!isMinerServerEnabled()) {
-//            return null;
-//        }
-//
-//        if (configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG) &&
-//                configFromFiles.hasPath(BP_REWARD_ADDRESS_CONFIG)) {
-//            System.out.println("Secret: " + configFromFiles.getString(BP_COINBASE_SECRET_CONFIG) + "\nAddress: " + configFromFiles.getString(BP_REWARD_ADDRESS_CONFIG));
-//            throw new UscConfigurationException("It is required to have only one of " + BP_REWARD_ADDRESS_CONFIG + " or " + BP_COINBASE_SECRET_CONFIG);
-//        }
-//
-//        if (!configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG) &&
-//                !configFromFiles.hasPath(BP_REWARD_ADDRESS_CONFIG)) {
-//            throw new UscConfigurationException("It is required to either have " + BP_REWARD_ADDRESS_CONFIG + " or " + BP_COINBASE_SECRET_CONFIG + " to use the blockProducer server");
-//        }
-//
-//        if (!configFromFiles.hasPath(BP_COINBASE_SECRET_CONFIG)) {
-//            return null;
-//        }
-//
-//        String coinbaseSecret = configFromFiles.getString(BP_COINBASE_SECRET_CONFIG);
-//        return new Account(ECKey.fromPrivate(HashUtil.keccak256(coinbaseSecret.getBytes(StandardCharsets.UTF_8))));
-//    }
-
-//    public boolean isMinerClientEnabled() {
-//        return configFromFiles.getBoolean("blockProducer.client.enabled");
-//    }
-//
-//    public Duration minerClientDelayBetweenBlocks() {
-//        return configFromFiles.getDuration("blockProducer.client.delayBetweenBlocks");
-//    }
-//
-//    public Duration minerClientDelayBetweenRefreshes() {
-//        return configFromFiles.getDuration("blockProducer.client.delayBetweenRefreshes");
-//    }
-
-    public boolean isMinerServerEnabled() {
+    public boolean isBpServerEnabled() {
         return getBoolean("blockProducer.server.enabled", false);
     }
 
-    public long minerMinGasPrice() {
+    public long bpMinGasPrice() {
         return getLong("blockProducer.minGasPrice", 0);
     }
 
-    public double minerGasUnitInDollars() {
+    public double bpGasUnitInDollars() {
         return getDouble("blockProducer.gasUnitInDollars", 0);
     }
 
-    public double minerMinFeesNotifyInDollars() {
+    public double bpMinFeesNotifyInDollars() {
         return getDouble("blockProducer.minFeesNotifyInDollars", 0);
     }
 

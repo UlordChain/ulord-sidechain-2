@@ -56,7 +56,6 @@ node3
 devnet-federator
 testnet1
 usc-database
-blocksminer
 database
 
 # Jacoco Reports
@@ -67,7 +66,6 @@ config/checkstyle/reports/
 
 # PMD
 config/pmd/reports/
-blocksminer1.txt
 
 # Test File
 fileMonitor.txt

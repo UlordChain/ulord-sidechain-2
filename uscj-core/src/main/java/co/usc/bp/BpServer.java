@@ -16,23 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package co.usc.rpc.modules.mnr;
+package co.usc.bp;
 
-import co.usc.bp.SubmittedBlockInfo;
+import co.usc.core.UscAddress;
+import org.ethereum.core.Block;
 
-public interface MnrModule {
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
-//    MinerWork getWork();
 
-//    SubmittedBlockInfo submitUlordBlock(String ulordBlockHex);
+public interface BpServer {
 
-//    SubmittedBlockInfo submitUlordBlockTransactions(
-//            String blockHashHex,
-//            String blockHeaderHex,
-//            String coinbaseHex,
-//            String txnHashesHex
-//    );
+    void start();
 
-//    SubmittedBlockInfo submitSignature(String signature);
+    void stop();
 
+    boolean isRunning();
+
+    UscAddress getCoinbaseAddress();
+
+    void buildAndProcessBlock(@Nonnull Block newParent, byte[] bpListData);
+
+    void setExtraData(byte[] extraData);
+
+    long getCurrentTimeInSeconds();
+
+    long increaseTime(long seconds);
+
+    Optional<Block> getLatestBlock();
 }

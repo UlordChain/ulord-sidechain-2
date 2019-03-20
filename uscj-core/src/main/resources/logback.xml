@@ -47,7 +47,7 @@
     <logger name="blockqueue" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="block" level="INFO"/>
-    <logger name="minerserver" level="INFO"/>
+    <logger name="bpserver" level="INFO"/>
     <logger name="txbuilderex" level="INFO"/>
     <logger name="pendingstate" level="INFO"/>
     <logger name="hsqldb.db" level="INFO"/>

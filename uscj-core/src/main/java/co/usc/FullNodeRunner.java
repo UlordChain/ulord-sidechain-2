@@ -24,7 +24,7 @@ import co.usc.core.Usc;
 import co.usc.core.UscImpl;
 import co.usc.db.PruneConfiguration;
 import co.usc.db.PruneService;
-import co.usc.bp.MinerServer;
+import co.usc.bp.BpServer;
 import co.usc.bp.TxBuilder;
 import co.usc.bp.TxBuilderEx;
 import co.usc.net.*;
@@ -53,7 +53,7 @@ public class FullNodeRunner implements NodeRunner {
 
     private final Usc usc;
     private final UDPServer udpServer;
-    private final MinerServer minerServer;
+    private final BpServer bpServer;
     private final UscSystemProperties uscSystemProperties;
     private final Web3HttpServer web3HttpServer;
     private final Web3WebSocketServer web3WebSocketServer;
@@ -76,7 +76,7 @@ public class FullNodeRunner implements NodeRunner {
     public FullNodeRunner(
             Usc usc,
             UDPServer udpServer,
-            MinerServer minerServer,
+            BpServer bpServer,
             UscSystemProperties uscSystemProperties,
             Web3 web3Service,
             Web3HttpServer web3HttpServer,
@@ -93,7 +93,7 @@ public class FullNodeRunner implements NodeRunner {
             TransactionGateway transactionGateway) {
         this.usc = usc;
         this.udpServer = udpServer;
-        this.minerServer = minerServer;
+        this.bpServer = bpServer;
         this.uscSystemProperties = uscSystemProperties;
         this.web3HttpServer = web3HttpServer;
         this.web3Service = web3Service;
@@ -170,8 +170,8 @@ public class FullNodeRunner implements NodeRunner {
             }
         }
 
-        if (uscSystemProperties.isMinerServerEnabled()) {
-            minerServer.start();
+        if (uscSystemProperties.isBpServerEnabled()) {
+            bpServer.start();
         }
 
         if (uscSystemProperties.isPruneEnabled()) {
@@ -255,8 +255,8 @@ public class FullNodeRunner implements NodeRunner {
         }
         */
 
-        if (uscSystemProperties.isMinerServerEnabled()) {
-            minerServer.stop();
+        if (uscSystemProperties.isBpServerEnabled()) {
+            bpServer.stop();
         }
 
         peerServer.stop();

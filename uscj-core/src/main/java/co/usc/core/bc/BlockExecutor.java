@@ -138,10 +138,10 @@ public class BlockExecutor {
         }
 
         Coin paidFees = result.getPaidFees();
-        Coin feesPaidToMiner = block.getFeesPaidToMiner();
+        Coin feesPaidToBp = block.getFeesPaidToBP();
 
-        if (!paidFees.equals(feesPaidToMiner))  {
-            logger.error("Block's given paidFees doesn't match: {} != {} Block {} {}", feesPaidToMiner, paidFees, block.getNumber(), block.getShortHash());
+        if (!paidFees.equals(feesPaidToBp))  {
+            logger.error("Block's given paidFees doesn't match: {} != {} Block {} {}", feesPaidToBp, paidFees, block.getNumber(), block.getShortHash());
             return false;
         }
 

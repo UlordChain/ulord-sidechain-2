@@ -18,18 +18,17 @@
 
 package org.ethereum.rpc;
 
+import co.usc.bp.BpServer;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.SnapshotManager;
 import co.usc.core.bc.AccountInformationProvider;
 import co.usc.crypto.Keccak256;
-import co.usc.bp.MinerServer;
 import co.usc.net.BlockProcessor;
 import co.usc.rpc.ModuleDescription;
 import co.usc.rpc.modules.debug.DebugModule;
 import co.usc.rpc.modules.eth.EthModule;
-import co.usc.rpc.modules.mnr.MnrModule;
 import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.txpool.TxPoolModule;
 import co.usc.rpc.modules.uos.UosModule;
@@ -77,7 +76,7 @@ public class Web3Impl implements Web3 {
 
     private long initialBlockNumber;
 
-    protected MinerServer minerServer;
+    protected BpServer bpServer;
     private final ChannelManager channelManager;
     private final PeerScoringManager peerScoringManager;
     private final PeerServer peerServer;
@@ -96,7 +95,6 @@ public class Web3Impl implements Web3 {
     private final PersonalModule personalModule;
     private final EthModule ethModule;
     private final TxPoolModule txPoolModule;
-    private final MnrModule mnrModule;
     private final DebugModule debugModule;
 
     private final UosModule uosModule;
@@ -108,11 +106,10 @@ public class Web3Impl implements Web3 {
             BlockStore blockStore,
             ReceiptStore receiptStore,
             UscSystemProperties config,
-            MinerServer minerServer,
+            BpServer bpServer,
             PersonalModule personalModule,
             EthModule ethModule,
             TxPoolModule txPoolModule,
-            MnrModule mnrModule,
             DebugModule debugModule,
             ChannelManager channelManager,
             Repository repository,
@@ -127,11 +124,10 @@ public class Web3Impl implements Web3 {
         this.receiptStore = receiptStore;
         this.repository = repository;
         this.transactionPool = transactionPool;
-        this.minerServer = minerServer;
+        this.bpServer = bpServer;
         this.personalModule = personalModule;
         this.ethModule = ethModule;
         this.txPoolModule = txPoolModule;
-        this.mnrModule = mnrModule;
         this.debugModule = debugModule;
         this.channelManager = channelManager;
         this.peerScoringManager = peerScoringManager;
@@ -148,16 +144,6 @@ public class Web3Impl implements Web3 {
 
         personalModule.init(this.config);
     }
-
-//    @Override
-//    public void start() {
-//        hashRateCalculator.start();
-//    }
-//
-//    @Override
-//    public void stop() {
-//        hashRateCalculator.stop();
-//    }
 
     public int JSonHexToInt(String x) throws Exception {
         if (!x.startsWith("0x")) {
@@ -283,7 +269,7 @@ public class Web3Impl implements Web3 {
     public String eth_coinbase() {
         String s = null;
         try {
-            return s = toJsonHex(minerServer.getCoinbaseAddress().getBytes());
+            return s = toJsonHex(bpServer.getCoinbaseAddress().getBytes());
         } finally {
             if (logger.isDebugEnabled()) {
                 logger.debug("eth_coinbase(): {}", s);
@@ -1058,11 +1044,6 @@ public class Web3Impl implements Web3 {
     }
 
     @Override
-    public MnrModule getMnrModule() {
-        return mnrModule;
-    }
-
-    @Override
     public DebugModule getDebugModule() {
         return debugModule;
     }
@@ -1102,7 +1083,7 @@ public class Web3Impl implements Web3 {
     public String evm_increaseTime(String seconds) {
         try {
             long nseconds = stringNumberAsBigInt(seconds).longValue();
-            String result = toJsonHex(minerServer.increaseTime(nseconds));
+            String result = toJsonHex(bpServer.increaseTime(nseconds));
             if (logger.isDebugEnabled()) {
                 logger.debug("evm_increaseTime({}): {}", nseconds, result);
             }

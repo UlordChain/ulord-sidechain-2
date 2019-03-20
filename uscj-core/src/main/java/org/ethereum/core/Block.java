@@ -305,7 +305,7 @@ public class Block {
         return this.header.getLogsBloom();
     }
 
-    public Coin getFeesPaidToMiner() {
+    public Coin getFeesPaidToBP() {
         if (!parsed) {
             parseRLP();
         }

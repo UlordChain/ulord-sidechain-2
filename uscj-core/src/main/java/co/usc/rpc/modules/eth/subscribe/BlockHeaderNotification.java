@@ -25,32 +25,28 @@ import org.ethereum.rpc.TypeConverter;
  * The block header DTO for JSON serialization purposes.
  */
 public class BlockHeaderNotification {
-    //private final String difficulty;
     private final String extraData;
     private final String gasLimit;
     private final String gasUsed;
     private final String logsBloom;
-    private final String miner;
+    private final String blockProducer;
     private final String number;
     private final String parentHash;
     private final String receiptsRoot;
-    //private final String sha3Uncles;
     private final String stateRoot;
     private final String timestamp;
     private final String transactionsRoot;
     private final String hash;
 
     public BlockHeaderNotification(Block block) {
-        //difficulty = TypeConverter.toJsonHex(block.getDifficulty().getBytes());
         extraData = TypeConverter.toJsonHex(block.getExtraData());
         gasLimit = TypeConverter.toJsonHex(block.getGasLimit());
         gasUsed = TypeConverter.toJsonHex(block.getGasUsed());
         logsBloom = TypeConverter.toJsonHex(block.getLogBloom());
-        miner = TypeConverter.toJsonHex(block.getCoinbase().getBytes());
+        blockProducer = TypeConverter.toJsonHex(block.getCoinbase().getBytes());
         number = TypeConverter.toJsonHex(block.getNumber());
         parentHash = block.getParentHashJsonString();
         receiptsRoot = TypeConverter.toJsonHex(block.getReceiptsRoot());
-        //sha3Uncles = TypeConverter.toJsonHex(block.getUnclesHash());
         stateRoot = TypeConverter.toJsonHex(block.getStateRoot());
         timestamp = TypeConverter.toJsonHex(block.getTimestamp());
         transactionsRoot = TypeConverter.toJsonHex(block.getTxTrieRoot());
@@ -79,8 +75,8 @@ public class BlockHeaderNotification {
         return logsBloom;
     }
 
-    public String getMiner() {
-        return miner;
+    public String getBlockProducer() {
+        return blockProducer;
     }
 
     public String getNumber() {

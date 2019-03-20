@@ -19,7 +19,7 @@
 package co.usc.rpc;
 
 import co.usc.bp.BlockToSignBuilder;
-import co.usc.bp.MinerServer;
+import co.usc.bp.BpServer;
 import org.ethereum.core.Block;
 import org.ethereum.core.Blockchain;
 import org.ethereum.rpc.exception.JsonRpcInvalidParamException;
@@ -40,16 +40,16 @@ public class ExecutionBlockRetriever {
     private static final String PENDING_ID = "pending";
 
     private final Blockchain blockchain;
-    private final MinerServer minerServer;
+    private final BpServer bpServer;
     private final BlockToSignBuilder builder;
 
     @Nullable
     private Block cachedBlock;
 
     @Autowired
-    public ExecutionBlockRetriever(Blockchain blockchain, MinerServer minerServer, BlockToSignBuilder builder) {
+    public ExecutionBlockRetriever(Blockchain blockchain, BpServer bpServer, BlockToSignBuilder builder) {
         this.blockchain = blockchain;
-        this.minerServer = minerServer;
+        this.bpServer = bpServer;
         this.builder = builder;
     }
 
@@ -59,7 +59,7 @@ public class ExecutionBlockRetriever {
         }
 
         if (PENDING_ID.equals(bnOrId)) {
-            Optional<Block> latestBlock = minerServer.getLatestBlock();
+            Optional<Block> latestBlock = bpServer.getLatestBlock();
             if (latestBlock.isPresent()) {
                 return latestBlock.get();
             }

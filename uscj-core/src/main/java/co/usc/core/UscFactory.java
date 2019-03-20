@@ -21,14 +21,13 @@ package co.usc.core;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.bc.BlockChainImpl;
 import co.usc.core.bc.TransactionPoolImpl;
-import co.usc.bp.MinerServer;
+import co.usc.bp.BpServer;
 import co.usc.net.*;
 import co.usc.net.eth.UscWireProtocol;
 import co.usc.net.sync.SyncConfiguration;
 import co.usc.rpc.*;
 import co.usc.rpc.modules.debug.DebugModule;
 import co.usc.rpc.modules.eth.*;
-import co.usc.rpc.modules.mnr.MnrModule;
 import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.personal.PersonalModuleWalletDisabled;
 import co.usc.rpc.modules.personal.PersonalModuleWalletEnabled;
@@ -139,8 +138,7 @@ public class UscFactory {
                         Blockchain blockchain,
                         TransactionPool transactionPool,
                         UscSystemProperties config,
-                        MinerServer minerServer,
-                        MnrModule mnrModule,
+                        BpServer bpServer,
                         PersonalModule personalModule,
                         EthModule ethModule,
                         TxPoolModule txPoolModule,
@@ -161,11 +159,10 @@ public class UscFactory {
                 blockchain,
                 transactionPool,
                 config,
-                minerServer,
+                bpServer,
                 personalModule,
                 ethModule,
                 txPoolModule,
-                mnrModule,
                 debugModule,
                 channelManager,
                 repository,
@@ -175,7 +172,6 @@ public class UscFactory {
                 receiptStore,
                 peerServer,
                 nodeBlockProcessor,
-                //hashRateCalculator,
                 configCapabilities,
                 uosModule
         );

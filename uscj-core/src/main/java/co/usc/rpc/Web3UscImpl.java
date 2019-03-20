@@ -24,7 +24,6 @@ import co.usc.bp.*;
 import co.usc.net.BlockProcessor;
 import co.usc.rpc.modules.debug.DebugModule;
 import co.usc.rpc.modules.eth.EthModule;
-import co.usc.rpc.modules.mnr.MnrModule;
 import co.usc.rpc.modules.personal.PersonalModule;
 import co.usc.rpc.modules.txpool.TxPoolModule;
 import co.usc.rpc.modules.uos.UosModule;
@@ -49,7 +48,7 @@ import java.util.*;
 
 /**
  * Handles requests for work and block submission.
- * Full responsibility for processing the request is delegated to MinerServer.
+ * Full responsibility for processing the request is delegated to BpServer.
  *
  * @author Adrian Eidelman
  * @author Martin Medina
@@ -63,11 +62,10 @@ public class Web3UscImpl extends Web3Impl {
                        Blockchain blockchain,
                        TransactionPool transactionPool,
                        UscSystemProperties properties,
-                       MinerServer minerServer,
+                       BpServer bpServer,
                        PersonalModule personalModule,
                        EthModule ethModule,
                        TxPoolModule txPoolModule,
-                       MnrModule mnrModule,
                        DebugModule debugModule,
                        ChannelManager channelManager,
                        Repository repository,
@@ -80,8 +78,8 @@ public class Web3UscImpl extends Web3Impl {
                        //HashRateCalculator hashRateCalculator,
                        ConfigCapabilities configCapabilities,
                        UosModule uosModule) {
-        super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, minerServer,
-              personalModule, ethModule, txPoolModule, mnrModule, debugModule,
+        super(eth, blockchain, transactionPool, blockStore, receiptStore, properties, bpServer,
+              personalModule, ethModule, txPoolModule, debugModule,
               channelManager, repository, peerScoringManager, peerServer, nodeBlockProcessor,
               /*hashRateCalculator,*/ configCapabilities, uosModule);
 

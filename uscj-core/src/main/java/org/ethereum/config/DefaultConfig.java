@@ -22,13 +22,10 @@ package org.ethereum.config;
 import co.usc.cli.CliArgs;
 import co.usc.config.*;
 import co.usc.core.NetworkStateExporter;
-import co.usc.crypto.Keccak256;
-import co.usc.metrics.BlockHeaderElement;
 import co.usc.net.discovery.PeerExplorer;
 import co.usc.net.discovery.UDPServer;
 import co.usc.net.discovery.table.KademliaOptions;
 import co.usc.net.discovery.table.NodeDistanceTable;
-import co.usc.util.UscCustomCache;
 import co.usc.validators.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.ethereum.core.Repository;
@@ -105,12 +102,12 @@ public class DefaultConfig {
     }
 
     @Bean
-    public MiningConfig miningConfig(UscSystemProperties uscSystemProperties) {
-        return new MiningConfig(
+    public BpConfig miningConfig(UscSystemProperties uscSystemProperties) {
+        return new BpConfig(
                 //uscSystemProperties.coinbaseAddress(),
-                uscSystemProperties.minerMinFeesNotifyInDollars(),
-                uscSystemProperties.minerGasUnitInDollars(),
-                uscSystemProperties.minerMinGasPrice(),
+                uscSystemProperties.bpMinFeesNotifyInDollars(),
+                uscSystemProperties.bpGasUnitInDollars(),
+                uscSystemProperties.bpMinGasPrice(),
                 new GasLimitConfig(
                         uscSystemProperties.getBlockchainConfig().getCommonConstants().getMinGasLimit(),
                         uscSystemProperties.getTargetGasLimit(),
@@ -159,9 +156,8 @@ public class DefaultConfig {
         return new NetworkStateExporter(repository);
     }
 
-    @Bean(name = "minerServerBlockValidation")
-    public BlockValidationRule minerServerBlockvalidationRule(){
-        //TODO BlockSignaturevalidationRule need to be implemented
+    @Bean(name = "bpServerBlockValidation")
+    public BlockValidationRule bpServerBlockvalidationRule(){
         return new BlockSignatureValidationRule();
     }
 
