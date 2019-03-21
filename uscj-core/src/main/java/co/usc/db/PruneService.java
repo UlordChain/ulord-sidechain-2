@@ -57,7 +57,7 @@ public class PruneService {
     public void start() {
         long bestBlockNumber = this.blockchain.getStatus().getBestBlockNumber();
         if (shouldStopPruning(bestBlockNumber)) {
-            logger.info("Prune is not starting because we're already past RSKIP85 at height {}", bestBlockNumber);
+            logger.info("Prune is not starting because we're already past USCIP85 at height {}", bestBlockNumber);
             return;
         }
 

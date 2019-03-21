@@ -35,24 +35,36 @@ public interface BlockchainConfig {
 
     boolean areBridgeTxsFree();
 
+    // Improvements to REMASC contract
     boolean isUscIP85();
 
+    // Whitelisting adds unlimited option
     boolean isUscIP87();
 
+    // Bridge local calls
     boolean isUscIP88();
 
+    // Improve blockchain block locator
     boolean isUscIP89();
 
+    // Add support for return EXTCODESIZE for precompiled contracts
     boolean isUscIP90();
 
+    // Add support for STATIC_CALL opcode
     boolean isUscIP91();
 
+    // Storage improvements
     boolean isUscIP92();
 
+    // Code Refactor, removes the sample contract
     boolean isUscIP93();
 
+    // Disable OP_CODEREPLACE
     boolean isUscIP94();
 
+    // Disable fallback mining in advance
     boolean isUscIP98();
 
+    // Disable SPV Proofs
+    boolean isUscIP99();
 }
