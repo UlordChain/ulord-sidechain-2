@@ -301,9 +301,9 @@ public class BridgeSerializationUtils {
      * @param data data MUST be composed of a list of {@link co.usc.peg.whitelist.OneOffWhiteListEntry} and the value of disableBlockHeight obtained from {@link co.usc.peg.whitelist.LockWhitelist}
      * @return the serialized data
      */
-    public static byte[] serializeOneOffLockWhitelist(Pair<List<OneOffWhiteListEntry>, Integer> data) {
+    public static byte[] serializeOneOffLockWhitelist(Pair<List<OneOffWhiteListEntry>, Long> data) {
         List<OneOffWhiteListEntry> entries = data.getLeft();
-        Integer disableBlockHeight = data.getRight();
+        Long disableBlockHeight = data.getRight();
         int serializationSize = entries.size() * 2 + 1;
         byte[][] serializedLockWhitelist = new byte[serializationSize][];
         for (int i = 0; i < entries.size(); i++) {

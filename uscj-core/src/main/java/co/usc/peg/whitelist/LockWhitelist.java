@@ -39,13 +39,13 @@ public class LockWhitelist {
         = Comparator.comparing(Address::getHash160, UnsignedBytes.lexicographicalComparator());
 
     private SortedMap<Address, LockWhitelistEntry> whitelistedAddresses;
-    private int disableBlockHeight;
+    private long disableBlockHeight;
 
     public LockWhitelist(Map<Address, LockWhitelistEntry> whitelistedAddresses) {
-        this(whitelistedAddresses, Integer.MAX_VALUE);
+        this(whitelistedAddresses, 0);
     }
 
-    public LockWhitelist(Map<Address, LockWhitelistEntry> whitelistedAddresses, int disableBlockHeight) {
+    public LockWhitelist(Map<Address, LockWhitelistEntry> whitelistedAddresses, long disableBlockHeight) {
         // Save a copy so that this can't be modified from the outside
         SortedMap<Address, LockWhitelistEntry> sortedWhitelistedAddresses = new TreeMap<>(LEXICOGRAPHICAL_COMPARATOR);
         sortedWhitelistedAddresses.putAll(whitelistedAddresses);
@@ -127,15 +127,15 @@ public class LockWhitelist {
         }
     }
 
-    public int getDisableBlockHeight() {
+    public long getDisableBlockHeight() {
         return disableBlockHeight;
     }
 
-    public void setDisableBlockHeight(int disableBlockHeight) {
+    public void setDisableBlockHeight(long disableBlockHeight) {
         this.disableBlockHeight = disableBlockHeight;
     }
 
     public boolean isDisableBlockSet() {
-        return disableBlockHeight < Integer.MAX_VALUE;
+        return disableBlockHeight < Long.MAX_VALUE;
     }
 }

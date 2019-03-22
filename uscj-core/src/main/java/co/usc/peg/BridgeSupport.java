@@ -2008,9 +2008,9 @@ public class BridgeSupport {
     }
 
     /**
-     * Sets a delay in the ULD best chain to disable lock whitelist
+     * Sets a delay in the USC best chain to disable lock whitelist
      * @param tx current USC transaction
-     * @param disableBlockDelayBI block since current ULD best chain height to disable lock whitelist
+     * @param disableBlockDelayBI USC block height to disable lock whitelist
      * @return 1 if it was successful, -1 if a delay was already set, -2 if disableBlockDelay contains an invalid value
      */
     public Integer setLockWhitelistDisableBlockDelay(Transaction tx, BigInteger disableBlockDelayBI) throws IOException {
@@ -2018,9 +2018,9 @@ public class BridgeSupport {
             return LOCK_WHITELIST_GENERIC_ERROR_CODE;
         }
 
-        int disableBlockDelay = disableBlockDelayBI.intValueExact();
-        int bestChainHeight = getUldBlockchainBestChainHeight();
-        if (disableBlockDelay < 0 || Integer.MAX_VALUE - disableBlockDelay < bestChainHeight) {
+        long disableBlockDelay = disableBlockDelayBI.longValueExact();
+        long bestChainHeight = blockStore.getBestBlock().getNumber();
+        if (disableBlockDelay < 0 || Long.MAX_VALUE - disableBlockDelay < bestChainHeight) {
             return -2;
         }
 
