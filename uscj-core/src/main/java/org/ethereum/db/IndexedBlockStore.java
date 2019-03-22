@@ -126,7 +126,7 @@ public class IndexedBlockStore extends AbstractBlockstore {
 
         long t2 = System.nanoTime();
 
-        logger.info("Flush block store in: {} ms", ((float)(t2 - t1) / 1_000_000));
+        logger.trace("Flush block store in: {} ms", ((float)(t2 - t1) / 1_000_000));
     }
 
     @Override
