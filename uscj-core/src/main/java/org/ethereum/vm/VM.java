@@ -21,7 +21,6 @@ package org.ethereum.vm;
 
 import co.usc.config.VmConfig;
 import co.usc.core.UscAddress;
-import org.ethereum.core.Blockchain;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.config.BlockchainConfig;
 import org.ethereum.db.ContractDetails;
@@ -1411,8 +1410,8 @@ public class VM {
         DataWord gas = program.stackPop();
         DataWord codeAddress = program.stackPop();
 
-        // value is always zero in a DELEGATECALL operation
-        DataWord value = op.equals(OpCode.DELEGATECALL) ? DataWord.ZERO : program.stackPop();
+        // value is always zero in a DELEGATECALL or STATICCALL operation
+        DataWord value = op == OpCode.DELEGATECALL || op == OpCode.STATICCALL ? DataWord.ZERO : program.stackPop();
 
         if (program.isStaticCall() && op == CALL && !value.isZero()) {
             throw Program.ExceptionHelper.modificationException();
@@ -1484,7 +1483,7 @@ public class VM {
         program.disposeWord(outDataSize);
         program.disposeWord(codeAddress);
         program.disposeWord(gas);
-        if (!op.equals(OpCode.DELEGATECALL)) {
+        if (op != OpCode.DELEGATECALL && op !=OpCode.STATICCALL) {
             program.disposeWord(value);
         }
 
@@ -1515,7 +1514,8 @@ public class VM {
             callGas += GasCost.NEW_ACCT_CALL;
         }
 
-        if (op != OpCode.DELEGATECALL && !value.isZero()) {
+        //we don't need to check static call nor delegate call since value will always be zero
+        if (!value.isZero()) {
             callGas += GasCost.VT_CALL;
         }
 
