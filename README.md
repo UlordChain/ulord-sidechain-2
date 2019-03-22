@@ -1,21 +1,12 @@
 ## Welcome to Ulord-Sidechain-2
 
 ## About
-Ulord-Sidechain a.k.a USC is a secondary chain for Ulord implemented in java. USC's goal is providing the value and functionality to the Ulord ecosystem by enabling smart-contracts, near instant payment confirmations and higher-scalability. USC  smart contract platform  supports 2-way peg with Ulord that also rewards Ulord miners via merge-mining, allowing them to actively participate in the Smart Contract revolution.
-Ulord-Sidechain-2 is the next generation of USC based on PBFT
- 
-
-## Sidechain techonology  
-Sidechain is not specifically referring to a certain chain, but refers to any chain that obeys the rules of the sidechain. The Ulord sidechain rule means that the Ulord sidechain can verify the data from the Ulord main chain, and through the Two-way Peg (2WP), the UlordToken is safely transferred between the mainchains and sidechains at a fixed exchange rate to achieve assets transfer between the chains.  
-
-
-## Installation 
-
-
-## Get external dependencies
+Ulord-Sidechain-2 (USC-2) is the improvement of its ancestors USC. The USC-2 provides the same value and functionality to the Ulord ecosystem from its ancestor. In addition, the USC-2 also improves over USC by implementing PBFT like consensus algorithm. Transactions in USC-2 can achieve finality as soon as the block has reached irreversibility i.e. 2/3 + 1 Block Producers produces blocks on top of the block containing this transaction, hence achieving deterministic transaction finality. Moreover, USC-2 implements Drivechain technology for faster 2-way pegging operations, moving funds from one chain to other and vice versa is much faster than ever.
 
 
 ## Getting Started
+To get started with USC-2 you can follow the same guide as USC which can be found here https://github.com/UlordChain/Ulord-Sidechain/wiki
+
 
 ## License
 USC2 is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the [COPYING.LESSER](https://github.com/UlordChain/Ulord-Sidechain/blob/master/COPYING.LESSER) file.
