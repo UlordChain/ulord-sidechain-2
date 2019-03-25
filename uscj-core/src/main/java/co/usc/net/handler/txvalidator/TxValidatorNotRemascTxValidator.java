@@ -41,8 +41,7 @@ public class TxValidatorNotRemascTxValidator implements TxValidatorStep {
         if (!(tx instanceof RemascTransaction)) {
             return true;
         }
-
-        logger.warn("Invalid transaction {}: it is a Remasc transaction", tx.getHash());
+        logger.trace("transaction {}: it is a Remasc transaction", tx.getHash());
 
         return false;
     }
