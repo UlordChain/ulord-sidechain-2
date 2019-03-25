@@ -22,6 +22,7 @@ import co.usc.BpListManager.BlmTransaction;
 import co.usc.config.UscSystemProperties;
 import co.usc.core.Coin;
 import co.usc.net.handler.txvalidator.*;
+import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class TxPendingValidator {
 
         validatorSteps.add(new TxNotNullValidator());
         validatorSteps.add(new TxValidatorNotBlmTxValidator());
+        validatorSteps.add(new TxValidatorNotRemascTxValidator());
         validatorSteps.add(new TxValidatorGasLimitValidator());
         validatorSteps.add(new TxValidatorAccountStateValidator());
         //validatorSteps.add(new TxValidatorNonceRangeValidator());
@@ -70,7 +72,7 @@ public class TxPendingValidator {
 
         for (TxValidatorStep step : validatorSteps) {
             if (!step.validate(tx, state, blockGasLimit, minimumGasPrice, bestBlockNumber, basicTxCost == 0)) {
-                if(!(tx instanceof BlmTransaction)) {
+                if(!(tx instanceof BlmTransaction || tx instanceof RemascTransaction)) {
                     logger.warn("[tx={}] {} failed", tx.getHash(), step.getClass());
                 }
                 return false;
