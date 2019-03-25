@@ -14,55 +14,23 @@ import java.util.List;
 
 // BP List Management Contract
 public class BlmContract extends PrecompiledContracts.PrecompiledContract {
-    private static final byte[] ZERO_BYTE_ARRAY = new byte[]{0};
-
-    private BlmStorageProvider provider;
-    private Transaction executionTx;
     public BlmContract (UscAddress contractAddress) {
         this.contractAddress = contractAddress;
     }
 
     @Override
     public long getGasForData(byte[] data) {
-        // changes here?
         return 0;
     }
 
     @Override
     public void init(Transaction executionTx, Block executionBlock, Repository repository,
                      BlockStore blockStore, ReceiptStore receiptStore, List<LogInfo> logs) {
-        this.provider = new BlmStorageProvider(repository, contractAddress);
-        this.executionTx = executionTx;
     }
 
     @Override
     public byte[] execute(byte[] data) {
-        UscAddress sender = executionTx.getSender();
-        if(!sender.toString().equals(getBlmZeroAddr().toString()) || data == null) {
-            return new byte[0];
-        }
-
-        if(!isValid(data)) return new byte[0];
-
-        provider.saveBpList(data);
         return new byte[0];
     }
 
-    private boolean isValid(byte[] data) {
-        try {
-            Utils.decodeBpList(data);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private UscAddress getBlmZeroAddr() {
-        return new UscAddress(new byte[20]) {
-            @Override
-            public byte[] getBytes() {
-                return ZERO_BYTE_ARRAY;
-            }
-        };
-    }
 }
