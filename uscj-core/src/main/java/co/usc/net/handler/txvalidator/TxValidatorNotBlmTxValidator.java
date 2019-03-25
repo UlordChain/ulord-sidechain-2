@@ -20,7 +20,6 @@ package co.usc.net.handler.txvalidator;
 
 import co.usc.BpListManager.BlmTransaction;
 import co.usc.core.Coin;
-import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Transaction;
 import org.slf4j.Logger;

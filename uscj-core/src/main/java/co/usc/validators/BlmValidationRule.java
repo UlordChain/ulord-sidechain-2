@@ -18,7 +18,7 @@ public class BlmValidationRule implements BlockValidationRule {
     @Override
     public boolean isValid(Block block) {
         List<Transaction> transactionsList = block.getTransactionsList();
-        boolean result = CollectionUtils.isNotEmpty(transactionsList) && (transactionsList.get(transactionsList.size() - 1) instanceof BlmTransaction);
+        boolean result = CollectionUtils.isNotEmpty(transactionsList) && (transactionsList.get(transactionsList.size() - 2) instanceof BlmTransaction);
         if(!result) {
             logger.warn("Blm tx not found in block");
             panicProcessor.panic("invalidblmtx", "Blm tx not found in block");

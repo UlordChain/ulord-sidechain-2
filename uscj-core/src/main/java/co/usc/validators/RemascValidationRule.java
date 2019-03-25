@@ -18,8 +18,6 @@
 
 package co.usc.validators;
 
-import co.usc.BpListManager.BlmTransaction;
-import co.usc.core.Coin;
 import co.usc.panic.PanicProcessor;
 import co.usc.remasc.RemascTransaction;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,31 +29,22 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * Created by mario on 26/12/16.
+ * Created by mario on 30/12/16.
  */
-public class TxsMinGasPriceRule implements BlockValidationRule {
+public class RemascValidationRule implements BlockValidationRule {
 
     private static final Logger logger = LoggerFactory.getLogger("blockvalidator");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
+
     @Override
     public boolean isValid(Block block) {
         List<Transaction> txs = block.getTransactionsList();
-        if(block.getMinimumGasPrice() == null) {
-            logger.warn("Could not retrieve block min gas priceß");
-            return false;
+        boolean result = CollectionUtils.isNotEmpty(txs) && (txs.get(txs.size()-1) instanceof RemascTransaction);
+        if(!result) {
+            logger.warn("Remasc tx not found in block");
+            panicProcessor.panic("invalidremasctx", "Remasc tx not found in block");
         }
-
-        Coin blockMgp = block.getMinimumGasPrice();
-        if(CollectionUtils.isNotEmpty(block.getTransactionsList())) {
-            for (Transaction tx : txs) {
-                if (!(tx instanceof BlmTransaction || tx instanceof RemascTransaction) && tx.getGasPrice().compareTo(blockMgp) < 0) {
-                    logger.warn("Tx gas price is under the Min gas Price of the block tx={}", tx.getHash());
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return result;
     }
 }

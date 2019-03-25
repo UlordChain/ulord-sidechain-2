@@ -20,6 +20,7 @@
 package org.ethereum.config.net;
 
 import org.ethereum.config.blockchain.mainnet.MainNetGenesisConfig;
+import org.ethereum.config.blockchain.mainnet.MainnetDisableFreeTxConfig;
 
 
 /**
@@ -28,5 +29,7 @@ import org.ethereum.config.blockchain.mainnet.MainNetGenesisConfig;
 public class MainNetConfig extends AbstractNetConfig {
     public MainNetConfig() {
         add(0, new MainNetGenesisConfig());
+        add(1_000_000, new MainnetDisableFreeTxConfig());
     }
+
 }

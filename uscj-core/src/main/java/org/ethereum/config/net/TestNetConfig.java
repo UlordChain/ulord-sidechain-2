@@ -20,11 +20,12 @@
 package org.ethereum.config.net;
 
 import org.ethereum.config.blockchain.testnet.TestNetGenesisConfig;
+import org.ethereum.config.blockchain.testnet.TestnetDisableFreeTxConfig;
 
 public class TestNetConfig extends AbstractNetConfig {
-    public static final TestNetConfig INSTANCE = new TestNetConfig();
 
     public TestNetConfig() {
         add(0, new TestNetGenesisConfig());
+        add(1_000_000, new TestnetDisableFreeTxConfig());
     }
 }

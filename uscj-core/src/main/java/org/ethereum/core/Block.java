@@ -459,10 +459,14 @@ public class Block {
             RLPElement transactionRaw = txTransactions.get(i);
             Transaction tx = new ImmutableTransaction(transactionRaw.getRLPData());
 
-
             if (isBlmTransaction(tx, i, txTransactions.size())) {
                 // It is the Blm transaction
                 tx = new BlmTransaction(transactionRaw.getRLPData());
+            }
+
+            if (isRemascTransaction(tx, i, txTransactions.size())) {
+                // It is the Blm transaction
+                tx = new RemascTransaction(transactionRaw.getRLPData());
             }
 
             parsedTxs.add(tx);
@@ -472,7 +476,7 @@ public class Block {
     }
 
     public static boolean isBlmTransaction(Transaction tx, int txPosition, int txsSize) {
-        return isLastTx(txPosition, txsSize) && checkBlmAddress(tx) && checkBlmTxZeroValues(tx);
+        return isSecondLastTx(txPosition, txsSize) && checkBlmAddress(tx) && checkBlmTxZeroValues(tx);
     }
 
     public static boolean isRemascTransaction(Transaction tx, int txPosition, int txsSize) {
@@ -480,6 +484,9 @@ public class Block {
         return isLastTx(txPosition, txsSize) && checkRemascAddress(tx) && checkRemascTxZeroValues(tx);
     }
 
+    private static boolean isSecondLastTx(int txPosition, int txsSize) {
+        return txPosition == (txsSize - 2);
+    }
     private static boolean isLastTx(int txPosition, int txsSize) {
         return txPosition == (txsSize - 1);
     }

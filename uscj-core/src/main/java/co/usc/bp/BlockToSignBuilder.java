@@ -23,6 +23,7 @@ import co.usc.config.*;
 import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.BlockExecutor;
+import co.usc.remasc.RemascTransaction;
 import co.usc.ulordj.core.Sha256Hash;
 import co.usc.validators.BlockValidationRule;
 import org.bouncycastle.util.encoders.Hex;
@@ -148,13 +149,13 @@ public class BlockToSignBuilder {
         List<Transaction> txs = bpUtils.getAllTransactions(transactionPool);
         logger.debug("{} transaction(s) collected from pending state", txs.size());
 
-        //Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
-        //txs.add(remascTx);
-
         Transaction BlmTx = new BlmTransaction(parent.getNumber() + 1, getBpListData());
 
         if(!txs.contains(BlmTx))
             txs.add(BlmTx);
+
+        Transaction remascTx = new RemascTransaction(parent.getNumber() + 1);
+        txs.add(remascTx);
 
         Map<UscAddress, BigInteger> accountNonces = new HashMap<>();
 

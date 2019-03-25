@@ -23,6 +23,7 @@ import co.usc.core.Coin;
 import co.usc.core.UscAddress;
 import co.usc.core.bc.PendingState;
 import co.usc.crypto.Keccak256;
+import co.usc.remasc.RemascTransaction;
 import org.ethereum.core.TransactionPool;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
@@ -61,7 +62,7 @@ public class BpUtils {
                     expectedNonce = originalRepo.getNonce(txSender);
                 }
 
-                if (!(tx instanceof BlmTransaction) && tx.getGasPrice().compareTo(minGasPrice) < 0) {
+                if (!(tx instanceof BlmTransaction || tx instanceof RemascTransaction) && tx.getGasPrice().compareTo(minGasPrice) < 0) {
                     logger.warn("Rejected tx={} because of low gas account {}, removing tx from pending state.", hash, txSender);
 
                     txsToRemove.add(tx);

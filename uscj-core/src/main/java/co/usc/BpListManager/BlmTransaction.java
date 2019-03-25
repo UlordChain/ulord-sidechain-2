@@ -9,6 +9,7 @@ import org.ethereum.vm.PrecompiledContracts;
 
 public class BlmTransaction extends Transaction {
     private static final byte[] ZERO_BYTE_ARRAY = new byte[]{0};
+    private static final byte[] ONE_BYTE_ARRAY = new byte[]{1};
 
 
     public BlmTransaction(byte[] rawData) {
@@ -37,7 +38,7 @@ public class BlmTransaction extends Transaction {
         return new UscAddress(new byte[20]) {
             @Override
             public byte[] getBytes() {
-                return ZERO_BYTE_ARRAY;
+                return ONE_BYTE_ARRAY;
             }
         };
     }

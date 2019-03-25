@@ -1569,7 +1569,7 @@ public class Program {
         }
 
         // Special initialization for Bridge and Remasc contracts
-        if (contract instanceof Bridge || contract instanceof BlmContract) {
+        if (contract instanceof Bridge || contract instanceof BlmContract || contract instanceof RemascContract) {
             // CREATE CALL INTERNAL TRANSACTION
             InternalTransaction internalTx = addInternalTx(null, getGasLimit(), senderAddress, contextAddress, endowment, EMPTY_BYTE_ARRAY, "call");
 
