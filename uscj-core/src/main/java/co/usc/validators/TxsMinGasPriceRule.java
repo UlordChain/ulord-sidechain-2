@@ -42,7 +42,7 @@ public class TxsMinGasPriceRule implements BlockValidationRule {
     public boolean isValid(Block block) {
         List<Transaction> txs = block.getTransactionsList();
         if(block.getMinimumGasPrice() == null) {
-            logger.warn("Could not retrieve block min gas priceß");
+            logger.warn("Could not retrieve block min gas price.");
             return false;
         }
 
