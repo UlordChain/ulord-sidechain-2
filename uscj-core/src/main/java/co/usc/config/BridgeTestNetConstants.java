@@ -66,8 +66,8 @@ public class BridgeTestNetConstants extends BridgeConstants {
 
         maxUldHeadersPerUscBlock = 100;
 
-        minimumLockTxValue = Coin.COIN;     // 1UT
-        minimumReleaseTxValue = Coin.COIN;  // 1UT
+        minimumLockTxValue = Coin.ONE_COIN;     // 1UT
+        minimumReleaseTxValue = Coin.ONE_COIN.divide(2);  // 0.5UT
 
         // Passphrases are kept private
         List<ECKey> federationChangeAuthorizedKeys = Arrays.stream(new String[]{
