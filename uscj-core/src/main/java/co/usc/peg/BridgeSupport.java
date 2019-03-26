@@ -582,9 +582,7 @@ public class BridgeSupport {
             }
             byte[] winnerUldTxSerialized = (byte[])winnerSpec.getArguments()[0];
             if (!Arrays.equals(winnerUldTxSerialized, uldTxSerialized)) {
-                uldTx = new UldTransaction(bridgeConstants.getUldParams(), winnerUldTxSerialized);
-                scriptSig = BridgeUtils.getFirstInputScriptSig(uldTx);
-                uldTxHash = uldTx.getHash();
+                return;
             }
 
             // Compute the total amount sent. Value could have been sent both to the
@@ -683,7 +681,7 @@ public class BridgeSupport {
         }
 
         logger.info("ULD Tx {} processed in USC", uldTxHash);
-        }
+    }
 
     /**
      *
