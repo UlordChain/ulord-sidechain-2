@@ -19,6 +19,8 @@
 package co.usc.peg;
 
 import co.usc.core.UscAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -30,6 +32,7 @@ import java.util.*;
  * @author Ariel Mendelzon
  */
 public class ABICallElection {
+    private static final Logger logger = LoggerFactory.getLogger("ABICallElection");
     private AddressBasedAuthorizer authorizer;
     private Map<ABICallSpec, List<UscAddress>> votes;
 
@@ -60,6 +63,7 @@ public class ABICallElection {
      */
     public boolean vote(ABICallSpec callSpec, UscAddress voter) {
         if (!authorizer.isAuthorized(voter)) {
+            logger.warn("Failed to register vote: Unauthorized voter: {}", voter.toString());
             return false;
         }
 
@@ -70,6 +74,7 @@ public class ABICallElection {
         List<UscAddress> callVoters = votes.get(callSpec);
 
         if (callVoters.contains(voter)) {
+            logger.warn("Vote from this address {} has already being registered", voter.toString());
             return false;
         }
 

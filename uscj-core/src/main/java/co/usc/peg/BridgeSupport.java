@@ -702,7 +702,6 @@ public class BridgeSupport {
         ABICallSpec callSpec = new ABICallSpec("voteLockUt", new byte[][]{uldTxSerialized});
         // Register the vote. It is expected to succeed, since all previous checks succeeded
         if (!election.vote(callSpec, uscTx.getSender())) {
-            logger.warn("Unexpected federation change vote failure");
             return null;
         }
 
