@@ -60,15 +60,14 @@ public class BridgeDevNetConstants extends BridgeConstants {
         );
 
         uld2UscMinimumAcceptableConfirmations = 1;
-        uld2UscMinimumAcceptableConfirmationsOnUsc = 10;
         usc2UldMinimumAcceptableConfirmations = 10;
 
         updateBridgeExecutionPeriod = 30000; // 30secs
 
         maxUldHeadersPerUscBlock = 100;
 
-        minimumLockTxValue = Coin.valueOf(1000000);
-        minimumReleaseTxValue = Coin.valueOf(500000);
+        minimumLockTxValue = Coin.COIN;         // 1UT
+        minimumReleaseTxValue = Coin.COIN;      // 1UT
 
         // Keys generated with GenNodeKey using generators 'auth-a' through 'auth-e'
         List<ECKey> federationChangeAuthorizedKeys = Arrays.stream(new String[]{

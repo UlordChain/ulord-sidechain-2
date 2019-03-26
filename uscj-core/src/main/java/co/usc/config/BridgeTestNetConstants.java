@@ -59,16 +59,15 @@ public class BridgeTestNetConstants extends BridgeConstants {
                 getUldParams()
         );
 
-        uld2UscMinimumAcceptableConfirmations = 10;
-        uld2UscMinimumAcceptableConfirmationsOnUsc = 10;
+        uld2UscMinimumAcceptableConfirmations = 6;
         usc2UldMinimumAcceptableConfirmations = 10;
 
         updateBridgeExecutionPeriod = 3 * 60 * 1000; // 3 minutes
 
         maxUldHeadersPerUscBlock = 100;
 
-        minimumLockTxValue = Coin.valueOf(1000000);
-        minimumReleaseTxValue = Coin.valueOf(500000);
+        minimumLockTxValue = Coin.COIN;     // 1UT
+        minimumReleaseTxValue = Coin.COIN;  // 1UT
 
         // Passphrases are kept private
         List<ECKey> federationChangeAuthorizedKeys = Arrays.stream(new String[]{
@@ -108,7 +107,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
                 AddressBasedAuthorizer.MinimumRequiredCalculation.MAJORITY
         );
 
-        genesisFeePerKb = Coin.MICROCOIN;
+        genesisFeePerKb = Coin.MILLICOIN;
     }
 
     public static BridgeTestNetConstants getInstance() {
