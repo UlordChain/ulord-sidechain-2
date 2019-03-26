@@ -44,15 +44,14 @@ public class BridgeMainNetConstants extends BridgeConstants {
         );
 
         uld2UscMinimumAcceptableConfirmations = 10;
-        uld2UscMinimumAcceptableConfirmationsOnUsc = 1000;
         usc2UldMinimumAcceptableConfirmations = 1000;
 
         updateBridgeExecutionPeriod = 3 * 60 * 1000; // 3 minutes
 
         maxUldHeadersPerUscBlock = 100;
 
-        minimumLockTxValue = Coin.valueOf(1000000);
-        minimumReleaseTxValue = Coin.valueOf(800000);
+        minimumLockTxValue = Coin.COIN;       // 1UT
+        minimumReleaseTxValue = Coin.COIN;    // 1UT
 
         List<ECKey> federationChangeAuthorizedKeys = Arrays.stream(new String[]{
                 "043257bcb2d10be56236b30ce6132ca5e1e610f283fb0dbf8d5c0f6ca9b386ecb5f2f54194ff3a5faab19f2bc159783d37625fc93fe9b655e8f112478e44b624b5"

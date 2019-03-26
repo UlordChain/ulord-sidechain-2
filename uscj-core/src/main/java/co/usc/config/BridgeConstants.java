@@ -29,7 +29,6 @@ public class BridgeConstants {
     protected Federation genesisFederation;
 
     protected int uld2UscMinimumAcceptableConfirmations;
-    protected int uld2UscMinimumAcceptableConfirmationsOnUsc;
     protected int usc2UldMinimumAcceptableConfirmations;
     protected int uldBroadcastingMinimumAcceptableBlocks;
 
@@ -65,10 +64,6 @@ public class BridgeConstants {
 
     public int getUld2UscMinimumAcceptableConfirmations() {
         return uld2UscMinimumAcceptableConfirmations;
-    }
-
-    public int getUld2UscMinimumAcceptableConfirmationsOnUsc() {
-        return uld2UscMinimumAcceptableConfirmationsOnUsc;
     }
 
     public int getUsc2UldMinimumAcceptableConfirmations() {
