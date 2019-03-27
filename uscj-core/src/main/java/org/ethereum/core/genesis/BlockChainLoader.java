@@ -110,8 +110,7 @@ public class BlockChainLoader {
                             config.vmTraceDir(),
                             config.vmTraceCompressed()
                         )
-                ),
-                config
+                )
         );
 
         Block bestBlock = blockStore.getBestBlock();

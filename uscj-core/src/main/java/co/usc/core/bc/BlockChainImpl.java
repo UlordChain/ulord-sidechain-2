@@ -91,8 +91,6 @@ public class BlockChainImpl implements Blockchain {
     private EthereumListener listener;
     private BlockValidator blockValidator;
 
-    private final UscSystemProperties config;
-
     private volatile BlockChainStatus status = new BlockChainStatus(null);
 
     private final Object connectLock = new Object();
@@ -113,8 +111,7 @@ public class BlockChainImpl implements Blockchain {
                           TransactionPool transactionPool,
                           EthereumListener listener,
                           BlockValidator blockValidator,
-                          BlockExecutor blockExecutor,
-                          UscSystemProperties config) {
+                          BlockExecutor blockExecutor) {
         this.repository = repository;
         this.blockStore = blockStore;
         this.receiptStore = receiptStore;
@@ -124,7 +121,6 @@ public class BlockChainImpl implements Blockchain {
 //        this.flushNumberOfBlocks = config.flushNumberOfBlocks();
         this.blockExecutor = blockExecutor;
         this.transactionPool = transactionPool;
-        this.config = config;
     }
 
     @Override
