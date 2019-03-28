@@ -23,10 +23,17 @@ Or if you want to get started in minutes follow the below steps.
 ```
   ./start.sh
 ```
-To check logs you can run
+To check log you can run
 ```
 tail -f logs/usc.log
 ```
+
+To check the block height, run the following command
+```
+// Port 5288 for Testnet and 5188 for Mainnet.
+curl -X POST -H "Content-Type:application/json" -d '{"method":"eth_getBlockByNumber","params":["latest", false],"json_rpc":"2.0", "id":1234}' localhost:5288
+```
+
 
 ## License
 USC2 is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the [COPYING.LESSER](https://github.com/UlordChain/Ulord-Sidechain/blob/master/COPYING.LESSER) file.
