@@ -18,7 +18,7 @@ Or if you want to get started in minutes follow the below steps.
 ``` 
   cd USC-2/; ./configure.sh
 ```
-5. Run start.sh
+5. Run start.sh to start USC-2 node.
 ```
   ./start.sh
 ```
