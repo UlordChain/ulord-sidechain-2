@@ -16,8 +16,7 @@ Or if you want to get started in minutes follow the below steps.
 ```
 4. Run configure.sh
 ``` 
-  cd USC-2/
-  ./configure.sh
+  cd USC-2/; ./configure.sh
 ```
 5. Run start.sh
 ```
