@@ -405,11 +405,9 @@ public class Bridge extends PrecompiledContracts.PrecompiledContract {
 
     public void registerUldTransaction(Object[] args) {
         if(blockchainConfig.isUscIP99()) {
-            logger.warn("receiveHeaders is Disabled");
+            logger.warn("registerUldTransaction is Disabled");
             return;
         }
-
-        logger.warn("registerUldTransaction is Disabled");
 
         logger.trace("registerUldTransaction");
 
