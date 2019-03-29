@@ -33,6 +33,12 @@ To check the block height, run the following command
 curl -X POST -H "Content-Type:application/json" -d '{"method":"eth_getBlockByNumber","params":["latest", false],"json_rpc":"2.0", "id":1234}' localhost:5288
 ```
 
+### For 2-Way Peg
+
+| | UT->SUT | SUT->UT |
+| --- | --- | --- |
+| TestNet | sSdK57Gq6PFvAayySHGZSMx2GeKZjezr13 | 0x0000000000000000000000000000000001000006 |
+| MainNet | | |
 
 ## License
 USC2 is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the [COPYING.LESSER](https://github.com/UlordChain/Ulord-Sidechain/blob/master/COPYING.LESSER) file.
