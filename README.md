@@ -38,7 +38,14 @@ curl -X POST -H "Content-Type:application/json" -d '{"method":"eth_getBlockByNum
 | | UT->SUT | SUT->UT |
 | --- | --- | --- |
 | TestNet | sSdK57Gq6PFvAayySHGZSMx2GeKZjezr13 | 0x0000000000000000000000000000000001000006 |
-| MainNet | | |
+| MainNet | | 0x0000000000000000000000000000000001000006 |
+
+To retrieve the latest federation address run the following command
+```
+curl -X POST -H "Content-Type:application/json" -d '{"method":"eth_call", "params":[{"to":"0x0000000000000000000000000000000001000006", "data":"0x6923fa85"}, "latest"], "id":1, "json_rpc":"2.0"}' localhost:5288
+```
+The output from the above can be decoded using [HexToAscii Converter](https://www.rapidtables.com/convert/number/hex-to-ascii.html)
+
 
 ## License
 USC2 is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the [COPYING.LESSER](https://github.com/UlordChain/Ulord-Sidechain/blob/master/COPYING.LESSER) file.
